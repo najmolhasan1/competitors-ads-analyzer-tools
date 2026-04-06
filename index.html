@@ -384,12 +384,28 @@
       document.getElementById('loading').style.display = 'block';
       document.getElementById('errbox').style.display = 'none';
     }
-    function scrollToSection(id) {
-  var el = document.getElementById(id);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
+    function openNavMenu() {
+      document.getElementById('nav-flyout').classList.add('open');
+      document.getElementById('nav-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeNavMenu() {
+      document.getElementById('nav-flyout').classList.remove('open');
+      document.getElementById('nav-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function navTo(id) {
+      closeNavMenu();
+      setTimeout(function() {
+        var el = document.getElementById(id);
+        if (el) {
+          var topbarH = document.querySelector('.topbar') ? document.querySelector('.topbar').offsetHeight : 60;
+          var elTop = el.getBoundingClientRect().top + window.pageYOffset - topbarH - 16;
+          window.scrollTo({ top: elTop, behavior: 'smooth' });
+        }
+      }, 380);
+    }
+    function scrollToSection(id) { navTo(id); }
 
 function resetAll() {
       document.body.classList.remove('dashboard-open');
