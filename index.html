@@ -1,1309 +1,2570 @@
 <!DOCTYPE html>
 <html lang="bn">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meta Ads Intelligence</title>
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<style>
-:root {
-  --bg: #F0F2F5;
-  --white: #ffffff;
-  --surface: #ffffff;
-  --border: #CED0D4;
-  --border2: #8A8D91;
-  --text: #050505;
-  --text2: #65676B;
-  --text3: #8A8D91;
-  --accent: #0866FF;
-  --accent-bg: #E7F3FF;
-  --accent-border: #1877F2;
-  --blue: #0866FF;
-  --blue-bg: #E7F3FF;
-  --green: #31A24C;
-  --green-bg: #EAF3EC;
-  --red: #E22828;
-  --red-bg: #FBE6E6;
-  --amber: #F0A30A;
-  --amber-bg: #FEF6E6;
-  --purple: #8B4DFF;
-  --purple-bg: #F4EDFF;
-  --r: 12px;
-  --rs: 8px;
-  --shadow: 0 1px 2px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; font-size: 14px; line-height: 1.6; min-height: 100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meta Ads Intelligence</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    :root {
+      --bg: #F0F2F5;
+      --white: #ffffff;
+      --surface: #ffffff;
+      --border: #CED0D4;
+      --border2: #8A8D91;
+      --text: #050505;
+      --text2: #65676B;
+      --text3: #8A8D91;
+      --accent: #0866FF;
+      --accent-bg: #E7F3FF;
+      --accent-border: #1877F2;
+      --blue: #0866FF;
+      --blue-bg: #E7F3FF;
+      --green: #31A24C;
+      --green-bg: #EAF3EC;
+      --red: #E22828;
+      --red-bg: #FBE6E6;
+      --amber: #F0A30A;
+      --amber-bg: #FEF6E6;
+      --purple: #8B4DFF;
+      --purple-bg: #F4EDFF;
+      --r: 12px;
+      --rs: 8px;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
 
-/* LAYOUT */
-.wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* TOPBAR */
-.topbar { background: var(--white); box-shadow: 0 1px 2px rgba(0,0,0,0.1); border-bottom: none; padding: 0; position: sticky; top: 0; z-index: 100; }
-.topbar-inner { display: flex; align-items: center; justify-content: space-between; height: 56px; }
-.logo { display: flex; align-items: center; gap: 10px; }
-.logo-icon { width: 32px; height: 32px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--white); }
-.logo-icon svg { width: 18px; height: 18px; fill: currentColor; }
-.logo-name { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
-.logo-sub { font-size: 10px; color: var(--accent); margin-left: 4px; font-weight: 700; padding: 2px 6px; background: var(--accent-bg); border-radius: 12px; }
-.topbar-right { display: flex; align-items: center; gap: 12px; }
-.key-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text3); cursor: pointer; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--rs); transition: all .2s; }
-.key-indicator:hover { border-color: var(--border2); color: var(--text2); }
-.key-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
 
-/* HERO SEARCH */
-.hero { padding: 56px 0 48px; text-align: center; }
-.hero-label { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; display: inline-block; background: var(--accent-bg); padding: 4px 12px; border-radius: 20px; }
-.hero h1 { font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; font-size: 42px; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 12px; letter-spacing: -1px; }
-.hero h1 em { font-style: normal; color: var(--accent); }
-.hero p { font-size: 15px; color: var(--text2); margin-bottom: 32px; }
+    /* LAYOUT */
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
 
-.search-box { background: var(--white); border: none; border-radius: var(--r); padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
-.search-row { display: flex; gap: 10px; margin-bottom: 14px; }
-.sinp { flex: 1; border: 1px solid var(--border); border-radius: var(--rs); padding: 11px 16px; font-size: 15px; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; color: var(--text); outline: none; background: var(--surface); transition: all .2s; }
-.sinp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(8,102,255,.2); }
-.sinp::placeholder { color: var(--text3); }
-select { border: 1px solid var(--border); border-radius: var(--rs); padding: 11px 14px; font-size: 13px; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; color: var(--text2); outline: none; cursor: pointer; background: var(--surface); min-width: 130px; }
-select:focus { border-color: var(--accent); }
-.go-btn { background: var(--accent); color: var(--white); border: none; border-radius: var(--rs); padding: 11px 28px; font-size: 15px; font-weight: 600; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; cursor: pointer; transition: all .2s; white-space: nowrap; box-shadow: 0 2px 4px rgba(8,102,255,0.2); }
-.go-btn:hover { background: #0054d1; }
-.go-btn:disabled { opacity: .4; cursor: not-allowed; }
-.search-opts { display: flex; gap: 20px; align-items: center; padding-top: 4px; }
-.opt-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text2); }
-input[type=range] { width: 80px; accent-color: var(--accent); }
-.opt-note { font-size: 12px; color: var(--text3); }
+    /* TOPBAR */
+    .topbar {
+      background: var(--white);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      border-bottom: none;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-/* KEYS MODAL */
-.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
-.modal-overlay.open { display: flex; }
-.modal { background: var(--white); border-radius: var(--r); padding: 28px; width: 480px; box-shadow: var(--shadow-md); }
-.modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
-.mfield { margin-bottom: 14px; }
-.mfield label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
-.mfield input { width: 100%; border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 13px; font-size: 13px; color: var(--text); outline: none; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; }
-.mfield input:focus { border-color: var(--accent); }
-.modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-.modal-save { background: var(--accent); color: var(--white); border: none; border-radius: var(--rs); padding: 10px 22px; font-size: 13px; font-weight: 600; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; cursor: pointer; }
-.modal-cancel { background: transparent; border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 18px; font-size: 13px; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; color: var(--text2); cursor: pointer; }
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
 
-/* STATES */
-.loading { display: none; text-align: center; padding: 80px 0; }
-.spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 20px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.loading-txt { font-size: 15px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
-.loading-sub { font-size: 13px; color: var(--text3); }
-.errbox { display: none; background: var(--red-bg); border: 1px solid #fecaca; border-radius: var(--r); padding: 16px 20px; margin-bottom: 24px; font-size: 14px; color: var(--red); }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-/* DASHBOARD */
-.dashboard { display: none; }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--white);
+    }
 
-/* DASH HEADER */
-.dash-header { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 28px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
-.dash-company { font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
-.dash-meta { font-size: 13px; color: var(--text3); margin-top: 3px; }
-.dash-actions { display: flex; gap: 10px; }
-.dash-back { background: transparent; border: 1px solid var(--border); border-radius: var(--rs); padding: 9px 16px; font-size: 13px; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; color: var(--text2); cursor: pointer; transition: all .2s; }
-.dash-back:hover { border-color: var(--border2); color: var(--text); }
+    .logo-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
 
-/* STAT CARDS */
-.stat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
-.stat { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 18px 20px; box-shadow: var(--shadow); }
-.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
-.stat-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 4px; }
-.stat-sub { font-size: 12px; color: var(--text2); }
+    .logo-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.3px;
+    }
 
-/* SECTION CARDS */
-.section-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-.section-full { margin-bottom: 16px; }
-.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 24px; box-shadow: var(--shadow); }
-.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
-.card-title { font-size: 14px; font-weight: 600; color: var(--text); }
-.card-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
-.badge-blue { background: var(--blue-bg); color: var(--blue); }
-.badge-green { background: var(--green-bg); color: var(--green); }
-.badge-amber { background: var(--amber-bg); color: var(--amber); }
-.badge-purple { background: var(--purple-bg); color: var(--purple); }
-.badge-accent { background: var(--accent-bg); color: var(--accent); }
+    .logo-sub {
+      font-size: 10px;
+      color: var(--accent);
+      margin-left: 4px;
+      font-weight: 700;
+      padding: 2px 6px;
+      background: var(--accent-bg);
+      border-radius: 12px;
+    }
 
-/* CTA LIST */
-.cta-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.cta-item:last-child { border-bottom: none; }
-.cta-name { font-size: 13px; color: var(--text); font-weight: 500; }
-.cta-bar-wrap { flex: 1; margin: 0 16px; }
-.cta-bar-track { height: 4px; background: var(--border); border-radius: 2px; }
-.cta-bar-fill { height: 100%; border-radius: 2px; background: var(--accent); }
-.cta-count { font-size: 13px; font-weight: 600; color: var(--text); min-width: 40px; text-align: right; }
-.cta-pct { font-size: 11px; color: var(--text3); margin-left: 4px; }
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-/* BODY TEXT LIST */
-.body-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
-.body-item:last-child { border-bottom: none; }
-.body-type-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-.type-tag { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: .04em; text-transform: uppercase; }
-.tag-usp { background: var(--purple-bg); color: var(--purple); }
-.tag-fomo { background: var(--red-bg); color: var(--red); }
-.tag-offer { background: var(--green-bg); color: var(--green); }
-.tag-feature { background: var(--blue-bg); color: var(--blue); }
-.tag-price { background: var(--amber-bg); color: var(--amber); }
-.tag-story { background: #fdf4ff; color: #7e22ce; }
-.tag-social { background: #f0fdf4; color: #15803d; }
-.tag-problem { background: #fff7ed; color: #c2410c; }
-.body-preview { font-size: 13px; color: var(--text2); line-height: 1.6; white-space: pre-wrap; }
-.body-count { font-size: 11px; color: var(--text3); margin-top: 4px; }
-.see-more-btn { background: none; border: none; color: var(--accent); font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; padding: 0; margin-top: 4px; }
-.body-elements { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-.body-el { font-size: 10px; padding: 2px 7px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); color: var(--text3); }
-.body-el.has { background: var(--green); border-color: var(--green); color: #fff; font-weight: 600; }
-.body-el.not { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
+    .key-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text3);
+      cursor: pointer;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      transition: all .2s;
+    }
 
-/* HEADING LIST */
-.heading-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px; }
-.heading-item:last-child { border-bottom: none; }
-.heading-txt { font-size: 13px; color: var(--text); flex: 1; line-height: 1.5; }
-.heading-cnt { font-size: 12px; font-weight: 600; color: var(--text3); background: var(--surface); border: 1px solid var(--border); padding: 2px 9px; border-radius: 12px; white-space: nowrap; }
+    .key-indicator:hover {
+      border-color: var(--border2);
+      color: var(--text2);
+    }
 
-/* TYPE BREAKDOWN */
-.type-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.type-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); padding: 12px 14px; }
-.type-block-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-.type-block-val { font-size: 20px; font-weight: 700; color: var(--text); }
-.type-block-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+    .key-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
 
-/* PLATFORM */
-.platform-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.platform-item:last-child { border-bottom: none; }
-.platform-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--blue-bg); display: flex; align-items: center; justify-content: center; font-size: 14px; }
-.platform-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; }
-.platform-pct { font-size: 13px; font-weight: 600; color: var(--text2); }
+    /* HERO SEARCH */
+    .hero {
+      padding: 56px 0 48px;
+      text-align: center;
+    }
 
-/* TIMELINE */
-.timeline-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-.timeline-item:last-child { border-bottom: none; }
-.timeline-id { font-size: 11px; color: var(--text3); width: 40px; flex-shrink: 0; }
-.timeline-bar-wrap { flex: 1; }
-.timeline-bar-track { height: 6px; background: var(--border); border-radius: 3px; }
-.timeline-bar-fill { height: 100%; border-radius: 3px; }
-.bar-short { background: #86efac; }
-.bar-medium { background: #fbbf24; }
-.bar-long { background: var(--accent); }
-.bar-very-long { background: var(--green); }
-.timeline-days { font-size: 12px; font-weight: 600; color: var(--text); width: 60px; text-align: right; }
-.timeline-start { font-size: 11px; color: var(--text3); width: 90px; text-align: right; }
+    .hero-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: inline-block;
+      background: var(--accent-bg);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
 
-/* CREATIVE GRID */
-.creative-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.creative-card { border: 1px solid var(--border); border-radius: var(--rs); overflow: hidden; }
-.creative-media { position: relative; background: var(--surface); aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.creative-media img { width: 100%; height: 100%; object-fit: cover; }
-.creative-media video { width: 100%; height: 100%; object-fit: cover; }
-.creative-format-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; letter-spacing: .06em; }
-.fmt-image { background: rgba(37,99,235,.85); color: #fff; }
-.fmt-video { background: rgba(220,38,38,.85); color: #fff; }
-.fmt-carousel { background: rgba(124,58,237,.85); color: #fff; }
-.creative-lib-link { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,.6); color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 3px; text-decoration: none; }
-.creative-info { padding: 10px; }
-.creative-ad-id { font-size: 10px; color: var(--text3); margin-bottom: 4px; }
-.creative-types { display: flex; gap: 4px; flex-wrap: wrap; }
-.creative-type-tag { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: .04em; }
+    .hero h1 {
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 12px;
+      letter-spacing: -1px;
+    }
 
-/* APPROACH SECTION */
-.approach-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-.approach-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); padding: 16px; }
-.approach-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
-.approach-content { font-size: 13px; color: var(--text); line-height: 1.6; }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
 
-/* RECOMMENDATION */
-.rec-list { display: flex; flex-direction: column; gap: 12px; }
-.rec-item { display: flex; gap: 14px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--rs); }
-.rec-num { width: 26px; height: 26px; background: var(--text); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
-.rec-body { flex: 1; }
-.rec-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-.rec-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
-.rec-priority { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-top: 6px; display: inline-block; }
-.pri-high { background: var(--red-bg); color: var(--red); }
-.pri-mid { background: var(--amber-bg); color: var(--amber); }
-.pri-low { background: var(--green-bg); color: var(--green); }
+    .hero p {
+      font-size: 15px;
+      color: var(--text2);
+      margin-bottom: 32px;
+    }
 
-/* AI ANALYSIS BOX */
-.ai-insight { background: linear-gradient(135deg, #fdf8f3, #fef9f0); border: 1px solid var(--accent-border); border-radius: var(--rs); padding: 14px 16px; margin-bottom: 14px; }
-.ai-insight-label { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
-.ai-insight-text { font-size: 13px; color: var(--text); line-height: 1.7; }
+    .search-box {
+      background: var(--white);
+      border: none;
+      border-radius: var(--r);
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
 
-/* ADS SECTION */
-.ads-section { margin-top: 4px; }
-.format-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
-.ftab { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-family: 'Inter', sans-serif; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); transition: all .2s; }
-.ftab:hover { border-color: var(--border2); color: var(--text); }
-.ftab.active { background: var(--text); border-color: var(--text); color: var(--white); }
-.ftab .cnt { font-size: 11px; opacity: .7; margin-left: 4px; }
-.format-group { display: none; }
-.format-group.visible { display: block; }
-.fgroup-title { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-.ads-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 24px; }
-.ad-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); }
-.ad-media { position: relative; background: var(--surface); min-height: 160px; max-height: 220px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.ad-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ad-media video { width: 100%; }
-.ad-media-empty { color: var(--text3); font-size: 12px; padding: 30px; text-align: center; }
-.ad-fmt-badge { position: absolute; top: 8px; left: 8px; font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; letter-spacing: .06em; }
-.ad-lib-link { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.6); color: #fff; font-size: 10px; padding: 2px 8px; border-radius: 3px; text-decoration: none; }
-.ad-content { padding: 14px; }
-.ad-num { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 6px; }
-.ad-duration-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; font-weight: 500; }
-.dur-new { background: var(--blue-bg); color: var(--blue); }
-.dur-mid { background: var(--amber-bg); color: var(--amber); }
-.dur-long { background: var(--green-bg); color: var(--green); }
-.ad-title-txt { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
-.ad-body-label { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
-.ad-body-txt { font-size: 12px; color: var(--text2); line-height: 1.6; white-space: pre-wrap; }
-.ad-footer { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-.atag { font-size: 11px; color: var(--text3); background: var(--surface); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; }
-.ctatag { font-size: 11px; color: var(--accent); background: var(--accent-bg); border: 1px solid var(--accent-border); padding: 2px 8px; border-radius: 4px; font-weight: 500; }
-.xbtn { width: 100%; background: none; border: none; color: var(--accent); font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; padding: 4px 0; text-align: left; }
+    .search-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .sinp {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 11px 16px;
+      font-size: 15px;
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      color: var(--text);
+      outline: none;
+      background: var(--surface);
+      transition: all .2s;
+    }
+
+    .sinp:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(8, 102, 255, .2);
+    }
+
+    .sinp::placeholder {
+      color: var(--text3);
+    }
+
+    select {
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 11px 14px;
+      font-size: 13px;
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      color: var(--text2);
+      outline: none;
+      cursor: pointer;
+      background: var(--surface);
+      min-width: 130px;
+    }
+
+    select:focus {
+      border-color: var(--accent);
+    }
+
+    .go-btn {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--rs);
+      padding: 11px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(8, 102, 255, 0.2);
+    }
+
+    .go-btn:hover {
+      background: #0054d1;
+    }
+
+    .go-btn:disabled {
+      opacity: .4;
+      cursor: not-allowed;
+    }
+
+    .search-opts {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    .opt-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    input[type=range] {
+      width: 80px;
+      accent-color: var(--accent);
+    }
+
+    .opt-note {
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    /* KEYS MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .4);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--white);
+      border-radius: var(--r);
+      padding: 28px;
+      width: 480px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .modal h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    .mfield {
+      margin-bottom: 14px;
+    }
+
+    .mfield label {
+      display: block;
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 5px;
+    }
+
+    .mfield input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 10px 13px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+    }
+
+    .mfield input:focus {
+      border-color: var(--accent);
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .modal-save {
+      background: var(--accent);
+      color: var(--white);
+      border: none;
+      border-radius: var(--rs);
+      padding: 10px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      cursor: pointer;
+    }
+
+    .modal-cancel {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 10px 18px;
+      font-size: 13px;
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      color: var(--text2);
+      cursor: pointer;
+    }
+
+    /* STATES */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-txt {
+      font-size: 15px;
+      color: var(--text2);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .loading-sub {
+      font-size: 13px;
+      color: var(--text3);
+    }
+
+    .errbox {
+      display: none;
+      background: var(--red-bg);
+      border: 1px solid #fecaca;
+      border-radius: var(--r);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--red);
+    }
+
+    /* DASHBOARD */
+    .dashboard {
+      display: none;
+    }
+
+    /* DASH HEADER */
+    .dash-header {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    .dash-company {
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    .dash-meta {
+      font-size: 13px;
+      color: var(--text3);
+      margin-top: 3px;
+    }
+
+    .dash-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .dash-back {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 9px 16px;
+      font-size: 13px;
+      font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .dash-back:hover {
+      border-color: var(--border2);
+      color: var(--text);
+    }
+
+    /* STAT CARDS */
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-sub {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    /* SECTION CARDS */
+    .section-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .section-full {
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .badge-blue {
+      background: var(--blue-bg);
+      color: var(--blue);
+    }
+
+    .badge-green {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .badge-amber {
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .badge-purple {
+      background: var(--purple-bg);
+      color: var(--purple);
+    }
+
+    .badge-accent {
+      background: var(--accent-bg);
+      color: var(--accent);
+    }
+
+    /* CTA LIST */
+    .cta-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cta-item:last-child {
+      border-bottom: none;
+    }
+
+    .cta-name {
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .cta-bar-wrap {
+      flex: 1;
+      margin: 0 16px;
+    }
+
+    .cta-bar-track {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    .cta-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    .cta-count {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .cta-pct {
+      font-size: 11px;
+      color: var(--text3);
+      margin-left: 4px;
+    }
+
+    /* BODY TEXT LIST */
+    .body-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .body-item:last-child {
+      border-bottom: none;
+    }
+
+    .body-type-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+    }
+
+    .type-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .tag-usp {
+      background: var(--purple-bg);
+      color: var(--purple);
+    }
+
+    .tag-fomo {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .tag-offer {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .tag-feature {
+      background: var(--blue-bg);
+      color: var(--blue);
+    }
+
+    .tag-price {
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .tag-story {
+      background: #fdf4ff;
+      color: #7e22ce;
+    }
+
+    .tag-social {
+      background: #f0fdf4;
+      color: #15803d;
+    }
+
+    .tag-problem {
+      background: #fff7ed;
+      color: #c2410c;
+    }
+
+    .body-preview {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .body-count {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 4px;
+    }
+
+    .see-more-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      padding: 0;
+      margin-top: 4px;
+    }
+
+    .body-elements {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .body-el {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text3);
+    }
+
+    .body-el.has {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .body-el.not {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* HEADING LIST */
+    .heading-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+
+    .heading-item:last-child {
+      border-bottom: none;
+    }
+
+    .heading-txt {
+      font-size: 13px;
+      color: var(--text);
+      flex: 1;
+      line-height: 1.5;
+    }
+
+    .heading-cnt {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text3);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 9px;
+      border-radius: 12px;
+      white-space: nowrap;
+    }
+
+    /* TYPE BREAKDOWN */
+    .type-breakdown {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .type-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 12px 14px;
+    }
+
+    .type-block-label {
+      font-size: 11px;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 4px;
+    }
+
+    .type-block-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .type-block-sub {
+      font-size: 11px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    /* PLATFORM */
+    .platform-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .platform-item:last-child {
+      border-bottom: none;
+    }
+
+    .platform-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--blue-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .platform-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .platform-pct {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+    }
+
+    /* TIMELINE */
+    .timeline-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+    }
+
+    .timeline-id {
+      font-size: 11px;
+      color: var(--text3);
+      width: 40px;
+      flex-shrink: 0;
+    }
+
+    .timeline-bar-wrap {
+      flex: 1;
+    }
+
+    .timeline-bar-track {
+      height: 6px;
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .timeline-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+    }
+
+    .bar-short {
+      background: #86efac;
+    }
+
+    .bar-medium {
+      background: #fbbf24;
+    }
+
+    .bar-long {
+      background: var(--accent);
+    }
+
+    .bar-very-long {
+      background: var(--green);
+    }
+
+    .timeline-days {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      width: 60px;
+      text-align: right;
+    }
+
+    .timeline-start {
+      font-size: 11px;
+      color: var(--text3);
+      width: 90px;
+      text-align: right;
+    }
+
+    /* CREATIVE GRID */
+    .creative-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .creative-card {
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      overflow: hidden;
+    }
+
+    .creative-media {
+      position: relative;
+      background: var(--surface);
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .creative-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .creative-media video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .creative-format-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .fmt-image {
+      background: rgba(37, 99, 235, .85);
+      color: #fff;
+    }
+
+    .fmt-video {
+      background: rgba(220, 38, 38, .85);
+      color: #fff;
+    }
+
+    .fmt-carousel {
+      background: rgba(124, 58, 237, .85);
+      color: #fff;
+    }
+
+    .creative-lib-link {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: rgba(0, 0, 0, .6);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-decoration: none;
+    }
+
+    .creative-info {
+      padding: 10px;
+    }
+
+    .creative-ad-id {
+      font-size: 10px;
+      color: var(--text3);
+      margin-bottom: 4px;
+    }
+
+    .creative-types {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .creative-type-tag {
+      font-size: 9px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    /* APPROACH SECTION */
+    .approach-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .approach-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 16px;
+    }
+
+    .approach-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 8px;
+    }
+
+    .approach-content {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* RECOMMENDATION */
+    .rec-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .rec-item {
+      display: flex;
+      gap: 14px;
+      padding: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+    }
+
+    .rec-num {
+      width: 26px;
+      height: 26px;
+      background: var(--text);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .rec-body {
+      flex: 1;
+    }
+
+    .rec-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .rec-desc {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .rec-priority {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-top: 6px;
+      display: inline-block;
+    }
+
+    .pri-high {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .pri-mid {
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .pri-low {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    /* AI ANALYSIS BOX */
+    .ai-insight {
+      background: linear-gradient(135deg, #fdf8f3, #fef9f0);
+      border: 1px solid var(--accent-border);
+      border-radius: var(--rs);
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .ai-insight-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 6px;
+    }
+
+    .ai-insight-text {
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ADS SECTION */
+    .ads-section {
+      margin-top: 4px;
+    }
+
+    .format-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .ftab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      transition: all .2s;
+    }
+
+    .ftab:hover {
+      border-color: var(--border2);
+      color: var(--text);
+    }
+
+    .ftab.active {
+      background: var(--text);
+      border-color: var(--text);
+      color: var(--white);
+    }
+
+    .ftab .cnt {
+      font-size: 11px;
+      opacity: .7;
+      margin-left: 4px;
+    }
+
+    .format-group {
+      display: none;
+    }
+
+    .format-group.visible {
+      display: block;
+    }
+
+    .fgroup-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ads-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .ad-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .ad-media {
+      position: relative;
+      background: var(--surface);
+      min-height: 160px;
+      max-height: 220px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ad-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .ad-media video {
+      width: 100%;
+    }
+
+    .ad-media-empty {
+      color: var(--text3);
+      font-size: 12px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .ad-fmt-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .ad-lib-link {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, .6);
+      color: #fff;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      text-decoration: none;
+    }
+
+    .ad-content {
+      padding: 14px;
+    }
+
+    .ad-num {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text3);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .ad-duration-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .dur-new {
+      background: var(--blue-bg);
+      color: var(--blue);
+    }
+
+    .dur-mid {
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .dur-long {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .ad-title-txt {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .ad-body-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 4px;
+    }
+
+    .ad-body-txt {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .ad-footer {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .atag {
+      font-size: 11px;
+      color: var(--text3);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .ctatag {
+      font-size: 11px;
+      color: var(--accent);
+      background: var(--accent-bg);
+      border: 1px solid var(--accent-border);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .xbtn {
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      padding: 4px 0;
+      text-align: left;
+    }
 
 
-/* DRAWER */
-.drawer-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.3); z-index:300; }
-.drawer-overlay.open { display:block; }
-.drawer { position:fixed; right:0; top:0; bottom:0; width:480px; background:var(--white); border-left:1px solid var(--border); z-index:301; overflow-y:auto; transform:translateX(100%); transition:transform .25s ease; box-shadow:-4px 0 20px rgba(0,0,0,.1); }
-.drawer.open { transform:translateX(0); }
-.drawer-header { display:flex; justify-content:space-between; align-items:center; padding:20px 24px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--white); z-index:1; }
-.drawer-title { font-size:15px; font-weight:600; color:var(--text); }
-.drawer-subtitle { font-size:12px; color:var(--text3); margin-top:2px; }
-.drawer-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text3); line-height:1; padding:4px; }
-.drawer-close:hover { color:var(--text); }
-.drawer-body { padding:20px 24px; }
-.drawer-ad { background:var(--surface); border:1px solid var(--border); border-radius:var(--rs); padding:14px; margin-bottom:12px; }
-.drawer-ad-num { font-size:10px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.07em; margin-bottom:6px; }
-.drawer-ad-title { font-size:13px; font-weight:600; color:var(--text); margin-bottom:6px; }
-.drawer-ad-body { font-size:12px; color:var(--text2); line-height:1.65; white-space:pre-wrap; margin-bottom:8px; }
-.drawer-ad-tags { display:flex; gap:6px; flex-wrap:wrap; }
-.drawer-ad-img { width:100%; border-radius:4px; margin-bottom:8px; max-height:160px; object-fit:cover; }
-.clickable { cursor:pointer; transition:all .15s; }
-.clickable:hover { opacity:.8; transform:scale(.98); }
-.click-hint { font-size:10px; color:var(--text3); margin-top:3px; }
+    /* DRAWER */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .3);
+      z-index: 300;
+    }
 
-footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px; text-align: center; font-size: 12px; color: var(--text3); }
+    .drawer-overlay.open {
+      display: block;
+    }
 
-@media (max-width: 768px) {
-  .stat-row { grid-template-columns: 1fr 1fr; }
-  .section-grid { grid-template-columns: 1fr; }
-  .ads-grid { grid-template-columns: 1fr 1fr; }
-  .approach-grid { grid-template-columns: 1fr; }
-  .creative-grid { grid-template-columns: 1fr 1fr; }
-}
-</style>
+    .drawer {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 480px;
+      background: var(--white);
+      border-left: 1px solid var(--border);
+      z-index: 301;
+      overflow-y: auto;
+      transform: translateX(100%);
+      transition: transform .25s ease;
+      box-shadow: -4px 0 20px rgba(0, 0, 0, .1);
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--white);
+      z-index: 1;
+    }
+
+    .drawer-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .drawer-subtitle {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    .drawer-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text3);
+      line-height: 1;
+      padding: 4px;
+    }
+
+    .drawer-close:hover {
+      color: var(--text);
+    }
+
+    .drawer-body {
+      padding: 20px 24px;
+    }
+
+    .drawer-ad {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--rs);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .drawer-ad-num {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+
+    .drawer-ad-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .drawer-ad-body {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.65;
+      white-space: pre-wrap;
+      margin-bottom: 8px;
+    }
+
+    .drawer-ad-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .drawer-ad-img {
+      width: 100%;
+      border-radius: 4px;
+      margin-bottom: 8px;
+      max-height: 160px;
+      object-fit: cover;
+    }
+
+    .clickable {
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .clickable:hover {
+      opacity: .8;
+      transform: scale(.98);
+    }
+
+    .click-hint {
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 3px;
+    }
+
+    footer {
+      padding: 28px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text3);
+    }
+
+    @media (max-width: 768px) {
+      .stat-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .ads-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .approach-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .creative-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="wrap">
+      <div class="topbar-inner">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg viewBox="0 0 16 16" fill="none">
+              <rect x="1" y="1" width="6" height="6" rx="1.5" fill="white" />
+              <rect x="9" y="1" width="6" height="6" rx="1.5" fill="white" />
+              <rect x="1" y="9" width="6" height="6" rx="1.5" fill="white" />
+              <rect x="9" y="9" width="6" height="6" rx="1.5" fill="white" opacity=".35" />
+            </svg>
+          </div>
+          <span class="logo-name">Meta Ads Intelligence</span>
+        </div>
+        <div class="topbar-right">
+          <div class="key-indicator" onclick="openModal()" id="key-indicator">
+            <div class="key-dot" id="key-dot" style="background: var(--red)"></div>
+            <span id="key-label">API Keys সেট করো</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KEY MODAL -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h3>API Keys</h3>
+      <div class="mfield">
+        <label>Claude (Anthropic) API Key</label>
+        <input type="password" id="ckey" placeholder="sk-ant-..." />
+      </div>
+      <div class="mfield">
+        <label>SearchAPI Key — <a href="https://www.searchapi.io" target="_blank"
+            style="color:var(--accent)">searchapi.io</a> থেকে নাও</label>
+        <input type="password" id="skey" placeholder="SearchAPI key..." />
+      </div>
+      <div class="modal-btns">
+        <button class="modal-save" onclick="saveKeys()">সেভ করো</button>
+        <button class="modal-cancel" onclick="closeModal()">বাতিল</button>
+      </div>
+    </div>
+  </div>
+
   <div class="wrap">
-    <div class="topbar-inner">
-      <div class="logo">
-        <div class="logo-icon">
-          <svg viewBox="0 0 16 16" fill="none">
-            <rect x="1" y="1" width="6" height="6" rx="1.5" fill="white"/>
-            <rect x="9" y="1" width="6" height="6" rx="1.5" fill="white"/>
-            <rect x="1" y="9" width="6" height="6" rx="1.5" fill="white"/>
-            <rect x="9" y="9" width="6" height="6" rx="1.5" fill="white" opacity=".35"/>
-          </svg>
+
+    <!-- HERO -->
+    <div class="hero" id="hero-section">
+      <div class="hero-label">Competitive Intelligence Tool</div>
+      <h1>যেকোনো ব্র্যান্ডের<br><em>Meta Ad Strategy </em> ডিকোড করুন নিমিষেই</h1>
+      <p>কম্পিটিটরদের হিডেন মার্কেটিং স্ট্র্যাটেজি এবং উইনিং অ্যাডসগুলো অ্যানালাইজ করুন খুব সহজে, আর বানিয়ে নিন আপনার উইনিং অ্যাড স্ট্র্যাটেজি।</p>
+
+      <div class="search-box">
+        <div class="search-row">
+          <input type="text" class="sinp" id="company"
+            placeholder="কোম্পানির নাম — যেমন: Shajgoj, Daraz, bKash, Takhfee" />
+          <select id="country">
+            <option value="BD">Bangladesh</option>
+            <option value="IN">India</option>
+            <option value="US">United States</option>
+            <option value="GB">United Kingdom</option>
+            <option value="ALL">সব দেশ</option>
+          </select>
+          <button class="go-btn" id="go-btn" onclick="go()">অ্যানালাইজ করুন →</button>
         </div>
-        <span class="logo-name">Meta Ads Intelligence</span>
-      </div>
-      <div class="topbar-right">
-        <div class="key-indicator" onclick="openModal()" id="key-indicator">
-          <div class="key-dot" id="key-dot" style="background: var(--red)"></div>
-          <span id="key-label">API Keys সেট করো</span>
+        <div class="search-opts">
+          <div class="opt-item">
+            <span>সর্বোচ্চ Ads:</span>
+            <input type="range" id="maxads" min="10" max="50" value="20" step="10"
+              oninput="document.getElementById('maxval').textContent=this.value" />
+            <span id="maxval" style="font-weight:600">20</span>
+          </div>
+          <span class="opt-note">বেশি ads = ভালো analysis, বেশি API request</span>
         </div>
       </div>
     </div>
+
+    <div class="errbox" id="errbox"></div>
+
+    <!-- LOADING -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div class="loading-txt" id="ltxt">অ্যাড লাইব্রেরি থেকে ডেটা কালেক্ট করা হচ্ছে...</div>
+      <div class="loading-sub" id="lsub">অনুগ্রহ করে অপেক্ষা করুন</div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div class="dashboard" id="dashboard">
+
+      <!-- DASH HEADER -->
+      <div class="dash-header">
+        <div>
+          <div class="dash-company" id="dash-company"></div>
+          <div class="dash-meta" id="dash-meta"></div>
+        </div>
+        <div class="dash-actions" data-html2canvas-ignore="true">
+          <button id="dl-btn" class="dash-back" onclick="downloadPDF()"
+            style="background:var(--accent);color:var(--white);border-color:var(--accent);font-weight:600"><svg
+              width="14" height="14" fill="currentColor" viewBox="0 0 24 24"
+              style="margin-right:4px;vertical-align:-2px">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+            </svg> রিপোর্ট ডাউনলোড</button>
+          <button class="dash-back" onclick="resetAll()"><svg width="14" height="14" fill="currentColor"
+              viewBox="0 0 24 24" style="margin-right:4px;vertical-align:-2px">
+              <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21v-2z" />
+            </svg> নতুন সার্চ</button>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="stat-row" id="stat-row"></div>
+
+      <!-- ROW 1: CTA + Heading -->
+      <div class="section-grid">
+        <div class="card" id="cta-card">
+          <div class="card-header">
+            <span class="card-title">CTA Button Analysis</span>
+            <span class="card-badge badge-accent">Button Strategy</span>
+          </div>
+          <div id="cta-content"></div>
+        </div>
+        <div class="card" id="heading-card">
+          <div class="card-header">
+            <span class="card-title">Heading Text Analysis</span>
+            <span class="card-badge badge-blue">Headlines</span>
+          </div>
+          <div id="heading-content"></div>
+        </div>
+      </div>
+
+      <!-- ROW 2: Body Text (Full Width) -->
+      <div class="section-full">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Body Text (Primary Text) Analysis</span>
+            <span class="card-badge badge-purple">Copy Intelligence</span>
+          </div>
+          <div id="body-analysis-top"></div>
+          <div id="body-list"></div>
+        </div>
+      </div>
+
+      <!-- ROW 3: Creative + Platform -->
+      <div class="section-grid">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Creative Analysis</span>
+            <span class="card-badge badge-amber">Visual Strategy</span>
+          </div>
+          <div id="creative-content"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Platform Analysis</span>
+            <span class="card-badge badge-blue">Distribution</span>
+          </div>
+          <div id="platform-content"></div>
+        </div>
+      </div>
+
+      <!-- ROW 4: Timeline (Full Width) -->
+      <div class="section-full">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Ads Timeline Analysis</span>
+            <span class="card-badge badge-green">Duration Intelligence</span>
+          </div>
+          <div id="timeline-content"></div>
+        </div>
+      </div>
+
+      <!-- ROW 5: Marketing Approach -->
+      <div class="section-full">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Marketing Approach Analysis</span>
+            <span class="card-badge badge-purple">AI Analysis</span>
+          </div>
+          <div id="approach-content"></div>
+        </div>
+      </div>
+
+      <!-- ROW 6: Recommendations -->
+      <div class="section-full">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recommendation for You</span>
+            <span class="card-badge badge-green">Action Items</span>
+          </div>
+          <div id="rec-content"></div>
+        </div>
+      </div>
+
+      <!-- ROW 6.5: Ad Generator -->
+      <div class="section-full" id="ad-generator-section">
+        <div class="card" id="pdf-ignore-gen">
+          <div class="card-header">
+            <span class="card-title">AI Ad Brief Generator</span>
+            <span class="card-badge badge-accent">Create New</span>
+          </div>
+          <p style="font-size:13px; color:var(--text2); margin-bottom:14px;">কম্পিটিটরের অ্যানালাইসিসের উপর ভিত্তি করে
+            এআই-এর সাহায্যে নতুন ৩টি প্রফেশনাল অ্যাড কপি ও ক্রিয়েটিভ আইডিয়া জেনারেট করুন।</p>
+          <button class="go-btn" id="gen-btn" onclick="generateAdsBrief()" data-html2canvas-ignore="true">✨ নতুন অ্যাড
+            আইডিয়া জেনারেট করুন</button>
+          <div id="gen-loading" style="display:none; margin-top:14px; font-size:13px; color:var(--text3);">
+            <div class="spinner"
+              style="width:20px; height:20px; border-width:2px; margin:0 10px 0 0; display:inline-block; vertical-align:middle;">
+            </div>
+            এআই নতুন আইডিয়া জেনারেট করছে...
+          </div>
+          <div id="gen-results" style="margin-top:20px; display:none; flex-direction:column; gap:12px;"></div>
+        </div>
+      </div>
+
+      <!-- ROW 7: All Ads -->
+      <div class="section-full">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">সব Ads — Format অনুযায়ী</span>
+            <span class="card-badge badge-accent">Ad Library</span>
+          </div>
+          <div class="ads-section">
+            <div class="format-tabs" id="ftabs"></div>
+            <div id="ads-groups"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /dashboard -->
+
+    <!-- DRAWER -->
+    <div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+      <div class="drawer-header">
+        <div>
+          <div class="drawer-title" id="drawer-title"></div>
+          <div class="drawer-subtitle" id="drawer-subtitle"></div>
+        </div>
+        <button class="drawer-close" onclick="closeDrawer()">✕</button>
+      </div>
+      <div class="drawer-body" id="drawer-body"></div>
+    </div>
+
+    <footer>Meta Ads Intelligence · SearchAPI.io + Claude AI · <span id="today-date"></span></footer>
   </div>
-</div>
 
-<!-- KEY MODAL -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <h3>API Keys</h3>
-    <div class="mfield">
-      <label>Claude (Anthropic) API Key</label>
-      <input type="password" id="ckey" placeholder="sk-ant-..."/>
-    </div>
-    <div class="mfield">
-      <label>SearchAPI Key — <a href="https://www.searchapi.io" target="_blank" style="color:var(--accent)">searchapi.io</a> থেকে নাও</label>
-      <input type="password" id="skey" placeholder="SearchAPI key..."/>
-    </div>
-    <div class="modal-btns">
-      <button class="modal-save" onclick="saveKeys()">সেভ করো</button>
-      <button class="modal-cancel" onclick="closeModal()">বাতিল</button>
-    </div>
-  </div>
-</div>
+  <script>
+    var keys = { c: '', s: '' };
+    var allAds = [];
+    var TODAY = new Date();
+    document.getElementById('today-date').textContent = TODAY.toLocaleDateString('bn-BD');
 
-<div class="wrap">
+    // ---- KEY MANAGEMENT ----
+    function openModal() { document.getElementById('modal').classList.add('open'); }
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+    function saveKeys() {
+      var c = document.getElementById('ckey').value.trim();
+      var s = document.getElementById('skey').value.trim();
+      if (!c || !s) { alert('দুটো key-ই দিতে হবে।'); return; }
+      keys.c = c; keys.s = s;
+      try { localStorage.setItem('mai_c', c); localStorage.setItem('mai_s', s); } catch (e) { }
+      updateKeyUI(true);
+      closeModal();
+    }
+    function updateKeyUI(ok) {
+      document.getElementById('key-dot').style.background = ok ? 'var(--green)' : 'var(--red)';
+      document.getElementById('key-label').textContent = ok ? 'Keys সেট আছে' : 'API Keys সেট করো';
+    }
+    window.addEventListener('load', function () {
+      try {
+        var c = localStorage.getItem('mai_c'), s = localStorage.getItem('mai_s');
+        if (c && s) { keys.c = c; keys.s = s; document.getElementById('ckey').value = c; document.getElementById('skey').value = s; updateKeyUI(true); }
 
-  <!-- HERO -->
-  <div class="hero" id="hero-section">
-    <div class="hero-label">Competitive Intelligence Tool</div>
-    <h1>যেকোনো ব্র্যান্ডের<br><em>Ad Strategy</em> ডিকোড করুন নিমিষেই</h1>
-    <p>অ্যাড লাইব্রেরি থেকে রিয়েল-টাইম ডেটা টেনে এনে এআই-এর সাহায্যে কম্পিটিটরদের হিডেন মার্কেটিং স্ট্র্যাটেজি এবং উইনিং অ্যাডসগুলো অ্যানালাইজ করুন।</p>
+        var savedSearch = localStorage.getItem('mai_saved_search');
+        if (savedSearch) {
+          var sd = JSON.parse(savedSearch);
+          document.getElementById('company').value = sd.company;
+          document.getElementById('country').value = sd.country;
+          document.getElementById('hero-section').style.display = 'none';
+          allAds = sd.ads;
+          renderDashboard(sd.company, sd.country, sd.ads, sd.analysis);
+        }
+      } catch (e) { }
+      document.getElementById('company').addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    });
 
-    <div class="search-box">
-      <div class="search-row">
-        <input type="text" class="sinp" id="company" placeholder="কোম্পানির নাম — যেমন: Shajgoj, Daraz, bKash, Takhfee"/>
-        <select id="country">
-          <option value="BD">Bangladesh</option>
-          <option value="IN">India</option>
-          <option value="US">United States</option>
-          <option value="GB">United Kingdom</option>
-          <option value="ALL">সব দেশ</option>
-        </select>
-        <button class="go-btn" id="go-btn" onclick="go()">অ্যানালাইজ করুন →</button>
-      </div>
-      <div class="search-opts">
-        <div class="opt-item">
-          <span>সর্বোচ্চ Ads:</span>
-          <input type="range" id="maxads" min="10" max="50" value="20" step="10" oninput="document.getElementById('maxval').textContent=this.value"/>
-          <span id="maxval" style="font-weight:600">20</span>
-        </div>
-        <span class="opt-note">বেশি ads = ভালো analysis, বেশি API request</span>
-      </div>
-    </div>
-  </div>
+    // ---- UTILITIES ----
+    function esc(s) {
+      if (!s) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function safe(s, max) {
+      if (!s) return '';
+      return String(s).replace(/[\u0000-\u001F]/g, ' ').replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim().substring(0, max || 500);
+    }
+    function daysDiff(dateStr) {
+      if (!dateStr) return null;
+      try {
+        var d = new Date(dateStr);
+        if (isNaN(d)) return null;
+        return Math.floor((TODAY - d) / (1000 * 60 * 60 * 24));
+      } catch (e) { return null; }
+    }
+    function durLabel(days) {
+      if (days === null) return { text: 'অজানা', cls: '' };
+      if (days <= 7) return { text: days + 'দিন (নতুন)', cls: 'dur-new' };
+      if (days <= 30) return { text: days + 'দিন', cls: 'dur-mid' };
+      return { text: days + 'দিন (দীর্ঘ)', cls: 'dur-long' };
+    }
+    function durBarClass(days) {
+      if (!days) return 'bar-short';
+      if (days <= 14) return 'bar-short';
+      if (days <= 30) return 'bar-medium';
+      if (days <= 90) return 'bar-long';
+      return 'bar-very-long';
+    }
 
-  <div class="errbox" id="errbox"></div>
+    // ---- UI HELPERS ----
+    function showErr(msg) {
+      var el = document.getElementById('errbox');
+      el.textContent = msg; el.style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('go-btn').disabled = false;
+    }
+    function setLoad(t, s) {
+      document.getElementById('ltxt').textContent = t;
+      document.getElementById('lsub').textContent = s || '';
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('errbox').style.display = 'none';
+    }
+    function resetAll() {
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('hero-section').style.display = 'block';
+      document.getElementById('errbox').style.display = 'none';
+      document.getElementById('company').value = '';
+      document.getElementById('go-btn').disabled = false;
+      allAds = [];
+      try { localStorage.removeItem('mai_saved_search'); } catch (e) { }
+    }
 
-  <!-- LOADING -->
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <div class="loading-txt" id="ltxt">অ্যাড লাইব্রেরি থেকে ডেটা কালেক্ট করা হচ্ছে...</div>
-    <div class="loading-sub" id="lsub">অনুগ্রহ করে অপেক্ষা করুন</div>
-  </div>
+    // ---- MAIN FLOW ----
+    async function go() {
+      var company = document.getElementById('company').value.trim();
+      var country = document.getElementById('country').value;
+      var maxAds = parseInt(document.getElementById('maxads').value);
+      if (!company) { alert('কোম্পানির নাম লেখো।'); return; }
+      if (!keys.c || !keys.s) { openModal(); return; }
 
-  <!-- DASHBOARD -->
-  <div class="dashboard" id="dashboard">
-
-    <!-- DASH HEADER -->
-    <div class="dash-header">
-      <div>
-        <div class="dash-company" id="dash-company"></div>
-        <div class="dash-meta" id="dash-meta"></div>
-      </div>
-      <div class="dash-actions" data-html2canvas-ignore="true">
-        <button id="dl-btn" class="dash-back" onclick="downloadPDF()" style="background:var(--accent);color:var(--white);border-color:var(--accent);font-weight:600"><svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="margin-right:4px;vertical-align:-2px"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> রিপোর্ট ডাউনলোড</button>
-        <button class="dash-back" onclick="resetAll()"><svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="margin-right:4px;vertical-align:-2px"><path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21v-2z"/></svg> নতুন সার্চ</button>
-      </div>
-    </div>
-
-    <!-- STAT CARDS -->
-    <div class="stat-row" id="stat-row"></div>
-
-    <!-- ROW 1: CTA + Heading -->
-    <div class="section-grid">
-      <div class="card" id="cta-card">
-        <div class="card-header">
-          <span class="card-title">CTA Button Analysis</span>
-          <span class="card-badge badge-accent">Button Strategy</span>
-        </div>
-        <div id="cta-content"></div>
-      </div>
-      <div class="card" id="heading-card">
-        <div class="card-header">
-          <span class="card-title">Heading Text Analysis</span>
-          <span class="card-badge badge-blue">Headlines</span>
-        </div>
-        <div id="heading-content"></div>
-      </div>
-    </div>
-
-    <!-- ROW 2: Body Text (Full Width) -->
-    <div class="section-full">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Body Text (Primary Text) Analysis</span>
-          <span class="card-badge badge-purple">Copy Intelligence</span>
-        </div>
-        <div id="body-analysis-top"></div>
-        <div id="body-list"></div>
-      </div>
-    </div>
-
-    <!-- ROW 3: Creative + Platform -->
-    <div class="section-grid">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Creative Analysis</span>
-          <span class="card-badge badge-amber">Visual Strategy</span>
-        </div>
-        <div id="creative-content"></div>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Platform Analysis</span>
-          <span class="card-badge badge-blue">Distribution</span>
-        </div>
-        <div id="platform-content"></div>
-      </div>
-    </div>
-
-    <!-- ROW 4: Timeline (Full Width) -->
-    <div class="section-full">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Ads Timeline Analysis</span>
-          <span class="card-badge badge-green">Duration Intelligence</span>
-        </div>
-        <div id="timeline-content"></div>
-      </div>
-    </div>
-
-    <!-- ROW 5: Marketing Approach -->
-    <div class="section-full">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Marketing Approach Analysis</span>
-          <span class="card-badge badge-purple">AI Analysis</span>
-        </div>
-        <div id="approach-content"></div>
-      </div>
-    </div>
-
-    <!-- ROW 6: Recommendations -->
-    <div class="section-full">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">Recommendation for You</span>
-          <span class="card-badge badge-green">Action Items</span>
-        </div>
-        <div id="rec-content"></div>
-      </div>
-    </div>
-
-    <!-- ROW 6.5: Ad Generator -->
-    <div class="section-full" id="ad-generator-section">
-      <div class="card" id="pdf-ignore-gen">
-        <div class="card-header">
-          <span class="card-title">AI Ad Brief Generator</span>
-          <span class="card-badge badge-accent">Create New</span>
-        </div>
-        <p style="font-size:13px; color:var(--text2); margin-bottom:14px;">কম্পিটিটরের অ্যানালাইসিসের উপর ভিত্তি করে এআই-এর সাহায্যে নতুন ৩টি প্রফেশনাল অ্যাড কপি ও ক্রিয়েটিভ আইডিয়া জেনারেট করুন।</p>
-        <button class="go-btn" id="gen-btn" onclick="generateAdsBrief()" data-html2canvas-ignore="true">✨ নতুন অ্যাড আইডিয়া জেনারেট করুন</button>
-        <div id="gen-loading" style="display:none; margin-top:14px; font-size:13px; color:var(--text3);">
-          <div class="spinner" style="width:20px; height:20px; border-width:2px; margin:0 10px 0 0; display:inline-block; vertical-align:middle;"></div>
-          এআই নতুন আইডিয়া জেনারেট করছে...
-        </div>
-        <div id="gen-results" style="margin-top:20px; display:none; flex-direction:column; gap:12px;"></div>
-      </div>
-    </div>
-
-    <!-- ROW 7: All Ads -->
-    <div class="section-full">
-      <div class="card">
-        <div class="card-header">
-          <span class="card-title">সব Ads — Format অনুযায়ী</span>
-          <span class="card-badge badge-accent">Ad Library</span>
-        </div>
-        <div class="ads-section">
-          <div class="format-tabs" id="ftabs"></div>
-          <div id="ads-groups"></div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /dashboard -->
-
-  <!-- DRAWER -->
-<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
-<div class="drawer" id="drawer">
-  <div class="drawer-header">
-    <div>
-      <div class="drawer-title" id="drawer-title"></div>
-      <div class="drawer-subtitle" id="drawer-subtitle"></div>
-    </div>
-    <button class="drawer-close" onclick="closeDrawer()">✕</button>
-  </div>
-  <div class="drawer-body" id="drawer-body"></div>
-</div>
-
-<footer>Meta Ads Intelligence · SearchAPI.io + Claude AI · <span id="today-date"></span></footer>
-</div>
-
-<script>
-var keys = {c:'', s:''};
-var allAds = [];
-var TODAY = new Date();
-document.getElementById('today-date').textContent = TODAY.toLocaleDateString('bn-BD');
-
-// ---- KEY MANAGEMENT ----
-function openModal() { document.getElementById('modal').classList.add('open'); }
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-function saveKeys() {
-  var c = document.getElementById('ckey').value.trim();
-  var s = document.getElementById('skey').value.trim();
-  if (!c || !s) { alert('দুটো key-ই দিতে হবে।'); return; }
-  keys.c = c; keys.s = s;
-  try { localStorage.setItem('mai_c', c); localStorage.setItem('mai_s', s); } catch(e) {}
-  updateKeyUI(true);
-  closeModal();
-}
-function updateKeyUI(ok) {
-  document.getElementById('key-dot').style.background = ok ? 'var(--green)' : 'var(--red)';
-  document.getElementById('key-label').textContent = ok ? 'Keys সেট আছে' : 'API Keys সেট করো';
-}
-window.addEventListener('load', function() {
-  try {
-    var c = localStorage.getItem('mai_c'), s = localStorage.getItem('mai_s');
-    if (c && s) { keys.c = c; keys.s = s; document.getElementById('ckey').value = c; document.getElementById('skey').value = s; updateKeyUI(true); }
-    
-    var savedSearch = localStorage.getItem('mai_saved_search');
-    if (savedSearch) {
-      var sd = JSON.parse(savedSearch);
-      document.getElementById('company').value = sd.company;
-      document.getElementById('country').value = sd.country;
+      document.getElementById('dashboard').style.display = 'none';
       document.getElementById('hero-section').style.display = 'none';
-      allAds = sd.ads;
-      renderDashboard(sd.company, sd.country, sd.ads, sd.analysis);
-    }
-  } catch(e) {}
-  document.getElementById('company').addEventListener('keydown', function(e) { if (e.key === 'Enter') go(); });
-});
+      document.getElementById('errbox').style.display = 'none';
+      document.getElementById('go-btn').disabled = true;
+      setLoad('অ্যাড লাইব্রেরি থেকে ডেটা কালেক্ট করা হচ্ছে...', '"' + company + '" এর রানিং অ্যাডসগুলো খোঁজা হচ্ছে');
 
-// ---- UTILITIES ----
-function esc(s) {
-  if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function safe(s, max) {
-  if (!s) return '';
-  return String(s).replace(/[\u0000-\u001F]/g,' ').replace(/\\/g,'\\\\').replace(/"/g,'\\"').trim().substring(0, max||500);
-}
-function daysDiff(dateStr) {
-  if (!dateStr) return null;
-  try {
-    var d = new Date(dateStr);
-    if (isNaN(d)) return null;
-    return Math.floor((TODAY - d) / (1000*60*60*24));
-  } catch(e) { return null; }
-}
-function durLabel(days) {
-  if (days === null) return {text: 'অজানা', cls: ''};
-  if (days <= 7) return {text: days+'দিন (নতুন)', cls: 'dur-new'};
-  if (days <= 30) return {text: days+'দিন', cls: 'dur-mid'};
-  return {text: days+'দিন (দীর্ঘ)', cls: 'dur-long'};
-}
-function durBarClass(days) {
-  if (!days) return 'bar-short';
-  if (days <= 14) return 'bar-short';
-  if (days <= 30) return 'bar-medium';
-  if (days <= 90) return 'bar-long';
-  return 'bar-very-long';
-}
+      try {
+        var r1 = await fetch('/api/fetch-ads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ company: company, country: country, maxAds: maxAds }) });
+        var d1; try { d1 = await r1.json(); } catch (e) { throw new Error('Server invalid response'); }
+        if (!r1.ok) throw new Error(d1.error || 'Ads fetch failed');
+        if (!d1.ads || d1.ads.length === 0) throw new Error('"' + company + '" এর কোনো অ্যাকটিভ অ্যাড পাওয়া যায়নি। নাম বা দেশ বদলে আবার চেষ্টা করুন।');
 
-// ---- UI HELPERS ----
-function showErr(msg) {
-  var el = document.getElementById('errbox');
-  el.textContent = msg; el.style.display = 'block';
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('go-btn').disabled = false;
-}
-function setLoad(t, s) {
-  document.getElementById('ltxt').textContent = t;
-  document.getElementById('lsub').textContent = s || '';
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('errbox').style.display = 'none';
-}
-function resetAll() {
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('hero-section').style.display = 'block';
-  document.getElementById('errbox').style.display = 'none';
-  document.getElementById('company').value = '';
-  document.getElementById('go-btn').disabled = false;
-  allAds = [];
-  try { localStorage.removeItem('mai_saved_search'); } catch(e) {}
-}
+        allAds = d1.ads;
+        setLoad('এআই ডেটা অ্যানালাইজ করছে...', allAds.length + ' টি অ্যাড প্রসেস করতে একটু সময় লাগতে পারে');
 
-// ---- MAIN FLOW ----
-async function go() {
-  var company = document.getElementById('company').value.trim();
-  var country = document.getElementById('country').value;
-  var maxAds = parseInt(document.getElementById('maxads').value);
-  if (!company) { alert('কোম্পানির নাম লেখো।'); return; }
-  if (!keys.c || !keys.s) { openModal(); return; }
+        var analysis = await analyzeWithClaude(company, country, allAds);
+        renderDashboard(company, country, allAds, analysis);
+        try { localStorage.setItem('mai_saved_search', JSON.stringify({ company: company, country: country, ads: allAds, analysis: analysis })); } catch (e) { }
 
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('hero-section').style.display = 'none';
-  document.getElementById('errbox').style.display = 'none';
-  document.getElementById('go-btn').disabled = true;
-  setLoad('অ্যাড লাইব্রেরি থেকে ডেটা কালেক্ট করা হচ্ছে...', '"' + company + '" এর রানিং অ্যাডসগুলো খোঁজা হচ্ছে');
-
-  try {
-    var r1 = await fetch('/api/fetch-ads', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({company:company, country:country, maxAds:maxAds}) });
-    var d1; try { d1 = await r1.json(); } catch(e) { throw new Error('Server invalid response'); }
-    if (!r1.ok) throw new Error(d1.error || 'Ads fetch failed');
-    if (!d1.ads || d1.ads.length === 0) throw new Error('"'+company+'" এর কোনো অ্যাকটিভ অ্যাড পাওয়া যায়নি। নাম বা দেশ বদলে আবার চেষ্টা করুন।');
-
-    allAds = d1.ads;
-    setLoad('এআই ডেটা অ্যানালাইজ করছে...', allAds.length + ' টি অ্যাড প্রসেস করতে একটু সময় লাগতে পারে');
-
-    var analysis = await analyzeWithClaude(company, country, allAds);
-    renderDashboard(company, country, allAds, analysis);
-    try { localStorage.setItem('mai_saved_search', JSON.stringify({ company: company, country: country, ads: allAds, analysis: analysis })); } catch(e) {}
-
-  } catch(err) {
-    document.getElementById('hero-section').style.display = 'block';
-    showErr('সমস্যা হয়েছে: ' + err.message);
-  }
-}
-
-// ---- CLAUDE ANALYSIS ----
-async function analyzeWithClaude(company, country, ads) {
-  var todayStr = TODAY.toISOString().split('T')[0];
-
-  // Ad summary — body text sanitize করে পাঠাই
-  var adSummaries = ads.map(function(ad, i) {
-    var days = daysDiff(ad.start_date);
-    var body = (ad.body || '').replace(/[\r\n]+/g, ' ').replace(/"/g, "'").trim().substring(0, 300);
-    var title = (ad.title || '').replace(/"/g, "'").trim().substring(0, 100);
-    return {
-      id: i + 1,
-      title: title,
-      body: body,
-      cta: (ad.cta || '').trim(),
-      platform: (ad.platform || '').trim(),
-      format: (ad.format || '').trim(),
-      start_date: (ad.start_date || '').substring(0, 10),
-      days_running: days !== null ? days : -1,
-      has_image: !!(ad.images && ad.images.length),
-      has_video: !!(ad.videos && ad.videos.length)
-    };
-  });
-
-  var messages = [
-    {
-      role: 'user',
-      content: 'You are an expert Meta Ads strategist for South Asian markets. Today is ' + todayStr + '.\n\nAnalyze these ' + ads.length + ' ads from "' + company + '" (Country: ' + country + ').\n\nAD DATA (JSON):\n' + JSON.stringify(adSummaries) + '\n\nReturn a JSON analysis. All Bangla text fields must use simple Bangla sentences without special quote characters. Use only standard double quotes for JSON strings.\n\nRequired format:\n{"cta_analysis":{"items":[{"cta":"ORDER_NOW","count":5,"ad_ids":[1,2,3],"insight":"insight text"}],"ai_insight":"insight"},"body_analysis":{"ad_classifications":[{"ad_id":1,"primary_type":"Offer"}],"elements":{"has_phone":false,"has_website":false,"has_cta_in_text":false,"formula_used":"PAS"},"approach_breakdown":"text","ai_insight":"text"},"heading_analysis":{"ai_insight":"text"},"creative_analysis":{"ad_classifications":[{"ad_id":1,"creative_type":"feature_highlight"}],"format_breakdown":{"image":0,"video":0,"carousel":0},"ai_insight":"text"},"platform_analysis":{"platforms":[{"name":"Facebook","percentage":80}],"ai_insight":"text"},"marketing_approach":{"primary_strategy":"text","messaging_focus":"text","audience_signals":"text","testing_signals":"text","overall_assessment":"text"},"recommendations":[{"title":"title","description":"desc","priority":"high"}]}\n\nRules: ad_ids use actual ad id numbers. For body_analysis.ad_classifications, assign exactly ONE primary_type (must be exactly one of: USP, FOMO, Offer, Feature, Price, Story, Social Proof, Problem-Solution) for each ad based on deep body text analysis. For creative_analysis.ad_classifications, assign exactly pattern (must be: feature_highlight, problem_solution, influencer, ugc, review, usp, offer). All text in Bangla. No line breaks inside string values. priority = high/medium/low only.'
-    }
-  ];
-
-  var r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json','x-api-key':keys.c,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:4000, messages: messages})
-  });
-  if (!r.ok) { var e; try{e=await r.json();}catch(x){throw new Error('Claude API error: '+r.status);} throw new Error(e.error&&e.error.message||'Claude API error'); }
-
-  var d = await r.json();
-  var raw = d.content && d.content.map(function(c){return c.text||'';}).join('') || '';
-
-  // JSON extract — robust করা
-  var js = raw.trim();
-  js = js.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-  var start = js.indexOf('{');
-  var end = js.lastIndexOf('}');
-  if (start === -1 || end === -1) throw new Error('Claude valid JSON দেয়নি। আবার চেষ্টা করো।');
-  js = js.substring(start, end + 1);
-  js = js.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
-
-  var parseAndTransform = function(jsonStr) {
-    var p = JSON.parse(jsonStr);
-    
-    // Auto-calculate exact Body text mappings
-    if (p.body_analysis && p.body_analysis.ad_classifications) {
-      p.body_analysis.type_breakdown = {};
-      p.body_analysis.body_type_ad_ids = {};
-      var validBodyTypes = ['USP','FOMO','Offer','Feature','Price','Story','Social Proof','Problem-Solution'];
-      validBodyTypes.forEach(function(t) {
-        p.body_analysis.type_breakdown[t] = 0;
-        p.body_analysis.body_type_ad_ids[t] = [];
-      });
-      p.body_analysis.ad_classifications.forEach(function(c) {
-        var t = c.primary_type;
-        if (validBodyTypes.indexOf(t) !== -1) {
-          p.body_analysis.type_breakdown[t]++;
-          p.body_analysis.body_type_ad_ids[t].push(c.ad_id);
-        }
-      });
-    }
-    
-    // Auto-calculate exact Creative mappings
-    if (p.creative_analysis && p.creative_analysis.ad_classifications) {
-      p.creative_analysis.creative_types = {};
-      p.creative_analysis.creative_type_ad_ids = {};
-      var validCTypes = ['feature_highlight','problem_solution','influencer','ugc','review','usp','offer'];
-      validCTypes.forEach(function(t) {
-        p.creative_analysis.creative_types[t] = 0;
-        p.creative_analysis.creative_type_ad_ids[t] = [];
-      });
-      p.creative_analysis.ad_classifications.forEach(function(c) {
-        var t = c.creative_type;
-        if (validCTypes.indexOf(t) !== -1) {
-          p.creative_analysis.creative_types[t]++;
-          p.creative_analysis.creative_type_ad_ids[t].push(c.ad_id);
-        }
-      });
-    }
-    return p;
-  };
-
-  try {
-    return parseAndTransform(js);
-  } catch(e) {
-    try {
-      js = js.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
-      return parseAndTransform(js);
-    } catch(e2) {
-      console.error('Raw response:', raw.substring(0, 500));
-      throw new Error('JSON parse error: ' + e2.message + ' — আবার চেষ্টা করো');
-    }
-  }
-}
-
-// ---- RENDER DASHBOARD ----
-function renderDashboard(company, country, ads, r) {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('go-btn').disabled = false;
-
-  // Header
-  document.getElementById('dash-company').textContent = company + ' — Ad Intelligence';
-  document.getElementById('dash-meta').textContent = ads.length + ' টি ad বিশ্লেষণ করা হয়েছে · ' + country + ' মার্কেট · ' + TODAY.toLocaleDateString('bn-BD');
-
-  // Stats
-  var videoCount = ads.filter(function(a){return (a.format||'').toLowerCase().includes('video');}).length;
-  var imageCount = ads.filter(function(a){return (a.format||'').toLowerCase().includes('image');}).length;
-  var withBody = ads.filter(function(a){return a.body && a.body.length > 0;}).length;
-  var allDays = ads.map(function(a){return daysDiff(a.start_date);}).filter(function(d){return d!==null;});
-  var avgDays = allDays.length ? Math.round(allDays.reduce(function(a,b){return a+b;},0)/allDays.length) : 0;
-  var maxDaysAd = Math.max.apply(null, allDays.length ? allDays : [0]);
-
-  var uniqueBodies = Object.keys(ads.reduce(function(acc,a){if(a.body)acc[a.body.trim()]=1;return acc;},{})).length;
-  var uniqueTitles = Object.keys(ads.reduce(function(acc,a){if(a.title)acc[a.title.trim()]=1;return acc;},{})).length;
-  var uniqueCreatives = uniqueBodies + uniqueTitles;
-
-  document.getElementById('stat-row').innerHTML = [
-    ['মোট Ads', ads.length, 'বিশ্লেষণ করা হয়েছে'],
-    ['Video Ads', videoCount, ads.length ? Math.round(videoCount/ads.length*100)+'% মোটের' : ''],
-    ['Image Ads', imageCount, ads.length ? Math.round(imageCount/ads.length*100)+'% মোটের' : ''],
-    ['Unique Creatives', uniqueBodies, 'আলাদা body text'],
-    ['সবচেয়ে পুরনো', maxDaysAd+'দিন', 'সবচেয়ে দীর্ঘ active ad'],
-  ].map(function(x){
-    return '<div class="stat"><div class="stat-label">'+x[0]+'</div><div class="stat-value">'+x[1]+'</div><div class="stat-sub">'+x[2]+'</div></div>';
-  }).join('');
-
-  // CTA Analysis
-  renderCTA(ads, r.cta_analysis);
-
-  // Heading Analysis
-  renderHeadings(ads, r.heading_analysis);
-
-  // Body Analysis
-  renderBodyAnalysis(ads, r.body_analysis);
-
-  // Creative Analysis
-  renderCreative(ads, r.creative_analysis);
-
-  // Platform Analysis
-  renderPlatform(ads, r.platform_analysis);
-
-  // Timeline
-  renderTimeline(ads);
-
-  // Marketing Approach
-  renderApproach(r.marketing_approach);
-
-  // Recommendations
-  renderRecommendations(r.recommendations);
-
-  // Ads Grid
-  renderAdsGrouped(ads);
-
-  document.getElementById('dashboard').style.display = 'block';
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-
-// ---- CTA ----
-function renderCTA(ads, data) {
-  if (!data) return;
-  var html = '';
-  if (data.ai_insight) {
-    html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">'+esc(data.ai_insight)+'</div></div>';
-  }
-  var items = data.items || [];
-  var maxCount = items.length ? Math.max.apply(null, items.map(function(i){return i.count||0;})) : 1;
-  // Store drawer data globally
-  window._drawerData = window._drawerData || {};
-  html += items.map(function(item, idx) {
-    var pct = Math.round((item.count / (ads.length||1)) * 100);
-    var barW = Math.round((item.count / maxCount) * 100);
-    var adIds = item.ad_ids || [];
-    var ctaVal = item.cta || '';
-    if (!adIds.length) { adIds = ads.filter(function(a){return (a.cta||'').toUpperCase()===ctaVal.toUpperCase();}).map(function(a){return a.id;}); }
-    var key = 'cta_'+idx;
-    window._drawerData[key] = {title:'CTA: '+ctaVal, subtitle:item.count+' ads এ ব্যবহার হয়েছে', ids:adIds};
-    return '<div class="cta-item clickable" onclick="showDrawer(\''+key+'\')" title="Click to see ads"><div class="cta-name">'+esc(ctaVal)+'</div><div class="cta-bar-wrap"><div class="cta-bar-track"><div class="cta-bar-fill" style="width:'+barW+'%"></div></div></div><div class="cta-count">'+item.count+'<span class="cta-pct">'+pct+'%</span></div></div>';
-  }).join('') + '<div class="click-hint">↑ যেকোনো row এ click করলে সেই ads দেখাবে</div>';
-  document.getElementById('cta-content').innerHTML = html;
-}
-
-// ---- HEADINGS ----
-function renderHeadings(ads, data) {
-  var headings = {};
-  ads.forEach(function(ad) {
-    var t = (ad.title || '').trim();
-    if (t) { headings[t] = (headings[t] || 0) + 1; }
-  });
-  var sorted = Object.keys(headings).sort(function(a,b){return headings[b]-headings[a];});
-
-  var html = '';
-  if (data && data.ai_insight) {
-    html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">'+esc(data.ai_insight)+'</div></div>';
-  }
-  if (sorted.length === 0) {
-    html += '<p style="color:var(--text3);font-size:13px;padding:12px 0">কোনো heading পাওয়া যায়নি</p>';
-  } else {
-    window._drawerData = window._drawerData || {};
-    html += sorted.map(function(h, hidx) {
-      var cnt = headings[h];
-      var matchIds = ads.filter(function(a){return (a.title||'').trim()===h;}).map(function(a){return a.id;});
-      var key = 'heading_'+hidx;
-      window._drawerData[key] = {title:'Heading', subtitle:cnt+' টি ad এ ব্যবহার হয়েছে', ids:matchIds};
-      return '<div class="heading-item clickable" onclick="showDrawer(\''+key+'\')" title="Click to see"><div class="heading-txt">'+esc(h)+'</div><span class="heading-cnt">'+cnt+'/'+ads.length+'</span></div>';
-    }).join('') + '<div class="click-hint">↑ যেকোনো heading এ click করলে সেই ads দেখাবে</div>';
-  }
-  document.getElementById('heading-content').innerHTML = html;
-}
-
-// ---- BODY ANALYSIS ----
-function renderBodyAnalysis(ads, data) {
-  var html = '';
-  if (data) {
-    // Type breakdown
-    var tb = data.type_breakdown || {};
-    if (Object.keys(tb).length > 0) {
-      var typeColors = {USP:'tag-usp',FOMO:'tag-fomo',Offer:'tag-offer',Feature:'tag-feature',Price:'tag-price',Story:'tag-story','Social Proof':'tag-social','Problem-Solution':'tag-problem'};
-      var btIds = data.body_type_ad_ids || {};
-      window._drawerData = window._drawerData || {};
-      html += '<div class="type-breakdown" style="margin-bottom:16px">';
-      Object.keys(tb).forEach(function(type, tidx) {
-        var adIds = btIds[type] || [];
-        var count = tb[type] || 0;
-        var key = 'bodytype_'+tidx;
-        window._drawerData[key] = {title:type+' Ads', subtitle:count+' টি ad এ পাওয়া গেছে', ids:adIds};
-        html += '<div class="type-block clickable" onclick="showDrawer(\''+key+'\')" title="Click to see"><div class="type-block-label">'+type+'</div><div class="type-block-val">'+count+'</div><div class="type-block-sub">'+Math.round(count/ads.length*100)+'% ads এ</div><div class="click-hint">👆 click</div></div>';
-      });
-      html += '</div>';
+      } catch (err) {
+        document.getElementById('hero-section').style.display = 'block';
+        showErr('সমস্যা হয়েছে: ' + err.message);
+      }
     }
 
-    // Elements found
-    if (data.elements) {
-      var el = data.elements;
-      html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
-      html += '<span class="body-el '+(el.has_phone?'has':'not')+'">'+(el.has_phone?'✔':'✖')+' Phone Number</span>';
-      html += '<span class="body-el '+(el.has_website?'has':'not')+'">'+(el.has_website?'✔':'✖')+' Website Link</span>';
-      html += '<span class="body-el '+(el.has_cta_in_text?'has':'not')+'">'+(el.has_cta_in_text?'✔':'✖')+' CTA in Text</span>';
-      if (el.formula_used) html += '<span class="body-el has" style="background:var(--blue);border-color:var(--blue);">Formula: '+esc(el.formula_used)+'</span>';
-      html += '</div>';
-    }
+    // ---- CLAUDE ANALYSIS ----
+    async function analyzeWithClaude(company, country, ads) {
+      var todayStr = TODAY.toISOString().split('T')[0];
 
-    if (data.approach_breakdown) {
-      html += '<div class="ai-insight" style="margin-bottom:12px"><div class="ai-insight-label">Approach Breakdown</div><div class="ai-insight-text">'+esc(data.approach_breakdown)+'</div></div>';
-    }
-    if (data.ai_insight) {
-      html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight — কিসে Focus করা উচিৎ</div><div class="ai-insight-text">'+esc(data.ai_insight)+'</div></div>';
-    }
-  }
-  document.getElementById('body-analysis-top').innerHTML = html;
-
-  // Body text list — deduplicated
-  var bodies = {};
-  ads.forEach(function(ad) {
-    var b = (ad.body || '').trim();
-    if (b) { bodies[b] = (bodies[b] || 0) + 1; }
-  });
-
-  var typeColors2 = {USP:'tag-usp',FOMO:'tag-fomo',Offer:'tag-offer',Feature:'tag-feature',Price:'tag-price',Story:'tag-story','Social Proof':'tag-social','Problem-Solution':'tag-problem'};
-  var bodyKeys = Object.keys(bodies).sort(function(a,b){return bodies[b]-bodies[a];});
-
-  var listHtml = bodyKeys.map(function(body, i) {
-    var cnt = bodies[body];
-    var preview = body.substring(0, 160);
-    var hasMore = body.length > 160;
-    var bodyId = 'body-full-'+i;
-    var hasPhone = /\d{10,}/.test(body) || /01[3-9]\d{8}/.test(body);
-    var hasWeb = /\.com|\.net|www\./i.test(body);
-    var hasCTA = /অর্ডার|কিনুন|ক্লিক|visit|order|click|shop/i.test(body);
-
-    var elHtml = '<div class="body-elements">';
-    elHtml += '<span class="body-el '+(hasPhone?'has':'')+'">📞 Phone</span>';
-    elHtml += '<span class="body-el '+(hasWeb?'has':'')+'">🌐 Website</span>';
-    elHtml += '<span class="body-el '+(hasCTA?'has':'')+'">👉 CTA</span>';
-    elHtml += '</div>';
-
-    var expandBtn = hasMore ? '<button class="xbtn" onclick="expandBodyText(\''+bodyId+'\',this,`'+body.replace(/`/g,"'").replace(/\n/g,'\\n')+'`)">See more ▾</button>' : '';
-
-    return '<div class="body-item"><div class="body-type-tags"></div><div class="body-body-label" style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Body Text '+(i+1)+(cnt>1?' <strong style=\'color:var(--accent)\'>('+cnt+'x ব্যবহার)</strong>':'')+'</div><div class="body-preview" id="'+bodyId+'">'+esc(preview)+(hasMore?'…':'')+'</div>'+expandBtn+elHtml+'</div>';
-  }).join('');
-
-  document.getElementById('body-list').innerHTML = listHtml || '<p style="color:var(--text3);font-size:13px">কোনো body text পাওয়া যায়নি</p>';
-}
-
-function expandBodyText(id, btn, full) {
-  var el = document.getElementById(id);
-  if (el) el.textContent = full.replace(/\\n/g, '\n');
-  btn.style.display = 'none';
-}
-
-// ---- CREATIVE ----
-function renderCreative(ads, data) {
-  var html = '';
-  if (data) {
-    var fb = data.format_breakdown || {};
-    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">';
-    ['image','video','carousel'].forEach(function(f) {
-      var cnt = fb[f] || 0;
-      html += '<div class="type-block"><div class="type-block-label">'+f+'</div><div class="type-block-val">'+cnt+'</div><div class="type-block-sub">'+Math.round(cnt/ads.length*100)+'%</div></div>';
-    });
-    html += '</div>';
-
-    var ct = data.creative_types || {};
-    var ctIds = data.creative_type_ad_ids || {};
-    var ctLabels = {feature_highlight:'Feature Highlight',problem_solution:'Problem → Solution',influencer:'Influencer',ugc:'UGC',review:'Review/Testimonial',usp:'USP',offer:'Offer/Discount'};
-    window._drawerData = window._drawerData || {};
-    html += '<div style="margin-bottom:14px">';
-    Object.keys(ct).forEach(function(k, cidx) {
-      if (!ct[k]) return;
-      var adIds = ctIds[k] || [];
-      var label = ctLabels[k]||k;
-      var key = 'creative_'+cidx;
-      window._drawerData[key] = {title:label, subtitle:ct[k]+' টি ad', ids:adIds};
-      html += '<div class="cta-item clickable" onclick="showDrawer(\''+key+'\')" title="Click to see"><div class="cta-name" style="font-size:12px">'+esc(label)+'</div><div class="cta-bar-wrap"><div class="cta-bar-track"><div class="cta-bar-fill" style="width:'+Math.round(ct[k]/ads.length*100)+'%"></div></div></div><div class="cta-count" style="font-size:12px">'+ct[k]+'</div></div>';
-    });
-    html += '</div><div class="click-hint">↑ Click করলে সেই ধরনের ads দেখাবে</div>';
-
-    if (data.ai_insight) {
-      html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">'+esc(data.ai_insight)+'</div></div>';
-    }
-  }
-  document.getElementById('creative-content').innerHTML = html;
-}
-
-// ---- PLATFORM ----
-function renderPlatform(ads, data) {
-  var platIcons = {Facebook:'📘',Instagram:'📸',Messenger:'💬',Audience_Network:'📱','Audience Network':'📱'};
-  var html = '';
-  if (data && data.ai_insight) {
-    html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">'+esc(data.ai_insight)+'</div></div>';
-  }
-
-  // Count from actual ads
-  var platCounts = {};
-  ads.forEach(function(ad) {
-    var plats = (ad.platform || '').split(',').map(function(p){return p.trim();}).filter(Boolean);
-    if (!plats.length) plats = ['Unknown'];
-    plats.forEach(function(p) { platCounts[p] = (platCounts[p]||0)+1; });
-  });
-
-  // Fallback to AI data
-  var platforms = data && data.platforms && data.platforms.length ? data.platforms : Object.keys(platCounts).map(function(k){return{name:k,percentage:Math.round(platCounts[k]/ads.length*100)};});
-
-  html += platforms.map(function(p) {
-    return '<div class="platform-item"><div class="platform-icon">'+(platIcons[p.name]||'🌐')+'</div><div class="platform-name">'+esc(p.name)+'</div><div class="platform-pct">'+p.percentage+'%</div></div>';
-  }).join('');
-  document.getElementById('platform-content').innerHTML = html;
-}
-
-// ---- TIMELINE ----
-function renderTimeline(ads) {
-  var maxD = 0;
-  var adsWithDays = ads.map(function(ad) {
-    var d = daysDiff(ad.start_date);
-    if (d !== null && d > maxD) maxD = d;
-    return {ad:ad, days:d};
-  });
-
-  // Summary stats
-  var byRange = {'১-৭ দিন':0,'৮-৩০ দিন':0,'৩১-৯০ দিন':0,'৯০+ দিন':0};
-  adsWithDays.forEach(function(x) {
-    if (x.days === null) return;
-    if (x.days <= 7) byRange['১-৭ দিন']++;
-    else if (x.days <= 30) byRange['৮-৩০ দিন']++;
-    else if (x.days <= 90) byRange['৩১-৯০ দিন']++;
-    else byRange['৯০+ দিন']++;
-  });
-
-  var rangeAds = {
-    '১-৭ দিন': ads.filter(function(a){var d=daysDiff(a.start_date);return d!==null&&d<=7;}).map(function(a){return a.id;}),
-    '৮-৩০ দিন': ads.filter(function(a){var d=daysDiff(a.start_date);return d!==null&&d>7&&d<=30;}).map(function(a){return a.id;}),
-    '৩১-৯০ দিন': ads.filter(function(a){var d=daysDiff(a.start_date);return d!==null&&d>30&&d<=90;}).map(function(a){return a.id;}),
-    '৯০+ দিন': ads.filter(function(a){var d=daysDiff(a.start_date);return d!==null&&d>90;}).map(function(a){return a.id;})
-  };
-  window._drawerData = window._drawerData || {};
-  var html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">';
-  Object.keys(byRange).forEach(function(k, tidx) {
-    var key = 'timeline_'+tidx;
-    window._drawerData[key] = {title:k+' Ads', subtitle:byRange[k]+' টি ad', ids:rangeAds[k]||[]};
-    html += '<div class="type-block clickable" onclick="showDrawer(\''+key+'\')" title="Click to see"><div class="type-block-label">'+k+'</div><div class="type-block-val">'+byRange[k]+'</div><div class="type-block-sub">👆 click</div></div>';
-  });
-  html += '</div>';
-
-  html += adsWithDays.map(function(x) {
-    var barW = maxD > 0 && x.days !== null ? Math.max(2, Math.round(x.days/maxD*100)) : 2;
-    var dl = durLabel(x.days);
-    var barCls = durBarClass(x.days);
-    return '<div class="timeline-item"><div class="timeline-id">Ad '+x.ad.id+'</div><div class="timeline-bar-wrap"><div class="timeline-bar-track"><div class="timeline-bar-fill '+barCls+'" style="width:'+barW+'%"></div></div></div><div class="timeline-days">'+(x.days!==null?x.days+'দিন':'?')+'</div><div class="timeline-start">'+(x.ad.start_date?x.ad.start_date.substring(0,10):'অজানা')+'</div></div>';
-  }).join('');
-
-  document.getElementById('timeline-content').innerHTML = html;
-}
-
-// ---- APPROACH ----
-function renderApproach(data) {
-  if (!data) return;
-  var sections = [
-    ['Primary Strategy', data.primary_strategy],
-    ['Messaging Focus', data.messaging_focus],
-    ['Audience Signals', data.audience_signals],
-    ['Testing Signals', data.testing_signals],
-  ];
-  var html = '';
-  if (data.overall_assessment) {
-    html += '<div class="ai-insight" style="margin-bottom:16px"><div class="ai-insight-label">Overall Assessment</div><div class="ai-insight-text">'+esc(data.overall_assessment)+'</div></div>';
-  }
-  html += '<div class="approach-grid">';
-  sections.forEach(function(s) {
-    if (!s[1]) return;
-    html += '<div class="approach-card"><div class="approach-label">'+s[0]+'</div><div class="approach-content">'+esc(s[1])+'</div></div>';
-  });
-  html += '</div>';
-  document.getElementById('approach-content').innerHTML = html;
-}
-
-// ---- RECOMMENDATIONS ----
-function renderRecommendations(recs) {
-  if (!recs || !recs.length) return;
-  var priMap = {high:'pri-high',medium:'pri-mid',low:'pri-low'};
-  var priLabel = {high:'High Priority',medium:'Medium Priority',low:'Low Priority'};
-  var html = '<div class="rec-list">';
-  recs.forEach(function(rec, i) {
-    html += '<div class="rec-item"><div class="rec-num">'+(i+1)+'</div><div class="rec-body"><div class="rec-title">'+esc(rec.title||'')+'</div><div class="rec-desc">'+esc(rec.description||'')+'</div><span class="rec-priority '+(priMap[rec.priority]||'pri-mid')+'">'+(priLabel[rec.priority]||'Medium')+'</span></div></div>';
-  });
-  html += '</div>';
-  document.getElementById('rec-content').innerHTML = html;
-}
-
-// ---- ADS GROUPED ----
-function renderAdsGrouped(ads) {
-  var groups = {};
-  ads.forEach(function(ad) {
-    var fmt = (ad.format||'unknown').toLowerCase();
-    var key = fmt.includes('video') ? 'Video' : fmt.includes('image') ? 'Image' : fmt.includes('carousel') ? 'Carousel' : 'অন্যান্য';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(ad);
-  });
-  var order = ['Video','Image','Carousel','অন্যান্য'];
-  var fmtKeys = order.filter(function(k){return groups[k];});
-
-  document.getElementById('ftabs').innerHTML = ['সব'].concat(fmtKeys).map(function(k,i) {
-    var cnt = k==='সব' ? ads.length : groups[k].length;
-    return '<button class="ftab'+(i===0?' active':'')+'" onclick="switchTab(\''+k+'\',this)">'+k+'<span class="cnt">'+cnt+'</span></button>';
-  }).join('');
-
-  document.getElementById('ads-groups').innerHTML = fmtKeys.map(function(fmt) {
-    return '<div class="format-group visible" id="grp-'+fmt+'"><div class="fgroup-title">'+fmt+' Ads ('+groups[fmt].length+' টি)</div><div class="ads-grid">'+groups[fmt].map(function(ad){return renderAdCard(ad);}).join('')+'</div></div>';
-  }).join('');
-}
-
-function switchTab(key, btn) {
-  document.querySelectorAll('.ftab').forEach(function(b){b.classList.remove('active');});
-  btn.classList.add('active');
-  document.querySelectorAll('.format-group').forEach(function(g){
-    g.classList.toggle('visible', key==='সব' || g.id==='grp-'+key);
-  });
-}
-
-function renderAdCard(ad) {
-  var days = daysDiff(ad.start_date);
-  var dl = durLabel(days);
-  var fmtCls = (ad.format||'').includes('video') ? 'fmt-video' : (ad.format||'').includes('carousel') ? 'fmt-carousel' : 'fmt-image';
-
-  var mediaHtml = '';
-  if (ad.videos && ad.videos.length > 0) {
-    mediaHtml = '<div class="ad-media"><video src="'+esc(ad.videos[0])+'" controls'+(ad.thumbnail?' poster="'+esc(ad.thumbnail)+'"':'')+' style="width:100%"></video><span class="ad-fmt-badge fmt-video">VIDEO</span>'+(ad.library_url?'<a class="ad-lib-link" href="'+esc(ad.library_url)+'" target="_blank">Library ↗</a>':'')+'</div>';
-  } else if (ad.images && ad.images.length > 0) {
-    mediaHtml = '<div class="ad-media"><img src="'+esc(ad.images[0])+'" loading="lazy" alt="" onerror="this.style.display=\'none\'"/><span class="ad-fmt-badge '+fmtCls+'">'+(ad.format||'image').toUpperCase()+'</span>'+(ad.library_url?'<a class="ad-lib-link" href="'+esc(ad.library_url)+'" target="_blank">Library ↗</a>':'')+'</div>';
-  } else if (ad.library_url) {
-    mediaHtml = '<div class="ad-media"><div class="ad-media-empty"><a href="'+esc(ad.library_url)+'" target="_blank" style="color:var(--accent)">Ad Library তে দেখো ↗</a></div></div>';
-  }
-
-  var body = ad.body || '';
-  var bodyId = 'abd-'+ad.id;
-  var hasMore = body.length > 150;
-  var shortBody = hasMore ? body.substring(0, 150) + '…' : body;
-  var safeBody = body.replace(/`/g,"'").replace(/\n/g,'\\n');
-  var expandBtn = hasMore ? '<button class="xbtn" onclick="expandBodyText(\''+bodyId+'\',this,`'+safeBody+'`)">See more ▾</button>' : '';
-
-  var tags = '';
-  if (ad.cta) tags += '<span class="ctatag">'+esc(ad.cta)+'</span>';
-  if (ad.platform) tags += '<span class="atag">'+esc(ad.platform)+'</span>';
-  if (ad.start_date) tags += '<span class="atag">'+esc(ad.start_date.substring(0,10))+'</span>';
-
-  return '<div class="ad-card">'+mediaHtml+'<div class="ad-content"><div class="ad-num">AD #'+ad.id+'</div>'+(dl.cls?'<div class="ad-duration-badge '+dl.cls+'">⏱ '+dl.text+'</div>':'')+(ad.title?'<div class="ad-title-txt">'+esc(ad.title)+'</div>':'')+(body?'<div class="ad-body-label">Primary Text</div><div class="ad-body-txt" id="'+bodyId+'">'+esc(shortBody)+'</div>'+expandBtn:'<div class="ad-body-txt" style="color:var(--text3);font-style:italic">primary text নেই</div>')+'<div class="ad-footer">'+tags+'</div></div></div>';
-}
-
-// ---- DRAWER ----
-var drawerAds = [];
-window._drawerData = {};
-
-function showDrawer(key) {
-  var d = window._drawerData[key];
-  if (!d) return;
-  openDrawer(d.title, d.subtitle, d.ids);
-}
-
-function openDrawer(title, subtitle, adIds) {
-  document.getElementById('drawer-title').textContent = title;
-  document.getElementById('drawer-subtitle').textContent = subtitle;
-
-  var filtered = adIds && adIds.length
-    ? allAds.filter(function(a){ return adIds.indexOf(a.id) !== -1; })
-    : allAds;
-
-  var html = filtered.length === 0
-    ? '<p style="color:var(--text3);font-size:13px">কোনো matching ad পাওয়া যায়নি</p>'
-    : filtered.map(function(ad) {
-        var body = ad.body || '';
-        var imgHtml = ad.images && ad.images[0] ? '<img src="'+esc(ad.images[0])+'" class="drawer-ad-img" onerror="this.style.display=\'none\'" loading="lazy"/>' : '';
-        var tags = '';
-        if (ad.cta) tags += '<span class="atag">'+esc(ad.cta)+'</span>';
-        if (ad.format) tags += '<span class="atag">'+esc(ad.format)+'</span>';
-        if (ad.start_date) tags += '<span class="atag">'+esc(ad.start_date.substring(0,10))+'</span>';
+      // Ad summary — body text sanitize করে পাঠাই
+      var adSummaries = ads.map(function (ad, i) {
         var days = daysDiff(ad.start_date);
-        if (days !== null) tags += '<span class="atag">'+days+'দিন</span>';
-        return '<div class="drawer-ad">'+
-          '<div class="drawer-ad-num">AD #'+ad.id+'</div>'+
-          imgHtml+
-          (ad.title ? '<div class="drawer-ad-title">'+esc(ad.title)+'</div>' : '')+
-          (body ? '<div class="drawer-ad-body">'+esc(body.substring(0,400))+(body.length>400?'…':'')+'</div>' : '')+
-          '<div class="drawer-ad-tags">'+tags+'</div>'+
-          (ad.library_url ? '<div style="margin-top:8px"><a href="'+esc(ad.library_url)+'" target="_blank" style="font-size:11px;color:var(--accent)">Ad Library তে দেখো ↗</a></div>' : '')+
-          '</div>';
+        var body = (ad.body || '').replace(/[\r\n]+/g, ' ').replace(/"/g, "'").trim().substring(0, 300);
+        var title = (ad.title || '').replace(/"/g, "'").trim().substring(0, 100);
+        return {
+          id: i + 1,
+          title: title,
+          body: body,
+          cta: (ad.cta || '').trim(),
+          platform: (ad.platform || '').trim(),
+          format: (ad.format || '').trim(),
+          start_date: (ad.start_date || '').substring(0, 10),
+          days_running: days !== null ? days : -1,
+          has_image: !!(ad.images && ad.images.length),
+          has_video: !!(ad.videos && ad.videos.length)
+        };
+      });
+
+      var messages = [
+        {
+          role: 'user',
+          content: 'You are an expert Meta Ads strategist for South Asian markets. Today is ' + todayStr + '.\n\nAnalyze these ' + ads.length + ' ads from "' + company + '" (Country: ' + country + ').\n\nAD DATA (JSON):\n' + JSON.stringify(adSummaries) + '\n\nReturn a JSON analysis. All Bangla text fields must use simple Bangla sentences without special quote characters. Use only standard double quotes for JSON strings.\n\nRequired format:\n{"cta_analysis":{"items":[{"cta":"ORDER_NOW","count":5,"ad_ids":[1,2,3],"insight":"insight text"}],"ai_insight":"insight"},"body_analysis":{"ad_classifications":[{"ad_id":1,"primary_type":"Offer"}],"elements":{"has_phone":false,"has_website":false,"has_cta_in_text":false,"formula_used":"PAS"},"approach_breakdown":"text","ai_insight":"text"},"heading_analysis":{"ai_insight":"text"},"creative_analysis":{"ad_classifications":[{"ad_id":1,"creative_type":"feature_highlight"}],"format_breakdown":{"image":0,"video":0,"carousel":0},"ai_insight":"text"},"platform_analysis":{"platforms":[{"name":"Facebook","percentage":80}],"ai_insight":"text"},"marketing_approach":{"primary_strategy":"text","messaging_focus":"text","audience_signals":"text","testing_signals":"text","overall_assessment":"text"},"recommendations":[{"title":"title","description":"desc","priority":"high"}]}\n\nRules: ad_ids use actual ad id numbers. For body_analysis.ad_classifications, assign exactly ONE primary_type (must be exactly one of: USP, FOMO, Offer, Feature, Price, Story, Social Proof, Problem-Solution) for each ad based on deep body text analysis. For creative_analysis.ad_classifications, assign exactly pattern (must be: feature_highlight, problem_solution, influencer, ugc, review, usp, offer). All text in Bangla. No line breaks inside string values. priority = high/medium/low only.'
+        }
+      ];
+
+      var r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': keys.c, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: messages })
+      });
+      if (!r.ok) { var e; try { e = await r.json(); } catch (x) { throw new Error('Claude API error: ' + r.status); } throw new Error(e.error && e.error.message || 'Claude API error'); }
+
+      var d = await r.json();
+      var raw = d.content && d.content.map(function (c) { return c.text || ''; }).join('') || '';
+
+      // JSON extract — robust করা
+      var js = raw.trim();
+      js = js.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '').trim();
+      var start = js.indexOf('{');
+      var end = js.lastIndexOf('}');
+      if (start === -1 || end === -1) throw new Error('Claude valid JSON দেয়নি। আবার চেষ্টা করো।');
+      js = js.substring(start, end + 1);
+      js = js.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+
+      var parseAndTransform = function (jsonStr) {
+        var p = JSON.parse(jsonStr);
+
+        // Auto-calculate exact Body text mappings
+        if (p.body_analysis && p.body_analysis.ad_classifications) {
+          p.body_analysis.type_breakdown = {};
+          p.body_analysis.body_type_ad_ids = {};
+          var validBodyTypes = ['USP', 'FOMO', 'Offer', 'Feature', 'Price', 'Story', 'Social Proof', 'Problem-Solution'];
+          validBodyTypes.forEach(function (t) {
+            p.body_analysis.type_breakdown[t] = 0;
+            p.body_analysis.body_type_ad_ids[t] = [];
+          });
+          p.body_analysis.ad_classifications.forEach(function (c) {
+            var t = c.primary_type;
+            if (validBodyTypes.indexOf(t) !== -1) {
+              p.body_analysis.type_breakdown[t]++;
+              p.body_analysis.body_type_ad_ids[t].push(c.ad_id);
+            }
+          });
+        }
+
+        // Auto-calculate exact Creative mappings
+        if (p.creative_analysis && p.creative_analysis.ad_classifications) {
+          p.creative_analysis.creative_types = {};
+          p.creative_analysis.creative_type_ad_ids = {};
+          var validCTypes = ['feature_highlight', 'problem_solution', 'influencer', 'ugc', 'review', 'usp', 'offer'];
+          validCTypes.forEach(function (t) {
+            p.creative_analysis.creative_types[t] = 0;
+            p.creative_analysis.creative_type_ad_ids[t] = [];
+          });
+          p.creative_analysis.ad_classifications.forEach(function (c) {
+            var t = c.creative_type;
+            if (validCTypes.indexOf(t) !== -1) {
+              p.creative_analysis.creative_types[t]++;
+              p.creative_analysis.creative_type_ad_ids[t].push(c.ad_id);
+            }
+          });
+        }
+        return p;
+      };
+
+      try {
+        return parseAndTransform(js);
+      } catch (e) {
+        try {
+          js = js.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+          return parseAndTransform(js);
+        } catch (e2) {
+          console.error('Raw response:', raw.substring(0, 500));
+          throw new Error('JSON parse error: ' + e2.message + ' — আবার চেষ্টা করো');
+        }
+      }
+    }
+
+    // ---- RENDER DASHBOARD ----
+    function renderDashboard(company, country, ads, r) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('go-btn').disabled = false;
+
+      // Header
+      document.getElementById('dash-company').textContent = company + ' — Ad Intelligence';
+      document.getElementById('dash-meta').textContent = ads.length + ' টি ad বিশ্লেষণ করা হয়েছে · ' + country + ' মার্কেট · ' + TODAY.toLocaleDateString('bn-BD');
+
+      // Stats
+      var videoCount = ads.filter(function (a) { return (a.format || '').toLowerCase().includes('video'); }).length;
+      var imageCount = ads.filter(function (a) { return (a.format || '').toLowerCase().includes('image'); }).length;
+      var withBody = ads.filter(function (a) { return a.body && a.body.length > 0; }).length;
+      var allDays = ads.map(function (a) { return daysDiff(a.start_date); }).filter(function (d) { return d !== null; });
+      var avgDays = allDays.length ? Math.round(allDays.reduce(function (a, b) { return a + b; }, 0) / allDays.length) : 0;
+      var maxDaysAd = Math.max.apply(null, allDays.length ? allDays : [0]);
+
+      var uniqueBodies = Object.keys(ads.reduce(function (acc, a) { if (a.body) acc[a.body.trim()] = 1; return acc; }, {})).length;
+      var uniqueTitles = Object.keys(ads.reduce(function (acc, a) { if (a.title) acc[a.title.trim()] = 1; return acc; }, {})).length;
+      var uniqueCreatives = uniqueBodies + uniqueTitles;
+
+      document.getElementById('stat-row').innerHTML = [
+        ['মোট Ads', ads.length, 'বিশ্লেষণ করা হয়েছে'],
+        ['Video Ads', videoCount, ads.length ? Math.round(videoCount / ads.length * 100) + '% মোটের' : ''],
+        ['Image Ads', imageCount, ads.length ? Math.round(imageCount / ads.length * 100) + '% মোটের' : ''],
+        ['Unique Creatives', uniqueBodies, 'আলাদা body text'],
+        ['সবচেয়ে পুরনো', maxDaysAd + 'দিন', 'সবচেয়ে দীর্ঘ active ad'],
+      ].map(function (x) {
+        return '<div class="stat"><div class="stat-label">' + x[0] + '</div><div class="stat-value">' + x[1] + '</div><div class="stat-sub">' + x[2] + '</div></div>';
       }).join('');
 
-  document.getElementById('drawer-body').innerHTML = html;
-  document.getElementById('drawer').classList.add('open');
-  document.getElementById('drawer-overlay').classList.add('open');
-}
+      // CTA Analysis
+      renderCTA(ads, r.cta_analysis);
 
-function closeDrawer() {
-  document.getElementById('drawer').classList.remove('open');
-  document.getElementById('drawer-overlay').classList.remove('open');
-}
+      // Heading Analysis
+      renderHeadings(ads, r.heading_analysis);
 
-// ---- PDF EXPORT ----
-function downloadPDF() {
-  var dBtn = document.getElementById('dl-btn');
-  var oldText = dBtn.innerHTML;
-  dBtn.innerHTML = '⏳ রিপোর্ট প্রসেস হচ্ছে...';
-  dBtn.style.opacity = '0.7';
-  dBtn.style.pointerEvents = 'none';
+      // Body Analysis
+      renderBodyAnalysis(ads, r.body_analysis);
 
-  setTimeout(function() {
-    var element = document.getElementById('dashboard');
-    var company = document.getElementById('dash-company').textContent || 'Report';
-    var opt = {
-      margin:       [10, 10, 10, 10],
-      filename:     company + '.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true, logging: false },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-    
-    html2pdf().set(opt).from(element).save().then(function() {
-      dBtn.innerHTML = oldText;
-      dBtn.style.opacity = '1';
-      dBtn.style.pointerEvents = 'auto';
-    }).catch(function() {
-      dBtn.innerHTML = oldText;
-      dBtn.style.opacity = '1';
-      dBtn.style.pointerEvents = 'auto';
-    });
-  }, 100);
-}
+      // Creative Analysis
+      renderCreative(ads, r.creative_analysis);
 
-// ---- AI AD GENERATOR ----
-async function generateAdsBrief() {
-  if (!keys.c) { alert('Claude API Key সেট করা নেই!'); return; }
-  
-  var company = document.getElementById('company').value.trim();
-  var btn = document.getElementById('gen-btn');
-  var load = document.getElementById('gen-loading');
-  var res = document.getElementById('gen-results');
-  
-  btn.style.display = 'none';
-  load.style.display = 'block';
-  res.style.display = 'none';
-  
-  var prompt = 'You just analyzed Meta ads for ' + company + '. Based on their most successful strategies (like prominent CTAs, effective hooks, and messaging patterns), act as an expert South Asian copywriter. Generate 3 unique "Ad Briefs" for a direct competitor of ' + company + ' to beat them.\n\nEach brief must include:\n1. Hook/Headline: Very catchy, using psychology.\n2. Primary Text: The main body text using PAS or AIDA.\n3. Creative Idea: Description of image/video to use.\n4. CTA: Best button to use.\n\nReturn JSON ONLY. Format:\n{"ads":[{"hook":"text","primary_text":"text","creative_idea":"text","cta":"text"}]}\n\nKeep all text in Bangla except the CTA value.';
-  
-  var messages = [{ role: 'user', content: prompt }];
-  
-  var payload = {
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1500,
-    messages: messages
-  };
-  
-  try {
-    var r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': keys.c,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify(payload)
-    });
-    
-    if (!r.ok) { var e; try{e=await r.json();}catch(x){throw new Error('Claude API error');} throw new Error(e.error&&e.error.message||'Claude API error'); }
-    
-    var d = await r.json();
-    var raw = d.content && d.content.map(function(c){return c.text||'';}).join('') || '';
-    
-    var js = raw.trim();
-    js = js.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
-    var start = js.indexOf('{');
-    var end = js.lastIndexOf('}');
-    if (start !== -1 && end !== -1) js = js.substring(start, end + 1);
-    
-    var data = JSON.parse(js);
-    
-    var html = '';
-    data.ads.forEach(function(ad, i) {
-      html += '<div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--rs); padding:16px;">';
-      html += '<div style="font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; margin-bottom:8px;">Idea '+(i+1)+'</div>';
-      html += '<div style="margin-bottom:8px;"><strong>Hook:</strong> <span style="color:var(--text2)">'+esc(ad.hook)+'</span></div>';
-      html += '<div style="margin-bottom:8px;"><strong>Copy:</strong> <div style="color:var(--text2); white-space:pre-wrap; margin-top:4px;">'+esc(ad.primary_text)+'</div></div>';
-      html += '<div style="margin-bottom:8px;"><strong>Creative:</strong> <span style="color:var(--text2)">'+esc(ad.creative_idea)+'</span></div>';
-      html += '<div><strong>CTA:</strong> <span style="display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; background:var(--blue-bg); color:var(--blue); border-radius:4px;">'+esc(ad.cta)+'</span></div>';
+      // Platform Analysis
+      renderPlatform(ads, r.platform_analysis);
+
+      // Timeline
+      renderTimeline(ads);
+
+      // Marketing Approach
+      renderApproach(r.marketing_approach);
+
+      // Recommendations
+      renderRecommendations(r.recommendations);
+
+      // Ads Grid
+      renderAdsGrouped(ads);
+
+      document.getElementById('dashboard').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ---- CTA ----
+    function renderCTA(ads, data) {
+      if (!data) return;
+      var html = '';
+      if (data.ai_insight) {
+        html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">' + esc(data.ai_insight) + '</div></div>';
+      }
+      var items = data.items || [];
+      var maxCount = items.length ? Math.max.apply(null, items.map(function (i) { return i.count || 0; })) : 1;
+      // Store drawer data globally
+      window._drawerData = window._drawerData || {};
+      html += items.map(function (item, idx) {
+        var pct = Math.round((item.count / (ads.length || 1)) * 100);
+        var barW = Math.round((item.count / maxCount) * 100);
+        var adIds = item.ad_ids || [];
+        var ctaVal = item.cta || '';
+        if (!adIds.length) { adIds = ads.filter(function (a) { return (a.cta || '').toUpperCase() === ctaVal.toUpperCase(); }).map(function (a) { return a.id; }); }
+        var key = 'cta_' + idx;
+        window._drawerData[key] = { title: 'CTA: ' + ctaVal, subtitle: item.count + ' ads এ ব্যবহার হয়েছে', ids: adIds };
+        return '<div class="cta-item clickable" onclick="showDrawer(\'' + key + '\')" title="Click to see ads"><div class="cta-name">' + esc(ctaVal) + '</div><div class="cta-bar-wrap"><div class="cta-bar-track"><div class="cta-bar-fill" style="width:' + barW + '%"></div></div></div><div class="cta-count">' + item.count + '<span class="cta-pct">' + pct + '%</span></div></div>';
+      }).join('') + '<div class="click-hint">↑ যেকোনো row এ click করলে সেই ads দেখাবে</div>';
+      document.getElementById('cta-content').innerHTML = html;
+    }
+
+    // ---- HEADINGS ----
+    function renderHeadings(ads, data) {
+      var headings = {};
+      ads.forEach(function (ad) {
+        var t = (ad.title || '').trim();
+        if (t) { headings[t] = (headings[t] || 0) + 1; }
+      });
+      var sorted = Object.keys(headings).sort(function (a, b) { return headings[b] - headings[a]; });
+
+      var html = '';
+      if (data && data.ai_insight) {
+        html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">' + esc(data.ai_insight) + '</div></div>';
+      }
+      if (sorted.length === 0) {
+        html += '<p style="color:var(--text3);font-size:13px;padding:12px 0">কোনো heading পাওয়া যায়নি</p>';
+      } else {
+        window._drawerData = window._drawerData || {};
+        html += sorted.map(function (h, hidx) {
+          var cnt = headings[h];
+          var matchIds = ads.filter(function (a) { return (a.title || '').trim() === h; }).map(function (a) { return a.id; });
+          var key = 'heading_' + hidx;
+          window._drawerData[key] = { title: 'Heading', subtitle: cnt + ' টি ad এ ব্যবহার হয়েছে', ids: matchIds };
+          return '<div class="heading-item clickable" onclick="showDrawer(\'' + key + '\')" title="Click to see"><div class="heading-txt">' + esc(h) + '</div><span class="heading-cnt">' + cnt + '/' + ads.length + '</span></div>';
+        }).join('') + '<div class="click-hint">↑ যেকোনো heading এ click করলে সেই ads দেখাবে</div>';
+      }
+      document.getElementById('heading-content').innerHTML = html;
+    }
+
+    // ---- BODY ANALYSIS ----
+    function renderBodyAnalysis(ads, data) {
+      var html = '';
+      if (data) {
+        // Type breakdown
+        var tb = data.type_breakdown || {};
+        if (Object.keys(tb).length > 0) {
+          var typeColors = { USP: 'tag-usp', FOMO: 'tag-fomo', Offer: 'tag-offer', Feature: 'tag-feature', Price: 'tag-price', Story: 'tag-story', 'Social Proof': 'tag-social', 'Problem-Solution': 'tag-problem' };
+          var btIds = data.body_type_ad_ids || {};
+          window._drawerData = window._drawerData || {};
+          html += '<div class="type-breakdown" style="margin-bottom:16px">';
+          Object.keys(tb).forEach(function (type, tidx) {
+            var adIds = btIds[type] || [];
+            var count = tb[type] || 0;
+            var key = 'bodytype_' + tidx;
+            window._drawerData[key] = { title: type + ' Ads', subtitle: count + ' টি ad এ পাওয়া গেছে', ids: adIds };
+            html += '<div class="type-block clickable" onclick="showDrawer(\'' + key + '\')" title="Click to see"><div class="type-block-label">' + type + '</div><div class="type-block-val">' + count + '</div><div class="type-block-sub">' + Math.round(count / ads.length * 100) + '% ads এ</div><div class="click-hint">👆 click</div></div>';
+          });
+          html += '</div>';
+        }
+
+        // Elements found
+        if (data.elements) {
+          var el = data.elements;
+          html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
+          html += '<span class="body-el ' + (el.has_phone ? 'has' : 'not') + '">' + (el.has_phone ? '✔' : '✖') + ' Phone Number</span>';
+          html += '<span class="body-el ' + (el.has_website ? 'has' : 'not') + '">' + (el.has_website ? '✔' : '✖') + ' Website Link</span>';
+          html += '<span class="body-el ' + (el.has_cta_in_text ? 'has' : 'not') + '">' + (el.has_cta_in_text ? '✔' : '✖') + ' CTA in Text</span>';
+          if (el.formula_used) html += '<span class="body-el has" style="background:var(--blue);border-color:var(--blue);">Formula: ' + esc(el.formula_used) + '</span>';
+          html += '</div>';
+        }
+
+        if (data.approach_breakdown) {
+          html += '<div class="ai-insight" style="margin-bottom:12px"><div class="ai-insight-label">Approach Breakdown</div><div class="ai-insight-text">' + esc(data.approach_breakdown) + '</div></div>';
+        }
+        if (data.ai_insight) {
+          html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight — কিসে Focus করা উচিৎ</div><div class="ai-insight-text">' + esc(data.ai_insight) + '</div></div>';
+        }
+      }
+      document.getElementById('body-analysis-top').innerHTML = html;
+
+      // Body text list — deduplicated
+      var bodies = {};
+      ads.forEach(function (ad) {
+        var b = (ad.body || '').trim();
+        if (b) { bodies[b] = (bodies[b] || 0) + 1; }
+      });
+
+      var typeColors2 = { USP: 'tag-usp', FOMO: 'tag-fomo', Offer: 'tag-offer', Feature: 'tag-feature', Price: 'tag-price', Story: 'tag-story', 'Social Proof': 'tag-social', 'Problem-Solution': 'tag-problem' };
+      var bodyKeys = Object.keys(bodies).sort(function (a, b) { return bodies[b] - bodies[a]; });
+
+      var listHtml = bodyKeys.map(function (body, i) {
+        var cnt = bodies[body];
+        var preview = body.substring(0, 160);
+        var hasMore = body.length > 160;
+        var bodyId = 'body-full-' + i;
+        var hasPhone = /\d{10,}/.test(body) || /01[3-9]\d{8}/.test(body);
+        var hasWeb = /\.com|\.net|www\./i.test(body);
+        var hasCTA = /অর্ডার|কিনুন|ক্লিক|visit|order|click|shop/i.test(body);
+
+        var elHtml = '<div class="body-elements">';
+        elHtml += '<span class="body-el ' + (hasPhone ? 'has' : '') + '">📞 Phone</span>';
+        elHtml += '<span class="body-el ' + (hasWeb ? 'has' : '') + '">🌐 Website</span>';
+        elHtml += '<span class="body-el ' + (hasCTA ? 'has' : '') + '">👉 CTA</span>';
+        elHtml += '</div>';
+
+        var expandBtn = hasMore ? '<button class="xbtn" onclick="expandBodyText(\'' + bodyId + '\',this,`' + body.replace(/`/g, "'").replace(/\n/g, '\\n') + '`)">See more ▾</button>' : '';
+
+        return '<div class="body-item"><div class="body-type-tags"></div><div class="body-body-label" style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Body Text ' + (i + 1) + (cnt > 1 ? ' <strong style=\'color:var(--accent)\'>(' + cnt + 'x ব্যবহার)</strong>' : '') + '</div><div class="body-preview" id="' + bodyId + '">' + esc(preview) + (hasMore ? '…' : '') + '</div>' + expandBtn + elHtml + '</div>';
+      }).join('');
+
+      document.getElementById('body-list').innerHTML = listHtml || '<p style="color:var(--text3);font-size:13px">কোনো body text পাওয়া যায়নি</p>';
+    }
+
+    function expandBodyText(id, btn, full) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = full.replace(/\\n/g, '\n');
+      btn.style.display = 'none';
+    }
+
+    // ---- CREATIVE ----
+    function renderCreative(ads, data) {
+      var html = '';
+      if (data) {
+        var fb = data.format_breakdown || {};
+        html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">';
+        ['image', 'video', 'carousel'].forEach(function (f) {
+          var cnt = fb[f] || 0;
+          html += '<div class="type-block"><div class="type-block-label">' + f + '</div><div class="type-block-val">' + cnt + '</div><div class="type-block-sub">' + Math.round(cnt / ads.length * 100) + '%</div></div>';
+        });
+        html += '</div>';
+
+        var ct = data.creative_types || {};
+        var ctIds = data.creative_type_ad_ids || {};
+        var ctLabels = { feature_highlight: 'Feature Highlight', problem_solution: 'Problem → Solution', influencer: 'Influencer', ugc: 'UGC', review: 'Review/Testimonial', usp: 'USP', offer: 'Offer/Discount' };
+        window._drawerData = window._drawerData || {};
+        html += '<div style="margin-bottom:14px">';
+        Object.keys(ct).forEach(function (k, cidx) {
+          if (!ct[k]) return;
+          var adIds = ctIds[k] || [];
+          var label = ctLabels[k] || k;
+          var key = 'creative_' + cidx;
+          window._drawerData[key] = { title: label, subtitle: ct[k] + ' টি ad', ids: adIds };
+          html += '<div class="cta-item clickable" onclick="showDrawer(\'' + key + '\')" title="Click to see"><div class="cta-name" style="font-size:12px">' + esc(label) + '</div><div class="cta-bar-wrap"><div class="cta-bar-track"><div class="cta-bar-fill" style="width:' + Math.round(ct[k] / ads.length * 100) + '%"></div></div></div><div class="cta-count" style="font-size:12px">' + ct[k] + '</div></div>';
+        });
+        html += '</div><div class="click-hint">↑ Click করলে সেই ধরনের ads দেখাবে</div>';
+
+        if (data.ai_insight) {
+          html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">' + esc(data.ai_insight) + '</div></div>';
+        }
+      }
+      document.getElementById('creative-content').innerHTML = html;
+    }
+
+    // ---- PLATFORM ----
+    function renderPlatform(ads, data) {
+      var platIcons = { Facebook: '📘', Instagram: '📸', Messenger: '💬', Audience_Network: '📱', 'Audience Network': '📱' };
+      var html = '';
+      if (data && data.ai_insight) {
+        html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">' + esc(data.ai_insight) + '</div></div>';
+      }
+
+      // Count from actual ads
+      var platCounts = {};
+      ads.forEach(function (ad) {
+        var plats = (ad.platform || '').split(',').map(function (p) { return p.trim(); }).filter(Boolean);
+        if (!plats.length) plats = ['Unknown'];
+        plats.forEach(function (p) { platCounts[p] = (platCounts[p] || 0) + 1; });
+      });
+
+      // Fallback to AI data
+      var platforms = data && data.platforms && data.platforms.length ? data.platforms : Object.keys(platCounts).map(function (k) { return { name: k, percentage: Math.round(platCounts[k] / ads.length * 100) }; });
+
+      html += platforms.map(function (p) {
+        return '<div class="platform-item"><div class="platform-icon">' + (platIcons[p.name] || '🌐') + '</div><div class="platform-name">' + esc(p.name) + '</div><div class="platform-pct">' + p.percentage + '%</div></div>';
+      }).join('');
+      document.getElementById('platform-content').innerHTML = html;
+    }
+
+    // ---- TIMELINE ----
+    function renderTimeline(ads) {
+      var maxD = 0;
+      var adsWithDays = ads.map(function (ad) {
+        var d = daysDiff(ad.start_date);
+        if (d !== null && d > maxD) maxD = d;
+        return { ad: ad, days: d };
+      });
+
+      // Summary stats
+      var byRange = { '১-৭ দিন': 0, '৮-৩০ দিন': 0, '৩১-৯০ দিন': 0, '৯০+ দিন': 0 };
+      adsWithDays.forEach(function (x) {
+        if (x.days === null) return;
+        if (x.days <= 7) byRange['১-৭ দিন']++;
+        else if (x.days <= 30) byRange['৮-৩০ দিন']++;
+        else if (x.days <= 90) byRange['৩১-৯০ দিন']++;
+        else byRange['৯০+ দিন']++;
+      });
+
+      var rangeAds = {
+        '১-৭ দিন': ads.filter(function (a) { var d = daysDiff(a.start_date); return d !== null && d <= 7; }).map(function (a) { return a.id; }),
+        '৮-৩০ দিন': ads.filter(function (a) { var d = daysDiff(a.start_date); return d !== null && d > 7 && d <= 30; }).map(function (a) { return a.id; }),
+        '৩১-৯০ দিন': ads.filter(function (a) { var d = daysDiff(a.start_date); return d !== null && d > 30 && d <= 90; }).map(function (a) { return a.id; }),
+        '৯০+ দিন': ads.filter(function (a) { var d = daysDiff(a.start_date); return d !== null && d > 90; }).map(function (a) { return a.id; })
+      };
+      window._drawerData = window._drawerData || {};
+      var html = '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">';
+      Object.keys(byRange).forEach(function (k, tidx) {
+        var key = 'timeline_' + tidx;
+        window._drawerData[key] = { title: k + ' Ads', subtitle: byRange[k] + ' টি ad', ids: rangeAds[k] || [] };
+        html += '<div class="type-block clickable" onclick="showDrawer(\'' + key + '\')" title="Click to see"><div class="type-block-label">' + k + '</div><div class="type-block-val">' + byRange[k] + '</div><div class="type-block-sub">👆 click</div></div>';
+      });
       html += '</div>';
-    });
-    
-    res.innerHTML = html;
-    load.style.display = 'none';
-    res.style.display = 'flex';
-    btn.style.display = 'inline-block';
-    btn.textContent = '🔄 আবার জেনারেট করো';
-    
-  } catch(e) {
-    load.style.display = 'none';
-    btn.style.display = 'inline-block';
-    alert('কোথাও সমস্যা হয়েছে! আবার চেষ্টা করুন।');
-  }
-}
 
-</script>
+      html += adsWithDays.map(function (x) {
+        var barW = maxD > 0 && x.days !== null ? Math.max(2, Math.round(x.days / maxD * 100)) : 2;
+        var dl = durLabel(x.days);
+        var barCls = durBarClass(x.days);
+        return '<div class="timeline-item"><div class="timeline-id">Ad ' + x.ad.id + '</div><div class="timeline-bar-wrap"><div class="timeline-bar-track"><div class="timeline-bar-fill ' + barCls + '" style="width:' + barW + '%"></div></div></div><div class="timeline-days">' + (x.days !== null ? x.days + 'দিন' : '?') + '</div><div class="timeline-start">' + (x.ad.start_date ? x.ad.start_date.substring(0, 10) : 'অজানা') + '</div></div>';
+      }).join('');
+
+      document.getElementById('timeline-content').innerHTML = html;
+    }
+
+    // ---- APPROACH ----
+    function renderApproach(data) {
+      if (!data) return;
+      var sections = [
+        ['Primary Strategy', data.primary_strategy],
+        ['Messaging Focus', data.messaging_focus],
+        ['Audience Signals', data.audience_signals],
+        ['Testing Signals', data.testing_signals],
+      ];
+      var html = '';
+      if (data.overall_assessment) {
+        html += '<div class="ai-insight" style="margin-bottom:16px"><div class="ai-insight-label">Overall Assessment</div><div class="ai-insight-text">' + esc(data.overall_assessment) + '</div></div>';
+      }
+      html += '<div class="approach-grid">';
+      sections.forEach(function (s) {
+        if (!s[1]) return;
+        html += '<div class="approach-card"><div class="approach-label">' + s[0] + '</div><div class="approach-content">' + esc(s[1]) + '</div></div>';
+      });
+      html += '</div>';
+      document.getElementById('approach-content').innerHTML = html;
+    }
+
+    // ---- RECOMMENDATIONS ----
+    function renderRecommendations(recs) {
+      if (!recs || !recs.length) return;
+      var priMap = { high: 'pri-high', medium: 'pri-mid', low: 'pri-low' };
+      var priLabel = { high: 'High Priority', medium: 'Medium Priority', low: 'Low Priority' };
+      var html = '<div class="rec-list">';
+      recs.forEach(function (rec, i) {
+        html += '<div class="rec-item"><div class="rec-num">' + (i + 1) + '</div><div class="rec-body"><div class="rec-title">' + esc(rec.title || '') + '</div><div class="rec-desc">' + esc(rec.description || '') + '</div><span class="rec-priority ' + (priMap[rec.priority] || 'pri-mid') + '">' + (priLabel[rec.priority] || 'Medium') + '</span></div></div>';
+      });
+      html += '</div>';
+      document.getElementById('rec-content').innerHTML = html;
+    }
+
+    // ---- ADS GROUPED ----
+    function renderAdsGrouped(ads) {
+      var groups = {};
+      ads.forEach(function (ad) {
+        var fmt = (ad.format || 'unknown').toLowerCase();
+        var key = fmt.includes('video') ? 'Video' : fmt.includes('image') ? 'Image' : fmt.includes('carousel') ? 'Carousel' : 'অন্যান্য';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(ad);
+      });
+      var order = ['Video', 'Image', 'Carousel', 'অন্যান্য'];
+      var fmtKeys = order.filter(function (k) { return groups[k]; });
+
+      document.getElementById('ftabs').innerHTML = ['সব'].concat(fmtKeys).map(function (k, i) {
+        var cnt = k === 'সব' ? ads.length : groups[k].length;
+        return '<button class="ftab' + (i === 0 ? ' active' : '') + '" onclick="switchTab(\'' + k + '\',this)">' + k + '<span class="cnt">' + cnt + '</span></button>';
+      }).join('');
+
+      document.getElementById('ads-groups').innerHTML = fmtKeys.map(function (fmt) {
+        return '<div class="format-group visible" id="grp-' + fmt + '"><div class="fgroup-title">' + fmt + ' Ads (' + groups[fmt].length + ' টি)</div><div class="ads-grid">' + groups[fmt].map(function (ad) { return renderAdCard(ad); }).join('') + '</div></div>';
+      }).join('');
+    }
+
+    function switchTab(key, btn) {
+      document.querySelectorAll('.ftab').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      document.querySelectorAll('.format-group').forEach(function (g) {
+        g.classList.toggle('visible', key === 'সব' || g.id === 'grp-' + key);
+      });
+    }
+
+    function renderAdCard(ad) {
+      var days = daysDiff(ad.start_date);
+      var dl = durLabel(days);
+      var fmtCls = (ad.format || '').includes('video') ? 'fmt-video' : (ad.format || '').includes('carousel') ? 'fmt-carousel' : 'fmt-image';
+
+      var mediaHtml = '';
+      if (ad.videos && ad.videos.length > 0) {
+        mediaHtml = '<div class="ad-media"><video src="' + esc(ad.videos[0]) + '" controls' + (ad.thumbnail ? ' poster="' + esc(ad.thumbnail) + '"' : '') + ' style="width:100%"></video><span class="ad-fmt-badge fmt-video">VIDEO</span>' + (ad.library_url ? '<a class="ad-lib-link" href="' + esc(ad.library_url) + '" target="_blank">Library ↗</a>' : '') + '</div>';
+      } else if (ad.images && ad.images.length > 0) {
+        mediaHtml = '<div class="ad-media"><img src="' + esc(ad.images[0]) + '" loading="lazy" alt="" onerror="this.style.display=\'none\'"/><span class="ad-fmt-badge ' + fmtCls + '">' + (ad.format || 'image').toUpperCase() + '</span>' + (ad.library_url ? '<a class="ad-lib-link" href="' + esc(ad.library_url) + '" target="_blank">Library ↗</a>' : '') + '</div>';
+      } else if (ad.library_url) {
+        mediaHtml = '<div class="ad-media"><div class="ad-media-empty"><a href="' + esc(ad.library_url) + '" target="_blank" style="color:var(--accent)">Ad Library তে দেখো ↗</a></div></div>';
+      }
+
+      var body = ad.body || '';
+      var bodyId = 'abd-' + ad.id;
+      var hasMore = body.length > 150;
+      var shortBody = hasMore ? body.substring(0, 150) + '…' : body;
+      var safeBody = body.replace(/`/g, "'").replace(/\n/g, '\\n');
+      var expandBtn = hasMore ? '<button class="xbtn" onclick="expandBodyText(\'' + bodyId + '\',this,`' + safeBody + '`)">See more ▾</button>' : '';
+
+      var tags = '';
+      if (ad.cta) tags += '<span class="ctatag">' + esc(ad.cta) + '</span>';
+      if (ad.platform) tags += '<span class="atag">' + esc(ad.platform) + '</span>';
+      if (ad.start_date) tags += '<span class="atag">' + esc(ad.start_date.substring(0, 10)) + '</span>';
+
+      return '<div class="ad-card">' + mediaHtml + '<div class="ad-content"><div class="ad-num">AD #' + ad.id + '</div>' + (dl.cls ? '<div class="ad-duration-badge ' + dl.cls + '">⏱ ' + dl.text + '</div>' : '') + (ad.title ? '<div class="ad-title-txt">' + esc(ad.title) + '</div>' : '') + (body ? '<div class="ad-body-label">Primary Text</div><div class="ad-body-txt" id="' + bodyId + '">' + esc(shortBody) + '</div>' + expandBtn : '<div class="ad-body-txt" style="color:var(--text3);font-style:italic">primary text নেই</div>') + '<div class="ad-footer">' + tags + '</div></div></div>';
+    }
+
+    // ---- DRAWER ----
+    var drawerAds = [];
+    window._drawerData = {};
+
+    function showDrawer(key) {
+      var d = window._drawerData[key];
+      if (!d) return;
+      openDrawer(d.title, d.subtitle, d.ids);
+    }
+
+    function openDrawer(title, subtitle, adIds) {
+      document.getElementById('drawer-title').textContent = title;
+      document.getElementById('drawer-subtitle').textContent = subtitle;
+
+      var filtered = adIds && adIds.length
+        ? allAds.filter(function (a) { return adIds.indexOf(a.id) !== -1; })
+        : allAds;
+
+      var html = filtered.length === 0
+        ? '<p style="color:var(--text3);font-size:13px">কোনো matching ad পাওয়া যায়নি</p>'
+        : filtered.map(function (ad) {
+          var body = ad.body || '';
+          var imgHtml = ad.images && ad.images[0] ? '<img src="' + esc(ad.images[0]) + '" class="drawer-ad-img" onerror="this.style.display=\'none\'" loading="lazy"/>' : '';
+          var tags = '';
+          if (ad.cta) tags += '<span class="atag">' + esc(ad.cta) + '</span>';
+          if (ad.format) tags += '<span class="atag">' + esc(ad.format) + '</span>';
+          if (ad.start_date) tags += '<span class="atag">' + esc(ad.start_date.substring(0, 10)) + '</span>';
+          var days = daysDiff(ad.start_date);
+          if (days !== null) tags += '<span class="atag">' + days + 'দিন</span>';
+          return '<div class="drawer-ad">' +
+            '<div class="drawer-ad-num">AD #' + ad.id + '</div>' +
+            imgHtml +
+            (ad.title ? '<div class="drawer-ad-title">' + esc(ad.title) + '</div>' : '') +
+            (body ? '<div class="drawer-ad-body">' + esc(body.substring(0, 400)) + (body.length > 400 ? '…' : '') + '</div>' : '') +
+            '<div class="drawer-ad-tags">' + tags + '</div>' +
+            (ad.library_url ? '<div style="margin-top:8px"><a href="' + esc(ad.library_url) + '" target="_blank" style="font-size:11px;color:var(--accent)">Ad Library তে দেখো ↗</a></div>' : '') +
+            '</div>';
+        }).join('');
+
+      document.getElementById('drawer-body').innerHTML = html;
+      document.getElementById('drawer').classList.add('open');
+      document.getElementById('drawer-overlay').classList.add('open');
+    }
+
+    function closeDrawer() {
+      document.getElementById('drawer').classList.remove('open');
+      document.getElementById('drawer-overlay').classList.remove('open');
+    }
+
+    // ---- PDF EXPORT ----
+    function downloadPDF() {
+      var dBtn = document.getElementById('dl-btn');
+      var oldText = dBtn.innerHTML;
+      dBtn.innerHTML = '⏳ রিপোর্ট প্রসেস হচ্ছে...';
+      dBtn.style.opacity = '0.7';
+      dBtn.style.pointerEvents = 'none';
+
+      setTimeout(function () {
+        var element = document.getElementById('dashboard');
+        var company = document.getElementById('dash-company').textContent || 'Report';
+        var opt = {
+          margin: [10, 10, 10, 10],
+          filename: company + '.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, logging: false },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save().then(function () {
+          dBtn.innerHTML = oldText;
+          dBtn.style.opacity = '1';
+          dBtn.style.pointerEvents = 'auto';
+        }).catch(function () {
+          dBtn.innerHTML = oldText;
+          dBtn.style.opacity = '1';
+          dBtn.style.pointerEvents = 'auto';
+        });
+      }, 100);
+    }
+
+    // ---- AI AD GENERATOR ----
+    async function generateAdsBrief() {
+      if (!keys.c) { alert('Claude API Key সেট করা নেই!'); return; }
+
+      var company = document.getElementById('company').value.trim();
+      var btn = document.getElementById('gen-btn');
+      var load = document.getElementById('gen-loading');
+      var res = document.getElementById('gen-results');
+
+      btn.style.display = 'none';
+      load.style.display = 'block';
+      res.style.display = 'none';
+
+      var prompt = 'You just analyzed Meta ads for ' + company + '. Based on their most successful strategies (like prominent CTAs, effective hooks, and messaging patterns), act as an expert South Asian copywriter. Generate 3 unique "Ad Briefs" for a direct competitor of ' + company + ' to beat them.\n\nEach brief must include:\n1. Hook/Headline: Very catchy, using psychology.\n2. Primary Text: The main body text using PAS or AIDA.\n3. Creative Idea: Description of image/video to use.\n4. CTA: Best button to use.\n\nReturn JSON ONLY. Format:\n{"ads":[{"hook":"text","primary_text":"text","creative_idea":"text","cta":"text"}]}\n\nKeep all text in Bangla except the CTA value.';
+
+      var messages = [{ role: 'user', content: prompt }];
+
+      var payload = {
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: messages
+      };
+
+      try {
+        var r = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': keys.c,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!r.ok) { var e; try { e = await r.json(); } catch (x) { throw new Error('Claude API error'); } throw new Error(e.error && e.error.message || 'Claude API error'); }
+
+        var d = await r.json();
+        var raw = d.content && d.content.map(function (c) { return c.text || ''; }).join('') || '';
+
+        var js = raw.trim();
+        js = js.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/\s*```$/, '').trim();
+        var start = js.indexOf('{');
+        var end = js.lastIndexOf('}');
+        if (start !== -1 && end !== -1) js = js.substring(start, end + 1);
+
+        var data = JSON.parse(js);
+
+        var html = '';
+        data.ads.forEach(function (ad, i) {
+          html += '<div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--rs); padding:16px;">';
+          html += '<div style="font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; margin-bottom:8px;">Idea ' + (i + 1) + '</div>';
+          html += '<div style="margin-bottom:8px;"><strong>Hook:</strong> <span style="color:var(--text2)">' + esc(ad.hook) + '</span></div>';
+          html += '<div style="margin-bottom:8px;"><strong>Copy:</strong> <div style="color:var(--text2); white-space:pre-wrap; margin-top:4px;">' + esc(ad.primary_text) + '</div></div>';
+          html += '<div style="margin-bottom:8px;"><strong>Creative:</strong> <span style="color:var(--text2)">' + esc(ad.creative_idea) + '</span></div>';
+          html += '<div><strong>CTA:</strong> <span style="display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; background:var(--blue-bg); color:var(--blue); border-radius:4px;">' + esc(ad.cta) + '</span></div>';
+          html += '</div>';
+        });
+
+        res.innerHTML = html;
+        load.style.display = 'none';
+        res.style.display = 'flex';
+        btn.style.display = 'inline-block';
+        btn.textContent = '🔄 আবার জেনারেট করো';
+
+      } catch (e) {
+        load.style.display = 'none';
+        btn.style.display = 'inline-block';
+        alert('কোথাও সমস্যা হয়েছে! আবার চেষ্টা করুন।');
+      }
+    }
+
+  </script>
 </body>
+
 </html>
