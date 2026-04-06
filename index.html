@@ -391,8 +391,8 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
         <div class="dash-company" id="dash-company"></div>
         <div class="dash-meta" id="dash-meta"></div>
       </div>
-      <div class="dash-actions">
-        <button class="dash-back" onclick="downloadPDF()" style="background:var(--accent);color:var(--white);border-color:var(--accent);font-weight:600">⬇ PDF ডাউনলোড</button>
+      <div class="dash-actions" data-html2canvas-ignore="true">
+        <button id="dl-btn" class="dash-back" onclick="downloadPDF()" style="background:var(--accent);color:var(--white);border-color:var(--accent);font-weight:600">⬇ PDF ডাউনলোড</button>
         <button class="dash-back" onclick="resetAll()">← নতুন সার্চ</button>
       </div>
     </div>
@@ -489,7 +489,7 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
           <span class="card-badge badge-accent">Create New</span>
         </div>
         <p style="font-size:13px; color:var(--text2); margin-bottom:14px;">কম্পিটিটরের অ্যানালাইসিসের উপর ভিত্তি করে AI দিয়ে নতুন ৩টি অ্যাড কপি ও ক্রিয়েটিভ আইডিয়া জেনারেট করুন।</p>
-        <button class="go-btn" id="gen-btn" onclick="generateAdsBrief()">✨ নতুন অ্যাড আইডিয়া জেনারেট করো</button>
+        <button class="go-btn" id="gen-btn" onclick="generateAdsBrief()" data-html2canvas-ignore="true">✨ নতুন অ্যাড আইডিয়া জেনারেট করো</button>
         <div id="gen-loading" style="display:none; margin-top:14px; font-size:13px; color:var(--text3);">
           <div class="spinner" style="width:20px; height:20px; border-width:2px; margin:0 10px 0 0; display:inline-block; vertical-align:middle;"></div>
           AI আপনার জন্য নতুন আইডিয়া ভাবছে...
@@ -1202,25 +1202,33 @@ function closeDrawer() {
 
 // ---- PDF EXPORT ----
 function downloadPDF() {
-  var element = document.getElementById('dashboard');
-  var company = document.getElementById('dash-company').textContent || 'Report';
-  var opt = {
-    margin:       [10, 10, 10, 10],
-    filename:     company + '.pdf',
-    image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true, logging: false },
-    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-  
-  var actions = document.querySelector('.dash-actions');
-  var genBtn = document.getElementById('gen-btn');
-  if (actions) actions.style.display = 'none';
-  if (genBtn) genBtn.style.display = 'none';
-  
-  html2pdf().set(opt).from(element).save().then(function() {
-    if (actions) actions.style.display = 'flex';
-    if (genBtn) genBtn.style.display = 'inline-block';
-  });
+  var dBtn = document.getElementById('dl-btn');
+  var oldText = dBtn.innerHTML;
+  dBtn.innerHTML = '⏳ রিপোর্ট তৈরী হচ্ছে...';
+  dBtn.style.opacity = '0.7';
+  dBtn.style.pointerEvents = 'none';
+
+  setTimeout(function() {
+    var element = document.getElementById('dashboard');
+    var company = document.getElementById('dash-company').textContent || 'Report';
+    var opt = {
+      margin:       [10, 10, 10, 10],
+      filename:     company + '.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, logging: false },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(element).save().then(function() {
+      dBtn.innerHTML = oldText;
+      dBtn.style.opacity = '1';
+      dBtn.style.pointerEvents = 'auto';
+    }).catch(function() {
+      dBtn.innerHTML = oldText;
+      dBtn.style.opacity = '1';
+      dBtn.style.pointerEvents = 'auto';
+    });
+  }, 100);
 }
 
 // ---- AI AD GENERATOR ----
