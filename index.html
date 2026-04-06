@@ -556,6 +556,16 @@ window.addEventListener('load', function() {
   try {
     var c = localStorage.getItem('mai_c'), s = localStorage.getItem('mai_s');
     if (c && s) { keys.c = c; keys.s = s; document.getElementById('ckey').value = c; document.getElementById('skey').value = s; updateKeyUI(true); }
+    
+    var savedSearch = localStorage.getItem('mai_saved_search');
+    if (savedSearch) {
+      var sd = JSON.parse(savedSearch);
+      document.getElementById('company').value = sd.company;
+      document.getElementById('country').value = sd.country;
+      document.getElementById('hero-section').style.display = 'none';
+      allAds = sd.ads;
+      renderDashboard(sd.company, sd.country, sd.ads, sd.analysis);
+    }
   } catch(e) {}
   document.getElementById('company').addEventListener('keydown', function(e) { if (e.key === 'Enter') go(); });
 });
@@ -611,6 +621,7 @@ function resetAll() {
   document.getElementById('company').value = '';
   document.getElementById('go-btn').disabled = false;
   allAds = [];
+  try { localStorage.removeItem('mai_saved_search'); } catch(e) {}
 }
 
 // ---- MAIN FLOW ----
@@ -638,6 +649,7 @@ async function go() {
 
     var analysis = await analyzeWithClaude(company, country, allAds);
     renderDashboard(company, country, allAds, analysis);
+    try { localStorage.setItem('mai_saved_search', JSON.stringify({ company: company, country: country, ads: allAds, analysis: analysis })); } catch(e) {}
 
   } catch(err) {
     document.getElementById('hero-section').style.display = 'block';
