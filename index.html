@@ -670,7 +670,7 @@ async function analyzeWithClaude(company, country, ads) {
   var messages = [
     {
       role: 'user',
-      content: 'You are an expert Meta Ads strategist for South Asian markets. Today is ' + todayStr + '.\n\nAnalyze these ' + ads.length + ' ads from "' + company + '" (Country: ' + country + ').\n\nAD DATA (JSON):\n' + JSON.stringify(adSummaries) + '\n\nReturn a JSON analysis. All Bangla text fields must use simple Bangla sentences without special quote characters. Use only standard double quotes for JSON strings.\n\nRequired format:\n{"cta_analysis":{"items":[{"cta":"ORDER_NOW","count":5,"ad_ids":[1,2,3],"insight":"insight text"}],"ai_insight":"insight"},"body_analysis":{"type_breakdown":{"USP":0,"FOMO":0,"Offer":0,"Feature":0,"Story":0,"Social Proof":0,"Problem-Solution":0,"Price":0},"body_type_ad_ids":{"USP":[],"FOMO":[],"Offer":[],"Feature":[],"Story":[],"Social Proof":[],"Problem-Solution":[],"Price":[]},"elements":{"has_phone":false,"has_website":false,"has_cta_in_text":false,"formula_used":"PAS"},"approach_breakdown":"text","ai_insight":"text"},"heading_analysis":{"ai_insight":"text"},"creative_analysis":{"format_breakdown":{"image":0,"video":0,"carousel":0},"creative_types":{"feature_highlight":0,"problem_solution":0,"influencer":0,"ugc":0,"review":0,"usp":0,"offer":0},"creative_type_ad_ids":{"feature_highlight":[],"problem_solution":[],"influencer":[],"ugc":[],"review":[],"usp":[],"offer":[]},"ai_insight":"text"},"platform_analysis":{"platforms":[{"name":"Facebook","percentage":80}],"ai_insight":"text"},"marketing_approach":{"primary_strategy":"text","messaging_focus":"text","audience_signals":"text","testing_signals":"text","overall_assessment":"text"},"recommendations":[{"title":"title","description":"desc","priority":"high"}]}\n\nRules: ad_ids use actual ad id numbers. All text in Bangla. No line breaks inside string values. priority = high/medium/low only.'
+      content: 'You are an expert Meta Ads strategist for South Asian markets. Today is ' + todayStr + '.\n\nAnalyze these ' + ads.length + ' ads from "' + company + '" (Country: ' + country + ').\n\nAD DATA (JSON):\n' + JSON.stringify(adSummaries) + '\n\nReturn a JSON analysis. All Bangla text fields must use simple Bangla sentences without special quote characters. Use only standard double quotes for JSON strings.\n\nRequired format:\n{"cta_analysis":{"items":[{"cta":"ORDER_NOW","count":5,"ad_ids":[1,2,3],"insight":"insight text"}],"ai_insight":"insight"},"body_analysis":{"ad_classifications":[{"ad_id":1,"primary_type":"Offer"}],"elements":{"has_phone":false,"has_website":false,"has_cta_in_text":false,"formula_used":"PAS"},"approach_breakdown":"text","ai_insight":"text"},"heading_analysis":{"ai_insight":"text"},"creative_analysis":{"ad_classifications":[{"ad_id":1,"creative_type":"feature_highlight"}],"format_breakdown":{"image":0,"video":0,"carousel":0},"ai_insight":"text"},"platform_analysis":{"platforms":[{"name":"Facebook","percentage":80}],"ai_insight":"text"},"marketing_approach":{"primary_strategy":"text","messaging_focus":"text","audience_signals":"text","testing_signals":"text","overall_assessment":"text"},"recommendations":[{"title":"title","description":"desc","priority":"high"}]}\n\nRules: ad_ids use actual ad id numbers. For body_analysis.ad_classifications, assign exactly ONE primary_type (must be exactly one of: USP, FOMO, Offer, Feature, Price, Story, Social Proof, Problem-Solution) for each ad based on deep body text analysis. For creative_analysis.ad_classifications, assign exactly pattern (must be: feature_highlight, problem_solution, influencer, ugc, review, usp, offer). All text in Bangla. No line breaks inside string values. priority = high/medium/low only.'
     }
   ];
 
@@ -693,12 +693,53 @@ async function analyzeWithClaude(company, country, ads) {
   js = js.substring(start, end + 1);
   js = js.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
+  var parseAndTransform = function(jsonStr) {
+    var p = JSON.parse(jsonStr);
+    
+    // Auto-calculate exact Body text mappings
+    if (p.body_analysis && p.body_analysis.ad_classifications) {
+      p.body_analysis.type_breakdown = {};
+      p.body_analysis.body_type_ad_ids = {};
+      var validBodyTypes = ['USP','FOMO','Offer','Feature','Price','Story','Social Proof','Problem-Solution'];
+      validBodyTypes.forEach(function(t) {
+        p.body_analysis.type_breakdown[t] = 0;
+        p.body_analysis.body_type_ad_ids[t] = [];
+      });
+      p.body_analysis.ad_classifications.forEach(function(c) {
+        var t = c.primary_type;
+        if (validBodyTypes.indexOf(t) !== -1) {
+          p.body_analysis.type_breakdown[t]++;
+          p.body_analysis.body_type_ad_ids[t].push(c.ad_id);
+        }
+      });
+    }
+    
+    // Auto-calculate exact Creative mappings
+    if (p.creative_analysis && p.creative_analysis.ad_classifications) {
+      p.creative_analysis.creative_types = {};
+      p.creative_analysis.creative_type_ad_ids = {};
+      var validCTypes = ['feature_highlight','problem_solution','influencer','ugc','review','usp','offer'];
+      validCTypes.forEach(function(t) {
+        p.creative_analysis.creative_types[t] = 0;
+        p.creative_analysis.creative_type_ad_ids[t] = [];
+      });
+      p.creative_analysis.ad_classifications.forEach(function(c) {
+        var t = c.creative_type;
+        if (validCTypes.indexOf(t) !== -1) {
+          p.creative_analysis.creative_types[t]++;
+          p.creative_analysis.creative_type_ad_ids[t].push(c.ad_id);
+        }
+      });
+    }
+    return p;
+  };
+
   try {
-    return JSON.parse(js);
+    return parseAndTransform(js);
   } catch(e) {
     try {
       js = js.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
-      return JSON.parse(js);
+      return parseAndTransform(js);
     } catch(e2) {
       console.error('Raw response:', raw.substring(0, 500));
       throw new Error('JSON parse error: ' + e2.message + ' — আবার চেষ্টা করো');
