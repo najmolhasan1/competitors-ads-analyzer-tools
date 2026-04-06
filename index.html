@@ -348,8 +348,8 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
   <!-- HERO -->
   <div class="hero" id="hero-section">
     <div class="hero-label">Competitive Intelligence Tool</div>
-    <h1>যেকোনো কোম্পানির<br><em>Ad Strategy</em> বিশ্লেষণ করো</h1>
-    <p>Meta Ads Library থেকে automatically সব ads এনে AI দিয়ে গভীর marketing analysis করবে।</p>
+    <h1>যেকোনো ব্র্যান্ডের<br><em>Ad Strategy</em> ডিকোড করুন নিমিষেই</h1>
+    <p>অ্যাড লাইব্রেরি থেকে রিয়েল-টাইম ডেটা টেনে এনে এআই-এর সাহায্যে কম্পিটিটরদের হিডেন মার্কেটিং স্ট্র্যাটেজি এবং উইনিং অ্যাডসগুলো অ্যানালাইজ করুন।</p>
 
     <div class="search-box">
       <div class="search-row">
@@ -361,7 +361,7 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
           <option value="GB">United Kingdom</option>
           <option value="ALL">সব দেশ</option>
         </select>
-        <button class="go-btn" id="go-btn" onclick="go()">বিশ্লেষণ করো →</button>
+        <button class="go-btn" id="go-btn" onclick="go()">অ্যানালাইজ করুন →</button>
       </div>
       <div class="search-opts">
         <div class="opt-item">
@@ -379,8 +379,8 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
   <!-- LOADING -->
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <div class="loading-txt" id="ltxt">Meta Ads Library থেকে data আনা হচ্ছে...</div>
-    <div class="loading-sub" id="lsub">কিছুক্ষণ অপেক্ষা করো</div>
+    <div class="loading-txt" id="ltxt">অ্যাড লাইব্রেরি থেকে ডেটা কালেক্ট করা হচ্ছে...</div>
+    <div class="loading-sub" id="lsub">অনুগ্রহ করে অপেক্ষা করুন</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -393,8 +393,8 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
         <div class="dash-meta" id="dash-meta"></div>
       </div>
       <div class="dash-actions" data-html2canvas-ignore="true">
-        <button id="dl-btn" class="dash-back" onclick="downloadPDF()" style="background:var(--accent);color:var(--white);border-color:var(--accent);font-weight:600">⬇ PDF ডাউনলোড</button>
-        <button class="dash-back" onclick="resetAll()">← নতুন সার্চ</button>
+        <button id="dl-btn" class="dash-back" onclick="downloadPDF()" style="background:var(--accent);color:var(--white);border-color:var(--accent);font-weight:600"><svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="margin-right:4px;vertical-align:-2px"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg> রিপোর্ট ডাউনলোড</button>
+        <button class="dash-back" onclick="resetAll()"><svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24" style="margin-right:4px;vertical-align:-2px"><path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21v-2z"/></svg> নতুন সার্চ</button>
       </div>
     </div>
 
@@ -489,11 +489,11 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
           <span class="card-title">AI Ad Brief Generator</span>
           <span class="card-badge badge-accent">Create New</span>
         </div>
-        <p style="font-size:13px; color:var(--text2); margin-bottom:14px;">কম্পিটিটরের অ্যানালাইসিসের উপর ভিত্তি করে AI দিয়ে নতুন ৩টি অ্যাড কপি ও ক্রিয়েটিভ আইডিয়া জেনারেট করুন।</p>
-        <button class="go-btn" id="gen-btn" onclick="generateAdsBrief()" data-html2canvas-ignore="true">✨ নতুন অ্যাড আইডিয়া জেনারেট করো</button>
+        <p style="font-size:13px; color:var(--text2); margin-bottom:14px;">কম্পিটিটরের অ্যানালাইসিসের উপর ভিত্তি করে এআই-এর সাহায্যে নতুন ৩টি প্রফেশনাল অ্যাড কপি ও ক্রিয়েটিভ আইডিয়া জেনারেট করুন।</p>
+        <button class="go-btn" id="gen-btn" onclick="generateAdsBrief()" data-html2canvas-ignore="true">✨ নতুন অ্যাড আইডিয়া জেনারেট করুন</button>
         <div id="gen-loading" style="display:none; margin-top:14px; font-size:13px; color:var(--text3);">
           <div class="spinner" style="width:20px; height:20px; border-width:2px; margin:0 10px 0 0; display:inline-block; vertical-align:middle;"></div>
-          AI আপনার জন্য নতুন আইডিয়া ভাবছে...
+          এআই নতুন আইডিয়া জেনারেট করছে...
         </div>
         <div id="gen-results" style="margin-top:20px; display:none; flex-direction:column; gap:12px;"></div>
       </div>
@@ -637,16 +637,16 @@ async function go() {
   document.getElementById('hero-section').style.display = 'none';
   document.getElementById('errbox').style.display = 'none';
   document.getElementById('go-btn').disabled = true;
-  setLoad('Meta Ads Library থেকে data আনা হচ্ছে...', '"' + company + '" এর ads খোঁজা হচ্ছে');
+  setLoad('অ্যাড লাইব্রেরি থেকে ডেটা কালেক্ট করা হচ্ছে...', '"' + company + '" এর রানিং অ্যাডসগুলো খোঁজা হচ্ছে');
 
   try {
     var r1 = await fetch('/api/fetch-ads', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({company:company, country:country, maxAds:maxAds}) });
     var d1; try { d1 = await r1.json(); } catch(e) { throw new Error('Server invalid response'); }
     if (!r1.ok) throw new Error(d1.error || 'Ads fetch failed');
-    if (!d1.ads || d1.ads.length === 0) throw new Error('"'+company+'" এর কোনো active ad পাওয়া যায়নি। নাম বা দেশ বদলে চেষ্টা করো।');
+    if (!d1.ads || d1.ads.length === 0) throw new Error('"'+company+'" এর কোনো অ্যাকটিভ অ্যাড পাওয়া যায়নি। নাম বা দেশ বদলে আবার চেষ্টা করুন।');
 
     allAds = d1.ads;
-    setLoad('AI দিয়ে গভীর analysis করা হচ্ছে...', allAds.length + ' টি ad বিশ্লেষণ করা হচ্ছে — একটু সময় লাগবে');
+    setLoad('এআই ডেটা অ্যানালাইজ করছে...', allAds.length + ' টি অ্যাড প্রসেস করতে একটু সময় লাগতে পারে');
 
     var analysis = await analyzeWithClaude(company, country, allAds);
     renderDashboard(company, country, allAds, analysis);
@@ -1205,7 +1205,7 @@ function closeDrawer() {
 function downloadPDF() {
   var dBtn = document.getElementById('dl-btn');
   var oldText = dBtn.innerHTML;
-  dBtn.innerHTML = '⏳ রিপোর্ট তৈরী হচ্ছে...';
+  dBtn.innerHTML = '⏳ রিপোর্ট প্রসেস হচ্ছে...';
   dBtn.style.opacity = '0.7';
   dBtn.style.pointerEvents = 'none';
 
