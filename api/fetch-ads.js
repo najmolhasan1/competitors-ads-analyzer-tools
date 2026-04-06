@@ -20,7 +20,18 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    const rawAds = data.ads || data.organic_results || data.results || [];
+    let rawAds = data.ads || data.organic_results || data.results || [];
+    
+    // Accuracy Fix: Only keep ads where the Facebook Page name contains the searched company name
+    const exactAds = rawAds.filter(ad => {
+      const pName = ad.page_name || (ad.snapshot && ad.snapshot.page_name) || '';
+      return pName.toLowerCase().includes(company.toLowerCase());
+    });
+    
+    // Use filtered ads if available, otherwise fallback
+    if (exactAds.length > 0) {
+      rawAds = exactAds;
+    }
 
     const toStr = (val) => {
       if (!val) return '';
