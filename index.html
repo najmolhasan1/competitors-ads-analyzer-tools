@@ -327,8 +327,8 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
   <div class="modal">
     <h3>API Keys</h3>
     <div class="mfield">
-      <label>Google Gemini API Key (AI Studio)</label>
-      <input type="password" id="ckey" placeholder="AIzaSy..."/>
+      <label>Claude (Anthropic) API Key</label>
+      <input type="password" id="ckey" placeholder="sk-ant-..."/>
     </div>
     <div class="mfield">
       <label>SearchAPI Key — <a href="https://www.searchapi.io" target="_blank" style="color:var(--accent)">searchapi.io</a> থেকে নাও</label>
@@ -526,7 +526,7 @@ footer { padding: 28px 0; border-top: 1px solid var(--border); margin-top: 40px;
   <div class="drawer-body" id="drawer-body"></div>
 </div>
 
-<footer>Meta Ads Intelligence · SearchAPI.io + Gemini AI · <span id="today-date"></span></footer>
+<footer>Meta Ads Intelligence · SearchAPI.io + Claude AI · <span id="today-date"></span></footer>
 </div>
 
 <script>
@@ -635,7 +635,7 @@ async function go() {
     allAds = d1.ads;
     setLoad('AI দিয়ে গভীর analysis করা হচ্ছে...', allAds.length + ' টি ad বিশ্লেষণ করা হচ্ছে — একটু সময় লাগবে');
 
-    var analysis = await analyzeWithGemini(company, country, allAds);
+    var analysis = await analyzeWithClaude(company, country, allAds);
     renderDashboard(company, country, allAds, analysis);
 
   } catch(err) {
@@ -644,11 +644,11 @@ async function go() {
   }
 }
 
-// ---- GEMINI ANALYSIS ----
-async function analyzeWithGemini(company, country, ads) {
+// ---- CLAUDE ANALYSIS ----
+async function analyzeWithClaude(company, country, ads) {
   var todayStr = TODAY.toISOString().split('T')[0];
 
-  // Ad summary
+  // Ad summary — body text sanitize করে পাঠাই
   var adSummaries = ads.map(function(ad, i) {
     var days = daysDiff(ad.start_date);
     var body = (ad.body || '').replace(/[\r\n]+/g, ' ').replace(/"/g, "'").trim().substring(0, 300);
@@ -667,39 +667,42 @@ async function analyzeWithGemini(company, country, ads) {
     };
   });
 
-  var prompt = 'You are an expert Meta Ads strategist for South Asian markets. Today is ' + todayStr + '.\n\nAnalyze these ' + ads.length + ' ads from "' + company + '" (Country: ' + country + ').\n\nAD DATA (JSON):\n' + JSON.stringify(adSummaries) + '\n\nReturn a JSON analysis. All Bangla text fields must use simple Bangla sentences without special quote characters. Use only standard double quotes for JSON strings.\n\nRequired format:\n{"cta_analysis":{"items":[{"cta":"ORDER_NOW","count":5,"ad_ids":[1,2,3],"insight":"insight text"}],"ai_insight":"insight"},"body_analysis":{"type_breakdown":{"USP":0,"FOMO":0,"Offer":0,"Feature":0,"Story":0,"Social Proof":0,"Problem-Solution":0,"Price":0},"body_type_ad_ids":{"USP":[],"FOMO":[],"Offer":[],"Feature":[],"Story":[],"Social Proof":[],"Problem-Solution":[],"Price":[]},"elements":{"has_phone":false,"has_website":false,"has_cta_in_text":false,"formula_used":"PAS"},"approach_breakdown":"text","ai_insight":"text"},"heading_analysis":{"ai_insight":"text"},"creative_analysis":{"format_breakdown":{"image":0,"video":0,"carousel":0},"creative_types":{"feature_highlight":0,"problem_solution":0,"influencer":0,"ugc":0,"review":0,"usp":0,"offer":0},"creative_type_ad_ids":{"feature_highlight":[],"problem_solution":[],"influencer":[],"ugc":[],"review":[],"usp":[],"offer":[]},"ai_insight":"text"},"platform_analysis":{"platforms":[{"name":"Facebook","percentage":80}],"ai_insight":"text"},"marketing_approach":{"primary_strategy":"text","messaging_focus":"text","audience_signals":"text","testing_signals":"text","overall_assessment":"text"},"recommendations":[{"title":"title","description":"desc","priority":"high"}]}\n\nRules: ad_ids use actual ad id numbers. All text in Bangla. No line breaks inside string values. priority = high/medium/low only.';
+  var messages = [
+    {
+      role: 'user',
+      content: 'You are an expert Meta Ads strategist for South Asian markets. Today is ' + todayStr + '.\n\nAnalyze these ' + ads.length + ' ads from "' + company + '" (Country: ' + country + ').\n\nAD DATA (JSON):\n' + JSON.stringify(adSummaries) + '\n\nReturn a JSON analysis. All Bangla text fields must use simple Bangla sentences without special quote characters. Use only standard double quotes for JSON strings.\n\nRequired format:\n{"cta_analysis":{"items":[{"cta":"ORDER_NOW","count":5,"ad_ids":[1,2,3],"insight":"insight text"}],"ai_insight":"insight"},"body_analysis":{"type_breakdown":{"USP":0,"FOMO":0,"Offer":0,"Feature":0,"Story":0,"Social Proof":0,"Problem-Solution":0,"Price":0},"body_type_ad_ids":{"USP":[],"FOMO":[],"Offer":[],"Feature":[],"Story":[],"Social Proof":[],"Problem-Solution":[],"Price":[]},"elements":{"has_phone":false,"has_website":false,"has_cta_in_text":false,"formula_used":"PAS"},"approach_breakdown":"text","ai_insight":"text"},"heading_analysis":{"ai_insight":"text"},"creative_analysis":{"format_breakdown":{"image":0,"video":0,"carousel":0},"creative_types":{"feature_highlight":0,"problem_solution":0,"influencer":0,"ugc":0,"review":0,"usp":0,"offer":0},"creative_type_ad_ids":{"feature_highlight":[],"problem_solution":[],"influencer":[],"ugc":[],"review":[],"usp":[],"offer":[]},"ai_insight":"text"},"platform_analysis":{"platforms":[{"name":"Facebook","percentage":80}],"ai_insight":"text"},"marketing_approach":{"primary_strategy":"text","messaging_focus":"text","audience_signals":"text","testing_signals":"text","overall_assessment":"text"},"recommendations":[{"title":"title","description":"desc","priority":"high"}]}\n\nRules: ad_ids use actual ad id numbers. All text in Bangla. No line breaks inside string values. priority = high/medium/low only.'
+    }
+  ];
 
-  var payload = {
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.2, responseMimeType: "application/json" }
-  };
-
-  var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=' + keys.c, {
+  var r = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    headers: {'Content-Type':'application/json','x-api-key':keys.c,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body: JSON.stringify({model:'claude-sonnet-4-20250514', max_tokens:4000, messages: messages})
   });
-
-  if (!r.ok) {
-    var e; try{e=await r.json();}catch(x){throw new Error('Gemini API error: '+r.status);}
-    throw new Error(e.error && e.error.message || 'Gemini API error');
-  }
+  if (!r.ok) { var e; try{e=await r.json();}catch(x){throw new Error('Claude API error: '+r.status);} throw new Error(e.error&&e.error.message||'Claude API error'); }
 
   var d = await r.json();
-  if (!d.candidates || !d.candidates[0] || !d.candidates[0].content) {
-    if (d.promptFeedback && d.promptFeedback.blockReason) {
-      throw new Error('Gemini blocked the request: ' + d.promptFeedback.blockReason);
-    }
-    throw new Error('Invalid response from Gemini API');
-  }
+  var raw = d.content && d.content.map(function(c){return c.text||'';}).join('') || '';
 
-  var raw = d.candidates[0].content.parts[0].text || '';
+  // JSON extract — robust করা
+  var js = raw.trim();
+  js = js.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+  var start = js.indexOf('{');
+  var end = js.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('Claude valid JSON দেয়নি। আবার চেষ্টা করো।');
+  js = js.substring(start, end + 1);
+  js = js.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
 
   try {
-    return JSON.parse(raw.trim());
+    return JSON.parse(js);
   } catch(e) {
-    console.error('Raw Gemini Array:', raw);
-    throw new Error('JSON parse error from Gemini. আবার চেষ্টা করো।');
+    try {
+      js = js.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+      return JSON.parse(js);
+    } catch(e2) {
+      console.error('Raw response:', raw.substring(0, 500));
+      throw new Error('JSON parse error: ' + e2.message + ' — আবার চেষ্টা করো');
+    }
   }
 }
 
@@ -1168,7 +1171,7 @@ function downloadPDF() {
 
 // ---- AI AD GENERATOR ----
 async function generateAdsBrief() {
-  if (!keys.c) { alert('Gemini API Key সেট করা নেই!'); return; }
+  if (!keys.c) { alert('Claude API Key সেট করা নেই!'); return; }
   
   var company = document.getElementById('company').value.trim();
   var btn = document.getElementById('gen-btn');
@@ -1181,22 +1184,38 @@ async function generateAdsBrief() {
   
   var prompt = 'You just analyzed Meta ads for ' + company + '. Based on their most successful strategies (like prominent CTAs, effective hooks, and messaging patterns), act as an expert South Asian copywriter. Generate 3 unique "Ad Briefs" for a direct competitor of ' + company + ' to beat them.\n\nEach brief must include:\n1. Hook/Headline: Very catchy, using psychology.\n2. Primary Text: The main body text using PAS or AIDA.\n3. Creative Idea: Description of image/video to use.\n4. CTA: Best button to use.\n\nReturn JSON ONLY. Format:\n{"ads":[{"hook":"text","primary_text":"text","creative_idea":"text","cta":"text"}]}\n\nKeep all text in Bangla except the CTA value.';
   
+  var messages = [{ role: 'user', content: prompt }];
+  
   var payload = {
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.7, responseMimeType: "application/json" }
+    model: 'claude-sonnet-4-20250514',
+    max_tokens: 1500,
+    messages: messages
   };
   
   try {
-    var r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=' + keys.c, {
+    var r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': keys.c,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify(payload)
     });
     
-    if (!r.ok) throw new Error('API Error');
+    if (!r.ok) { var e; try{e=await r.json();}catch(x){throw new Error('Claude API error');} throw new Error(e.error&&e.error.message||'Claude API error'); }
+    
     var d = await r.json();
-    var raw = d.candidates[0].content.parts[0].text || '';
-    var data = JSON.parse(raw.trim());
+    var raw = d.content && d.content.map(function(c){return c.text||'';}).join('') || '';
+    
+    var js = raw.trim();
+    js = js.replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/\s*```$/,'').trim();
+    var start = js.indexOf('{');
+    var end = js.lastIndexOf('}');
+    if (start !== -1 && end !== -1) js = js.substring(start, end + 1);
+    
+    var data = JSON.parse(js);
     
     var html = '';
     data.ads.forEach(function(ad, i) {
