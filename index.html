@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --bg: #F0F2F5;
@@ -1519,6 +1520,8 @@
     }
 
     @media (max-width: 768px) {
+      .dash-layout { flex-direction: column; }
+      .dash-sidebar { width: 100%; position: static; margin-bottom: 20px; }
       .stat-row {
         grid-template-columns: 1fr 1fr;
       }
@@ -1539,6 +1542,13 @@
         grid-template-columns: 1fr 1fr;
       }
     }
+    .dash-layout { display: flex; gap: 32px; align-items: flex-start; }
+    .dash-sidebar { width: 220px; position: sticky; top: 20px; flex-shrink: 0; }
+    .dash-nav { list-style: none; padding: 0; margin: 0; background: var(--white); border-radius: var(--r); box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; padding: 8px 0; border: 1px solid var(--border); }
+    .dash-nav li { padding: 12px 20px; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; border-left: 3px solid transparent; transition: all 0.2s; }
+    .dash-nav li:hover { background: var(--surface); color: var(--accent); border-left-color: var(--accent); }
+    .dash-content { flex: 1; min-width: 0; display:flex; flex-direction:column; gap:16px; }
+    .dash-header { margin-bottom: 0px !important; }
   </style>
 </head>
 
@@ -1633,6 +1643,20 @@
 
     <!-- DASHBOARD -->
     <div class="dashboard" id="dashboard">
+      <div class="dash-layout">
+        <!-- Sidebar Navigation -->
+        <div class="dash-sidebar" data-html2canvas-ignore="true">
+          <ul class="dash-nav">
+             <li onclick="scrollToSection('dash-company')">Overview & Stats</li>
+             <li onclick="scrollToSection('cta-card')">CTA & Headings</li>
+             <li onclick="scrollToSection('body-list')">Body Copy Analysis</li>
+             <li onclick="scrollToSection('creative-content')">Creatives & Platform</li>
+             <li onclick="scrollToSection('timeline-content')">Timeline & Approach</li>
+             <li onclick="scrollToSection('ad-generator-section')">AI Generator</li>
+             <li onclick="scrollToSection('ads-groups')">Ad Library</li>
+          </ul>
+        </div>
+        <div class="dash-content">
 
       <!-- DASH HEADER -->
       <div class="dash-header">
@@ -1773,6 +1797,8 @@
         </div>
       </div>
 
+        </div> <!-- /dash-content -->
+      </div> <!-- /dash-layout -->
     </div><!-- /dashboard -->
 
     <!-- DRAWER -->
@@ -1875,7 +1901,14 @@
       document.getElementById('loading').style.display = 'block';
       document.getElementById('errbox').style.display = 'none';
     }
-    function resetAll() {
+    function scrollToSection(id) {
+  var el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function resetAll() {
       document.getElementById('dashboard').style.display = 'none';
       document.getElementById('hero-section').style.display = 'block';
       document.getElementById('errbox').style.display = 'none';
@@ -2085,18 +2118,31 @@
 
     // ---- CTA ----
     function renderCTA(ads, data) {
-      if (!data) return;
+      var ctas = {};
+      ads.forEach(function (ad) {
+        var c = (ad.cta || '').trim();
+        if (c) { ctas[c] = (ctas[c] || 0) + 1; }
+      });
+      var sorted = Object.keys(ctas).sort(function (a, b) { return ctas[b] - ctas[a]; });
+
+      var chartHtml = '<div style="height:220px;width:100%;margin-bottom:20px;position:relative"><canvas id="ctaChart"></canvas></div>';
       var html = '';
-      if (data.ai_insight) {
+      if (data && data.ai_insight) {
         html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">' + esc(data.ai_insight) + '</div></div>';
       }
-      var items = data.items || [];
-      var maxCount = items.length ? Math.max.apply(null, items.map(function (i) { return i.count || 0; })) : 1;
-      // Store drawer data globally
+      if (sorted.length === 0) {
+        html += '<p style="color:var(--text3);font-size:13px;padding:12px 0">কোনো Call to Action বাটন পাওয়া যায়নি</p>';
+        document.getElementById('cta-content').innerHTML = html;
+        return;
+      }
+
       window._drawerData = window._drawerData || {};
-      html += items.map(function (item, idx) {
-        var pct = Math.round((item.count / (ads.length || 1)) * 100);
-        var barW = Math.round((item.count / maxCount) * 100);
+      
+      var manualData = (data && data.cta_breakdown) ? data.cta_breakdown : sorted.map(function(k){ return {cta: k, count: ctas[k]}; });
+      
+      html += manualData.map(function (item, idx) {
+        var pct = Math.round((item.count || ctas[item.cta] || 1) / ads.length * 100);
+        var barW = pct > 100 ? 100 : pct;
         var adIds = item.ad_ids || [];
         var ctaVal = item.cta || '';
         if (!adIds.length) { adIds = ads.filter(function (a) { return (a.cta || '').toUpperCase() === ctaVal.toUpperCase(); }).map(function (a) { return a.id; }); }
@@ -2104,7 +2150,25 @@
         window._drawerData[key] = { title: 'CTA: ' + ctaVal, subtitle: item.count + ' ads এ ব্যবহার হয়েছে', ids: adIds };
         return '<div class="cta-item clickable" onclick="showDrawer(\'' + key + '\')" title="Click to see ads"><div class="cta-name">' + esc(ctaVal) + '</div><div class="cta-bar-wrap"><div class="cta-bar-track"><div class="cta-bar-fill" style="width:' + barW + '%"></div></div></div><div class="cta-count">' + item.count + '<span class="cta-pct">' + pct + '%</span></div></div>';
       }).join('') + '<div class="click-hint">↑ যেকোনো row এ click করলে সেই ads দেখাবে</div>';
-      document.getElementById('cta-content').innerHTML = html;
+      
+      document.getElementById('cta-content').innerHTML = chartHtml + html;
+
+      setTimeout(function() {
+          var ctx = document.getElementById('ctaChart').getContext('2d');
+          if(window.ctaChartInst) window.ctaChartInst.destroy();
+          window.ctaChartInst = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: sorted.map(function(c){ return c; }),
+              datasets: [{
+                 data: sorted.map(function(c){ return ctas[c]; }),
+                 backgroundColor: ['#0866FF', '#31A24C', '#F0A30A', '#E22828', '#8B4DFF', '#333333'],
+                 borderWidth:0
+              }]
+            },
+            options: { maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { font: { family: 'inherit', size: 12 }, boxWidth: 12 } } } }
+          });
+      }, 50);
     }
 
     // ---- HEADINGS ----
@@ -2252,12 +2316,12 @@
     // ---- PLATFORM ----
     function renderPlatform(ads, data) {
       var platIcons = { Facebook: '📘', Instagram: '📸', Messenger: '💬', Audience_Network: '📱', 'Audience Network': '📱' };
-      var html = '';
+      var html = '<div style="height:220px;width:100%;margin-bottom:20px;position:relative"><canvas id="platChart"></canvas></div>';
+      
       if (data && data.ai_insight) {
-        html += '<div class="ai-insight"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">' + esc(data.ai_insight) + '</div></div>';
+        html += '<div class="ai-insight" style="margin-bottom:16px"><div class="ai-insight-label">AI Insight</div><div class="ai-insight-text">' + esc(data.ai_insight) + '</div></div>';
       }
 
-      // Count from actual ads
       var platCounts = {};
       ads.forEach(function (ad) {
         var plats = (ad.platform || '').split(',').map(function (p) { return p.trim(); }).filter(Boolean);
@@ -2265,13 +2329,31 @@
         plats.forEach(function (p) { platCounts[p] = (platCounts[p] || 0) + 1; });
       });
 
-      // Fallback to AI data
       var platforms = data && data.platforms && data.platforms.length ? data.platforms : Object.keys(platCounts).map(function (k) { return { name: k, percentage: Math.round(platCounts[k] / ads.length * 100) }; });
 
+      html += '<div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">';
       html += platforms.map(function (p) {
         return '<div class="platform-item"><div class="platform-icon">' + (platIcons[p.name] || '🌐') + '</div><div class="platform-name">' + esc(p.name) + '</div><div class="platform-pct">' + p.percentage + '%</div></div>';
       }).join('');
+      html += '</div>';
       document.getElementById('platform-content').innerHTML = html;
+
+      setTimeout(function() {
+          var ctx = document.getElementById('platChart').getContext('2d');
+          if(window.platChartInst) window.platChartInst.destroy();
+          window.platChartInst = new Chart(ctx, {
+            type: 'pie',
+            data: {
+              labels: platforms.map(function(p){ return p.name; }),
+              datasets: [{
+                data: platforms.map(function(p){ return p.percentage; }),
+                backgroundColor: ['#0866FF', '#E1306C', '#00B2FF', '#31A24C', '#F0A30A'],
+                borderWidth: 0
+              }]
+            },
+            options: { maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { font: { family: 'inherit', size: 12 } } } } }
+          });
+      }, 50);
     }
 
     // ---- TIMELINE ----
