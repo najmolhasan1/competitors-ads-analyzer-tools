@@ -21,16 +21,35 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     let rawAds = data.ads || data.organic_results || data.results || [];
-    
-    // Accuracy Fix: Only keep ads where the Facebook Page name contains the searched company name
-    const exactAds = rawAds.filter(ad => {
+    // Ultimate Accuracy Fix: Drop fake pages by grouping & scoring
+    const nameMatchedAds = rawAds.filter(ad => {
       const pName = ad.page_name || (ad.snapshot && ad.snapshot.page_name) || '';
       return pName.toLowerCase().includes(company.toLowerCase());
     });
     
-    // Use filtered ads if available, otherwise fallback
-    if (exactAds.length > 0) {
-      rawAds = exactAds;
+    if (nameMatchedAds.length > 0) {
+      const pageGroups = {};
+      nameMatchedAds.forEach(ad => {
+        const pName = ad.page_name || (ad.snapshot && ad.snapshot.page_name) || 'Unknown';
+        if (!pageGroups[pName]) pageGroups[pName] = [];
+        pageGroups[pName].push(ad);
+      });
+
+      let bestPage = '';
+      let maxScore = -1;
+      
+      for (const [pName, adsArr] of Object.entries(pageGroups)) {
+        let score = adsArr.length;
+        // Exact spelling match gets massive priority to beat scammers
+        if (pName.toLowerCase() === company.toLowerCase()) {
+          score += 1000; 
+        }
+        if (score > maxScore) {
+          maxScore = score;
+          bestPage = pName;
+        }
+      }
+      rawAds = pageGroups[bestPage];
     }
 
     const toStr = (val) => {
