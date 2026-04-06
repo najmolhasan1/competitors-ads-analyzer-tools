@@ -155,7 +155,8 @@ input[type=range] { width: 80px; accent-color: var(--accent); }
 .see-more-btn { background: none; border: none; color: var(--accent); font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; padding: 0; margin-top: 4px; }
 .body-elements { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 .body-el { font-size: 10px; padding: 2px 7px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); color: var(--text3); }
-.body-el.has { background: var(--green-bg); border-color: #86efac; color: var(--green); }
+.body-el.has { background: var(--green); border-color: var(--green); color: #fff; font-weight: 600; }
+.body-el.not { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
 
 /* HEADING LIST */
 .heading-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px; }
@@ -886,10 +887,10 @@ function renderBodyAnalysis(ads, data) {
     if (data.elements) {
       var el = data.elements;
       html += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">';
-      html += '<span class="body-el '+(el.has_phone?'has':'')+'">📞 Phone Number</span>';
-      html += '<span class="body-el '+(el.has_website?'has':'')+'">🌐 Website Link</span>';
-      html += '<span class="body-el '+(el.has_cta_in_text?'has':'')+'">👉 CTA in Text</span>';
-      if (el.formula_used) html += '<span class="body-el has">Formula: '+esc(el.formula_used)+'</span>';
+      html += '<span class="body-el '+(el.has_phone?'has':'not')+'">'+(el.has_phone?'✔':'✖')+' Phone Number</span>';
+      html += '<span class="body-el '+(el.has_website?'has':'not')+'">'+(el.has_website?'✔':'✖')+' Website Link</span>';
+      html += '<span class="body-el '+(el.has_cta_in_text?'has':'not')+'">'+(el.has_cta_in_text?'✔':'✖')+' CTA in Text</span>';
+      if (el.formula_used) html += '<span class="body-el has" style="background:var(--blue);border-color:var(--blue);">Formula: '+esc(el.formula_used)+'</span>';
       html += '</div>';
     }
 
