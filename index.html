@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Meta Ads Intelligence</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 :root {
@@ -35,7 +36,7 @@
   --shadow-md: 0 4px 12px rgba(0,0,0,0.05);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.6; min-height: 100vh; }
+body { background: var(--bg); color: var(--text); font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; font-size: 14px; line-height: 1.6; min-height: 100vh; }
 
 /* LAYOUT */
 .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
@@ -56,18 +57,18 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 /* HERO SEARCH */
 .hero { padding: 56px 0 48px; text-align: center; }
 .hero-label { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; display: inline-block; background: var(--accent-bg); padding: 4px 12px; border-radius: 20px; }
-.hero h1 { font-family: 'Inter', sans-serif; font-size: 42px; font-weight: 800; color: var(--text); line-height: 1.2; margin-bottom: 12px; letter-spacing: -1px; }
+.hero h1 { font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; font-size: 42px; font-weight: 700; color: var(--text); line-height: 1.2; margin-bottom: 12px; letter-spacing: -1px; }
 .hero h1 em { font-style: normal; color: var(--accent); }
 .hero p { font-size: 15px; color: var(--text2); margin-bottom: 32px; }
 
 .search-box { background: var(--white); border: none; border-radius: var(--r); padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
 .search-row { display: flex; gap: 10px; margin-bottom: 14px; }
-.sinp { flex: 1; border: 1px solid var(--border); border-radius: var(--rs); padding: 11px 16px; font-size: 15px; font-family: 'Inter', sans-serif; color: var(--text); outline: none; background: var(--surface); transition: all .2s; }
+.sinp { flex: 1; border: 1px solid var(--border); border-radius: var(--rs); padding: 11px 16px; font-size: 15px; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; color: var(--text); outline: none; background: var(--surface); transition: all .2s; }
 .sinp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(8,102,255,.2); }
 .sinp::placeholder { color: var(--text3); }
-select { border: 1px solid var(--border); border-radius: var(--rs); padding: 11px 14px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text2); outline: none; cursor: pointer; background: var(--surface); min-width: 130px; }
+select { border: 1px solid var(--border); border-radius: var(--rs); padding: 11px 14px; font-size: 13px; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; color: var(--text2); outline: none; cursor: pointer; background: var(--surface); min-width: 130px; }
 select:focus { border-color: var(--accent); }
-.go-btn { background: var(--accent); color: var(--white); border: none; border-radius: var(--rs); padding: 11px 28px; font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all .2s; white-space: nowrap; box-shadow: 0 2px 4px rgba(8,102,255,0.2); }
+.go-btn { background: var(--accent); color: var(--white); border: none; border-radius: var(--rs); padding: 11px 28px; font-size: 15px; font-weight: 600; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; cursor: pointer; transition: all .2s; white-space: nowrap; box-shadow: 0 2px 4px rgba(8,102,255,0.2); }
 .go-btn:hover { background: #0054d1; }
 .go-btn:disabled { opacity: .4; cursor: not-allowed; }
 .search-opts { display: flex; gap: 20px; align-items: center; padding-top: 4px; }
@@ -82,11 +83,11 @@ input[type=range] { width: 80px; accent-color: var(--accent); }
 .modal h3 { font-size: 16px; font-weight: 600; margin-bottom: 18px; }
 .mfield { margin-bottom: 14px; }
 .mfield label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
-.mfield input { width: 100%; border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 13px; font-size: 13px; color: var(--text); outline: none; font-family: 'Inter', sans-serif; }
+.mfield input { width: 100%; border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 13px; font-size: 13px; color: var(--text); outline: none; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; }
 .mfield input:focus { border-color: var(--accent); }
 .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
-.modal-save { background: var(--accent); color: var(--white); border: none; border-radius: var(--rs); padding: 10px 22px; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; }
-.modal-cancel { background: transparent; border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 18px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text2); cursor: pointer; }
+.modal-save { background: var(--accent); color: var(--white); border: none; border-radius: var(--rs); padding: 10px 22px; font-size: 13px; font-weight: 600; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; cursor: pointer; }
+.modal-cancel { background: transparent; border: 1px solid var(--border); border-radius: var(--rs); padding: 10px 18px; font-size: 13px; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; color: var(--text2); cursor: pointer; }
 
 /* STATES */
 .loading { display: none; text-align: center; padding: 80px 0; }
@@ -101,10 +102,10 @@ input[type=range] { width: 80px; accent-color: var(--accent); }
 
 /* DASH HEADER */
 .dash-header { background: var(--white); border: 1px solid var(--border); border-radius: var(--r); padding: 24px 28px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
-.dash-company { font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+.dash-company { font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
 .dash-meta { font-size: 13px; color: var(--text3); margin-top: 3px; }
 .dash-actions { display: flex; gap: 10px; }
-.dash-back { background: transparent; border: 1px solid var(--border); border-radius: var(--rs); padding: 9px 16px; font-size: 13px; font-family: 'Inter', sans-serif; color: var(--text2); cursor: pointer; transition: all .2s; }
+.dash-back { background: transparent; border: 1px solid var(--border); border-radius: var(--rs); padding: 9px 16px; font-size: 13px; font-family: 'Clash Display', 'Noto Serif Bengali', sans-serif; color: var(--text2); cursor: pointer; transition: all .2s; }
 .dash-back:hover { border-color: var(--border2); color: var(--text); }
 
 /* STAT CARDS */
