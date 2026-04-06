@@ -78,6 +78,13 @@ export default async function handler(req, res) {
       return v.video_hd_url || v.video_sd_url || v.url || v.src || '';
     };
 
+    // Sort ads from newest to oldest by start date to ensure we process recent ads first
+    rawAds.sort((a, b) => {
+      const dateA = new Date(a.start_date || a.ad_delivery_start_time || 0).getTime() || 0;
+      const dateB = new Date(b.start_date || b.ad_delivery_start_time || 0).getTime() || 0;
+      return dateB - dateA;
+    });
+
     const normalized = rawAds.slice(0, maxAds || 30).map((ad, i) => {
       // snapshot এ সব important data আছে
       const snap = ad.snapshot || {};
