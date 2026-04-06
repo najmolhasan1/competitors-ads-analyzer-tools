@@ -392,6 +392,7 @@
 }
 
 function resetAll() {
+      document.body.classList.remove('dashboard-open');
       document.getElementById('dashboard').style.display = 'none';
       document.getElementById('hero-section').style.display = 'block';
       document.getElementById('errbox').style.display = 'none';
@@ -539,6 +540,7 @@ function resetAll() {
 
     // ---- RENDER DASHBOARD ----
     function renderDashboard(company, country, ads, r) {
+      document.body.classList.add('dashboard-open');
       document.getElementById('loading').style.display = 'none';
       document.getElementById('go-btn').disabled = false;
 
