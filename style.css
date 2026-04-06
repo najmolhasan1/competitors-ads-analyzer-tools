@@ -50,8 +50,8 @@
 
     /* TOPBAR */
     .topbar {
-      background: var(--accent);
-      box-shadow: 0 2px 8px rgba(8,102,255,0.25);
+      background: var(--white);
+      box-shadow: 0 1px 0 var(--border);
       border-bottom: none;
       padding: 0;
       position: sticky;
@@ -1530,11 +1530,11 @@
 
     /* Hamburger button in topbar */
     .hamburger-btn {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.25);
+      background: var(--bg);
+      border: 1px solid var(--border);
       border-radius: 8px;
       width: 38px; height: 38px;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       cursor: pointer;
@@ -1543,25 +1543,29 @@
       padding: 0;
       transition: background 0.2s;
     }
+    body.dashboard-open .hamburger-btn {
+      display: flex;
+    }
     .hamburger-btn:hover { background: rgba(255,255,255,0.25); }
     .hamburger-btn span {
       display: block;
       width: 18px; height: 2px;
-      background: white;
+      background: var(--text);
       border-radius: 2px;
       transition: all 0.3s;
     }
 
     /* Right flyout overlay */
     .nav-overlay {
-      display: none;
+      display: block;
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.4);
       z-index: 9998;
       opacity: 0;
+      pointer-events: none;
       transition: opacity 0.3s;
     }
-    .nav-overlay.open { display: block; opacity: 1; }
+    .nav-overlay.open { opacity: 1; pointer-events: all; }
 
     /* Right flyout panel */
     .nav-flyout {
