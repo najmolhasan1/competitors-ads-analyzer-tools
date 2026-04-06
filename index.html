@@ -1520,8 +1520,6 @@
     }
 
     @media (max-width: 768px) {
-      .dash-layout { flex-direction: column; }
-      .dash-sidebar { width: 100%; position: static; margin-bottom: 20px; }
       .stat-row {
         grid-template-columns: 1fr 1fr;
       }
@@ -1542,13 +1540,124 @@
         grid-template-columns: 1fr 1fr;
       }
     }
-    .dash-layout { display: flex; gap: 32px; align-items: flex-start; }
-    .dash-sidebar { width: 220px; position: sticky; top: 20px; flex-shrink: 0; }
-    .dash-nav { list-style: none; padding: 0; margin: 0; background: var(--white); border-radius: var(--r); box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; padding: 8px 0; border: 1px solid var(--border); }
-    .dash-nav li { padding: 12px 20px; font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; border-left: 3px solid transparent; transition: all 0.2s; }
-    .dash-nav li:hover { background: var(--surface); color: var(--accent); border-left-color: var(--accent); }
-    .dash-content { flex: 1; min-width: 0; display:flex; flex-direction:column; gap:16px; }
+
+    /* Hamburger button in topbar */
+    .hamburger-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 8px;
+      width: 38px; height: 38px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 5px;
+      padding: 0;
+      transition: background 0.2s;
+    }
+    .hamburger-btn:hover { background: rgba(255,255,255,0.25); }
+    .hamburger-btn span {
+      display: block;
+      width: 18px; height: 2px;
+      background: white;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* Right flyout overlay */
+    .nav-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 9998;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .nav-overlay.open { display: block; opacity: 1; }
+
+    /* Right flyout panel */
+    .nav-flyout {
+      position: fixed;
+      top: 0; right: 0;
+      width: 280px; height: 100vh;
+      background: var(--white);
+      z-index: 9999;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+      box-shadow: -8px 0 40px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-flyout.open { transform: translateX(0); }
+
+    .nav-flyout-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .nav-flyout-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .nav-flyout-close {
+      width: 32px; height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text2);
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .nav-flyout-close:hover { background: var(--bg); color: var(--text); }
+
+    .nav-flyout ul {
+      list-style: none;
+      padding: 12px 0;
+      margin: 0;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .nav-flyout ul li {
+      padding: 14px 24px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text2);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-flyout ul li:hover {
+      background: #F0F7FF;
+      color: var(--accent);
+      border-left-color: var(--accent);
+    }
+    .nav-flyout ul li .nav-icon {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+
+    /* Layout: no sidebar, just content */
+    .dash-layout { display: block; }
+    .dash-sidebar { display: none; }
+    .dash-content { display: flex; flex-direction: column; gap: 16px; }
     .dash-header { margin-bottom: 0px !important; }
+
   </style>
 </head>
 
@@ -1574,9 +1683,31 @@
             <div class="key-dot" id="key-dot" style="background: var(--red)"></div>
             <span id="key-label">API Keys সেট করো</span>
           </div>
+          <button class="hamburger-btn" id="hamburger-btn" onclick="openNavMenu()" style="display:flex" data-html2canvas-ignore="true">
+            <span></span><span></span><span></span>
+          </button>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- NAV FLYOUT OVERLAY -->
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNavMenu()"></div>
+  <!-- NAV FLYOUT PANEL -->
+  <div class="nav-flyout" id="nav-flyout">
+    <div class="nav-flyout-header">
+      <span class="nav-flyout-title">Quick Navigation</span>
+      <button class="nav-flyout-close" onclick="closeNavMenu()">✕</button>
+    </div>
+    <ul>
+      <li onclick="navTo('dash-company')"><span class="nav-icon">📊</span> Overview & Stats</li>
+      <li onclick="navTo('cta-card')"><span class="nav-icon">🎯</span> CTA & Headings</li>
+      <li onclick="navTo('body-analysis-top')"><span class="nav-icon">📝</span> Body Copy Analysis</li>
+      <li onclick="navTo('creative-content')"><span class="nav-icon">🎨</span> Creatives & Platform</li>
+      <li onclick="navTo('timeline-content')"><span class="nav-icon">📅</span> Timeline & Approach</li>
+      <li onclick="navTo('ad-generator-section')"><span class="nav-icon">✨</span> AI Generator</li>
+      <li onclick="navTo('ads-groups')"><span class="nav-icon">📚</span> Ad Library</li>
+    </ul>
   </div>
 
   <!-- KEY MODAL -->
