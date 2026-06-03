@@ -521,6 +521,529 @@ export default function Home() {
         } catch (e) { load.style.display = 'none'; btn.style.display = 'inline-block'; alert('কোথাও সমস্যা হয়েছে! আবার চেষ্টা করুন।'); }
       }
       window.generateAdsBrief = generateAdsBrief;
+
+      // ---- MY ADS REPORTING ----
+      var currentMainTab = 'competitor';
+      var myAdsData = null;
+      var myAdsIsDemo = false;
+
+      function switchMainTab(tab) {
+        currentMainTab = tab;
+        document.querySelectorAll('.top-tab').forEach(function(b) { b.classList.remove('active'); });
+        if (tab === 'competitor') {
+          document.getElementById('tab-competitor').classList.add('active');
+          document.getElementById('my-ads-section').style.display = 'none';
+          
+          var isDashboardOpen = document.body.classList.contains('dashboard-open');
+          if (isDashboardOpen) {
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('hero-section').style.display = 'none';
+          } else {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('hero-section').style.display = 'block';
+          }
+        } else {
+          document.getElementById('tab-myads').classList.add('active');
+          document.getElementById('my-ads-section').style.display = 'block';
+          
+          document.getElementById('dashboard').style.display = 'none';
+          document.getElementById('hero-section').style.display = 'none';
+          
+          var hasMyAdsReport = document.getElementById('my-ads-dashboard').style.display === 'block';
+          if (hasMyAdsReport) {
+            document.body.classList.add('dashboard-open');
+          } else {
+            document.body.classList.remove('dashboard-open');
+          }
+        }
+      }
+      window.switchMainTab = switchMainTab;
+
+      function showMyAdsErr(msg) {
+        var el = document.getElementById('my-ads-errbox');
+        el.textContent = msg; el.style.display = 'block';
+        document.getElementById('my-ads-loading').style.display = 'none';
+      }
+      function setMyAdsLoad(t, s) {
+        document.getElementById('my-ads-ltxt').textContent = t;
+        document.getElementById('my-ads-lsub').textContent = s || '';
+        document.getElementById('my-ads-loading').style.display = 'block';
+        document.getElementById('my-ads-errbox').style.display = 'none';
+      }
+
+      async function connectMetaAds(isDemo) {
+        var token = '';
+        var accountId = '';
+        
+        myAdsIsDemo = isDemo;
+        
+        if (isDemo) {
+          token = 'DEMO_TOKEN';
+          accountId = 'act_123456789_demo';
+        } else {
+          token = document.getElementById('meta-token').value.trim();
+          accountId = document.getElementById('meta-account-id').value.trim();
+          if (!token || !accountId) {
+            alert('Access Token এবং Account ID দুটোই দিতে হবে।');
+            return;
+          }
+        }
+        
+        document.getElementById('my-ads-conn-card').style.display = 'none';
+        document.getElementById('my-ads-dashboard').style.display = 'none';
+        document.getElementById('my-ads-errbox').style.display = 'none';
+        
+        setMyAdsLoad('Meta Ad Account থেকে ডেটা রিট্রিভ করা হচ্ছে...', isDemo ? 'ডেমো অ্যাকাউন্ট সেটআপ করা হচ্ছে' : 'ক্যাম্পেইন ও ক্রিয়েটিভ পারফরম্যান্স লোড হচ্ছে');
+        
+        try {
+          var data;
+          if (isDemo) {
+            await new Promise(function(resolve) { setTimeout(resolve, 800); });
+            data = getDemoData();
+          } else {
+            var r = await fetch('/api/meta-reports', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ metaToken: token, metaAccountId: accountId })
+            });
+            data = await r.json();
+            if (!r.ok) throw new Error(data.error || 'Meta Report Fetch Failed');
+          }
+          
+          myAdsData = data;
+          
+          if (!isDemo) {
+            try {
+              localStorage.setItem('mai_meta_token', token);
+              localStorage.setItem('mai_meta_account_id', accountId);
+              localStorage.setItem('mai_meta_saved_search', JSON.stringify(data));
+            } catch (e) {}
+          }
+          
+          renderMyAdsDashboard(data);
+        } catch (err) {
+          document.getElementById('my-ads-conn-card').style.display = 'block';
+          showMyAdsErr('সমস্যা হয়েছে: ' + err.message);
+        }
+      }
+      window.connectMetaAds = connectMetaAds;
+
+      function disconnectMetaAds() {
+        myAdsData = null;
+        try {
+          localStorage.removeItem('mai_meta_token');
+          localStorage.removeItem('mai_meta_account_id');
+          localStorage.removeItem('mai_meta_saved_search');
+          localStorage.removeItem('mai_meta_ai_analysis');
+        } catch (e) {}
+        
+        document.getElementById('meta-token').value = '';
+        document.getElementById('meta-account-id').value = '';
+        
+        document.getElementById('my-ads-dashboard').style.display = 'none';
+        document.getElementById('my-ads-account-banner').style.display = 'none';
+        document.getElementById('my-ads-conn-card').style.display = 'block';
+        document.getElementById('my-ads-errbox').style.display = 'none';
+        document.getElementById('my-ads-ai-result').style.display = 'none';
+        
+        document.body.classList.remove('dashboard-open');
+      }
+      window.disconnectMetaAds = disconnectMetaAds;
+
+      function getDemoData() {
+        return {
+          summary: {
+            spend: 1420.00,
+            impressions: 79000,
+            clicks: 1740,
+            purchases: 93,
+            revenue: 3920.00,
+            ctr: 2.20,
+            cpc: 0.82,
+            cpa: 15.27,
+            roas: 2.76
+          },
+          campaigns: [
+            { name: "Purchase Conversion - Prospecting", spend: 850, impressions: 45000, clicks: 980, ctr: 2.18, cpc: 0.87, purchases: 58, roas: 2.73, cpa: 14.65 },
+            { name: "Purchase Conversion - Retargeting L30D", spend: 270, impressions: 12000, clicks: 310, ctr: 2.58, cpc: 0.87, purchases: 31, roas: 5.48, cpa: 8.71 },
+            { name: "Messaging - Cold Leads", spend: 300, impressions: 22000, clicks: 450, ctr: 2.05, cpc: 0.67, purchases: 4, roas: 0.40, cpa: 75.00 }
+          ],
+          ads: [
+            {
+              id: 1,
+              ad_id: "ad_101",
+              name: "Prospecting: Premium Leather Shoes Off-50",
+              spend: 520,
+              impressions: 28000,
+              clicks: 647,
+              ctr: 2.31,
+              cpc: 0.80,
+              purchases: 38,
+              purchaseValue: 1518.40,
+              roas: 2.92,
+              cpa: 13.68,
+              statusTag: "🔥 Top Performer",
+              title: "৫০% ছাড়ে প্রিমিয়াম লেদার জুতো!",
+              body: "প্রিমিয়াম লেদার জুতোয় ৫০% ফ্ল্যাট ডিসকাউন্ট! অফারটি শেষ হওয়ার আগেই আপনার জুতোটি অর্ডার করুন। ফ্রি ডেলিভারি সারা বাংলাদেশে।",
+              image_url: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600"
+            },
+            {
+              id: 2,
+              ad_id: "ad_102",
+              name: "Prospecting: Comfort Walking Shoes Review",
+              spend: 330,
+              impressions: 17000,
+              clicks: 333,
+              ctr: 1.96,
+              cpc: 0.99,
+              purchases: 20,
+              purchaseValue: 801.60,
+              roas: 2.42,
+              cpa: 16.50,
+              statusTag: "📈 High Potential",
+              title: "হাঁটার জন্য আরামদায়ক জুতো",
+              body: "কেন আমাদের ওয়াকিং জুতো সেরা? গ্রাহকদের রিভিউ দেখুন নিজেই। আরামদায়ক এবং দীর্ঘস্থায়ী ফিটনেস পার্টনার।",
+              image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600"
+            },
+            {
+              id: 3,
+              ad_id: "ad_103",
+              name: "Retargeting: Special Bundle Offer L30D",
+              spend: 270,
+              impressions: 12000,
+              clicks: 310,
+              ctr: 2.58,
+              cpc: 0.87,
+              purchases: 31,
+              purchaseValue: 1480.00,
+              roas: 5.48,
+              cpa: 8.71,
+              statusTag: "🔥 Top Performer",
+              title: "আপনি কি আপনার অর্ডারটি সম্পন্ন করতে ভুলে গেছেন?",
+              body: "আপনি কি আপনার কার্ট খালি রেখে গেছেন? আমাদের স্পেশাল কার্ট রিকভারি ডিসকাউন্ট ব্যবহার করে আজই অর্ডার করুন।",
+              image_url: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600"
+            },
+            {
+              id: 4,
+              ad_id: "ad_104",
+              name: "Messaging: Ask for Custom Footwear Size",
+              spend: 300,
+              impressions: 22000,
+              clicks: 450,
+              ctr: 2.05,
+              cpc: 0.67,
+              purchases: 4,
+              purchaseValue: 120.00,
+              roas: 0.40,
+              cpa: 75.00,
+              statusTag: "⚠️ Underperforming",
+              title: "কাস্টম সাইজের জুতো অর্ডার করুন",
+              body: "আপনার সাইজের জুতো কি খুঁজে পাচ্ছেন না? সরাসরি আমাদের ইনবক্স করুন কাস্টম সাইজের জুতো তৈরি করে নিতে।",
+              image_url: "https://images.unsplash.com/photo-1539185441755-769473a23570?q=80&w=600"
+            }
+          ]
+        };
+      }
+
+      function renderMyAdsDashboard(data) {
+        document.getElementById('my-ads-loading').style.display = 'none';
+        document.getElementById('my-ads-dashboard').style.display = 'block';
+        document.body.classList.add('dashboard-open');
+        
+        document.getElementById('my-ads-account-banner').style.display = 'flex';
+        var actId = myAdsIsDemo ? 'act_123456789_demo' : document.getElementById('meta-account-id').value;
+        var actName = myAdsIsDemo ? '👞 Demo Footwear Store' : 'Meta Ad Account';
+        document.getElementById('my-ads-account-name').textContent = actName;
+        document.getElementById('my-ads-account-id-label').textContent = actId;
+        document.getElementById('my-ads-avatar').textContent = actName.charAt(0).toUpperCase();
+
+        var sum = data.summary;
+        var formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+        var formatCurrency = function(val) { return formatter.format(val); };
+
+        document.getElementById('my-ads-stat-row').innerHTML = [
+          ['মোট খরচ (Spend)', formatCurrency(sum.spend), 'গত ৩০ দিনে'],
+          ['মোট Purchases', sum.purchases, sum.purchases > 0 ? 'CPA: ' + formatCurrency(sum.cpa) : 'কোনো সেল নেই'],
+          ['গড় ROAS', sum.roas.toFixed(2) + 'x', sum.spend > 0 ? 'রিটার্ন ভ্যালু: ' + formatCurrency(sum.revenue) : '0.00'],
+          ['গড় CTR', sum.ctr.toFixed(2) + '%', sum.clicks + ' ক্লিকস'],
+          ['গড় CPC', formatCurrency(sum.cpc), 'ক্লিক প্রতি খরচ']
+        ].map(function (x) { 
+          return '<div class="stat"><div class="stat-label">' + x[0] + '</div><div class="stat-value">' + x[1] + '</div><div class="stat-sub">' + x[2] + '</div></div>'; 
+        }).join('');
+
+        var creativesGrid = document.getElementById('my-ads-creatives-grid');
+        if (data.ads.length === 0) {
+          creativesGrid.innerHTML = '<p style="color:var(--text3);font-size:13px;grid-column:1/-1;text-align:center;padding:24px 0">কোনো অ্যাকティブ অ্যাড পাওয়া যায়নি।</p>';
+        } else {
+          creativesGrid.innerHTML = data.ads.map(function(ad) {
+            var mediaHtml = '';
+            if (ad.video_url) {
+              mediaHtml = '<video src="' + esc(ad.video_url) + '" controls style="width:100%;height:100%;object-fit:cover;"></video>';
+            } else if (ad.image_url) {
+              mediaHtml = '<img src="' + esc(ad.image_url) + '" alt="" onerror="this.style.display=\'none\'" />';
+            } else {
+              mediaHtml = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:12px;">No Media Content</div>';
+            }
+            
+            var badgeClass = 'badge-blue';
+            if (ad.statusTag.includes('Top')) badgeClass = 'badge-success-alt';
+            else if (ad.statusTag.includes('Under')) badgeClass = 'badge-warning-alt';
+            else if (ad.statusTag.includes('Potential')) badgeClass = 'badge-scale';
+
+            return '<div class="my-ad-card">' +
+              '<div class="my-ad-media">' +
+                mediaHtml +
+                '<span class="my-ad-tag-absolute ' + badgeClass + '">' + esc(ad.statusTag) + '</span>' +
+              '</div>' +
+              '<div class="my-ad-info">' +
+                '<div class="my-ad-header">' +
+                  '<div>' +
+                    '<div class="my-ad-name">' + esc(ad.name) + '</div>' +
+                    '<div class="my-ad-id-txt">ID: ' + esc(ad.ad_id) + '</div>' +
+                  '</div>' +
+                '</div>' +
+                (ad.body ? '<div class="my-ad-body-txt">' + esc(ad.body) + '</div>' : '') +
+                '<div class="my-ad-stats">' +
+                  '<div class="my-ad-stat-box"><div class="my-ad-stat-lbl">Spend</div><div class="my-ad-stat-val">' + formatCurrency(ad.spend) + '</div></div>' +
+                  '<div class="my-ad-stat-box highlight"><div class="my-ad-stat-lbl">ROAS</div><div class="my-ad-stat-val">' + ad.roas.toFixed(2) + 'x</div></div>' +
+                  '<div class="my-ad-stat-box"><div class="my-ad-stat-lbl">Purchases</div><div class="my-ad-stat-val">' + ad.purchases + '</div></div>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+        }
+
+        setTimeout(function() {
+          renderMyAdsCharts(data);
+        }, 80);
+
+        try {
+          var savedAI = localStorage.getItem('mai_meta_ai_analysis');
+          if (savedAI) {
+            document.getElementById('my-ads-ai-text').textContent = savedAI;
+            document.getElementById('my-ads-ai-result').style.display = 'block';
+            document.getElementById('my-ads-ai-btn').textContent = '🔄 অডিট আপডেট করুন';
+          } else {
+            document.getElementById('my-ads-ai-result').style.display = 'none';
+            document.getElementById('my-ads-ai-btn').textContent = '✨ অডিট তৈরি করুন';
+          }
+        } catch (e) {}
+      }
+
+      function renderMyAdsCharts(data) {
+        var labels = data.campaigns.map(function(c) { return c.name.length > 25 ? c.name.substring(0, 22) + '...' : c.name; });
+        var spends = data.campaigns.map(function(c) { return c.spend; });
+        var purchases = data.campaigns.map(function(c) { return c.purchases; });
+        
+        var ctxTrend = document.getElementById('myAdsTrendChart').getContext('2d');
+        if (window.myAdsTrendChartInst) window.myAdsTrendChartInst.destroy();
+        window.myAdsTrendChartInst = new Chart(ctxTrend, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Spend ($)',
+                data: spends,
+                backgroundColor: 'rgba(8, 102, 255, 0.85)',
+                yAxisID: 'ySpend',
+                borderWidth: 0,
+                borderRadius: 4
+              },
+              {
+                label: 'Purchases (Qty)',
+                data: purchases,
+                backgroundColor: 'rgba(49, 162, 76, 0.85)',
+                yAxisID: 'yPurchases',
+                borderWidth: 0,
+                borderRadius: 4
+              }
+            ]
+          },
+          options: {
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { font: { family: 'inherit', size: 11 } }
+              }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              ySpend: {
+                type: 'linear',
+                position: 'left',
+                title: { display: true, text: 'Spend ($)', font: { weight: 'bold' } },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+              },
+              yPurchases: {
+                type: 'linear',
+                position: 'right',
+                title: { display: true, text: 'Purchases', font: { weight: 'bold' } },
+                grid: { display: false }
+              }
+            }
+          }
+        });
+
+        var adNames = data.ads.map(function(a) { return a.name.length > 20 ? a.name.substring(0, 17) + '...' : a.name; });
+        var roas = data.ads.map(function(a) { return a.roas; });
+        var ctrs = data.ads.map(function(a) { return a.ctr; });
+
+        var ctxRoasCtr = document.getElementById('myAdsRoasCtrChart').getContext('2d');
+        if (window.myAdsRoasCtrChartInst) window.myAdsRoasCtrChartInst.destroy();
+        window.myAdsRoasCtrChartInst = new Chart(ctxRoasCtr, {
+          type: 'line',
+          data: {
+            labels: adNames,
+            datasets: [
+              {
+                label: 'ROAS (x)',
+                data: roas,
+                borderColor: 'rgba(139, 77, 255, 1)',
+                backgroundColor: 'rgba(139, 77, 255, 0.1)',
+                yAxisID: 'yRoas',
+                tension: 0.3,
+                fill: true
+              },
+              {
+                label: 'CTR (%)',
+                data: ctrs,
+                borderColor: 'rgba(240, 163, 10, 1)',
+                backgroundColor: 'transparent',
+                yAxisID: 'yCtr',
+                tension: 0.3,
+                borderDash: [5, 5]
+              }
+            ]
+          },
+          options: {
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { font: { family: 'inherit', size: 11 } }
+              }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              yRoas: {
+                type: 'linear',
+                position: 'left',
+                title: { display: true, text: 'ROAS (x)' },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+              },
+              yCtr: {
+                type: 'linear',
+                position: 'right',
+                title: { display: true, text: 'CTR (%)' },
+                grid: { display: false }
+              }
+            }
+          }
+        });
+      }
+
+      async function runMyAdsAIAnalysis() {
+        if (!keys.c) {
+          alert('Claude API Key সেট করা নেই! দয়া করে API Keys সেট করো বাটনে ক্লিক করে API Key দিন।');
+          openModal();
+          return;
+        }
+
+        if (!myAdsData) {
+          alert('কোনো অ্যাড অ্যাকাউন্ট ডেটা লোড করা নেই।');
+          return;
+        }
+
+        var btn = document.getElementById('my-ads-ai-btn');
+        var load = document.getElementById('my-ads-ai-loading');
+        var res = document.getElementById('my-ads-ai-result');
+        var txt = document.getElementById('my-ads-ai-text');
+
+        btn.style.display = 'none';
+        load.style.display = 'block';
+        res.style.display = 'none';
+
+        var prompt = 'You are an elite Meta Ads performance strategist. Analyze my ad account performance data for the last 30 days and write a detailed audit report in simple Bengali sentences to help me make scaling decisions.\n\n' +
+          'SUMMARY STATS:\n' +
+          '- Total Spend: $' + myAdsData.summary.spend.toFixed(2) + '\n' +
+          '- Total Purchases: ' + myAdsData.summary.purchases + '\n' +
+          '- Average ROAS: ' + myAdsData.summary.roas.toFixed(2) + 'x\n' +
+          '- Average CTR: ' + myAdsData.summary.ctr.toFixed(2) + '%\n' +
+          '- Average CPC: $' + myAdsData.summary.cpc.toFixed(2) + '\n' +
+          '- Average CPA: $' + myAdsData.summary.cpa.toFixed(2) + '\n\n' +
+          'CAMPAIGNS:\n' +
+          JSON.stringify(myAdsData.campaigns.map(function(c) { return { name: c.name, spend: c.spend, purchases: c.purchases, roas: c.roas, cpa: c.cpa, ctr: c.ctr }; })) + '\n\n' +
+          'ADS & CREATIVES PERFORMANCE:\n' +
+          JSON.stringify(myAdsData.ads.map(function(a) { return { name: a.name, spend: a.spend, purchases: a.purchases, roas: a.roas, cpa: a.cpa, ctr: a.ctr, statusTag: a.statusTag, title: a.title, body: a.body }; })) + '\n\n' +
+          'Write a beautiful audit containing:\n' +
+          '1. **সামগ্রিক অ্যাকাউন্ট পারফরম্যান্স ওভারভিউ** (Overall assessment)\n' +
+          '2. **কোন ক্যাম্পেইন/অ্যাড স্কেল করবেন এবং কীভাবে** (Scaling recommendations - budget changes)\n' +
+          '3. **কোন ক্যাম্পেইন/অ্যাড পজ করবেন বা বন্ধ করবেন** (What to pause & why based on ROAS and Spend)\n' +
+          '4. **ক্রিয়েটিভ ও কপি অপ্টিমাইজেশন পরামর্শ** (Creative & copy analysis based on CTR and messaging)\n' +
+          '5. **তাত্ক্ষণিক অ্যাকশন লিস্ট** (Action items checklist)\n\n' +
+          'Ensure the response is structured, clear, uses markdown bullet points, and is entirely in easy-to-read Bengali.';
+
+        try {
+          var r = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': keys.c,
+              'anthropic-version': '2023-06-01',
+              'anthropic-dangerous-direct-browser-access': 'true'
+            },
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 3000,
+              messages: [{ role: 'user', content: prompt }]
+            })
+          });
+
+          if (!r.ok) {
+            var e;
+            try { e = await r.json(); } catch (x) { throw new Error('Claude API error'); }
+            throw new Error((e.error && e.error.message) || 'Claude API error');
+          }
+
+          var d = await r.json();
+          var raw = d.content && d.content.map(function (c) { return c.text || ''; }).join('') || '';
+          
+          txt.textContent = raw;
+          
+          try {
+            localStorage.setItem('mai_meta_ai_analysis', raw);
+          } catch(e) {}
+
+          load.style.display = 'none';
+          res.style.display = 'block';
+          btn.style.display = 'inline-block';
+          btn.textContent = '🔄 অডিট আপডেট করুন';
+        } catch (e) {
+          load.style.display = 'none';
+          btn.style.display = 'inline-block';
+          alert('Claude API থেকে অডিট জেনারেট করতে সমস্যা হয়েছে: ' + e.message);
+        }
+      }
+      window.runMyAdsAIAnalysis = runMyAdsAIAnalysis;
+
+      // Check saved Meta account
+      try {
+        var mToken = localStorage.getItem('mai_meta_token');
+        var mAccount = localStorage.getItem('mai_meta_account_id');
+        var mSavedData = localStorage.getItem('mai_meta_saved_search');
+        
+        if (mToken) document.getElementById('meta-token').value = mToken;
+        if (mAccount) document.getElementById('meta-account-id').value = mAccount;
+        
+        if (mSavedData) {
+          myAdsData = JSON.parse(mSavedData);
+          renderMyAdsDashboard(myAdsData);
+        }
+      } catch (e) {}
+
+      window.generateAdsBrief = generateAdsBrief;
     };
 
     // Run after CDN scripts are loaded
@@ -544,6 +1067,10 @@ export default function Home() {
                 </svg>
               </div>
               <span className="logo-name">Meta Ads Intelligence</span>
+            </div>
+            <div className="top-tabs" id="main-tabs">
+              <button className="top-tab active" id="tab-competitor" onClick={() => window.switchMainTab && window.switchMainTab('competitor')}>🔍 Competitor Intelligence</button>
+              <button className="top-tab" id="tab-myads" onClick={() => window.switchMainTab && window.switchMainTab('myads')}>📊 My Ads Dashboard</button>
             </div>
             <div className="topbar-right">
               <div className="key-indicator" onClick={() => window.openModal && window.openModal()} id="key-indicator">
@@ -736,6 +1263,122 @@ export default function Home() {
                     <div id="ads-groups"></div>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* MY ADS SECTION */}
+        <div id="my-ads-section" style={{ display: 'none' }}>
+          {/* Connection View */}
+          <div className="conn-card" id="my-ads-conn-card">
+            <div className="conn-title">📊 কানেক্ট করুন আপনার Meta Ads Account</div>
+            <div className="conn-sub">আপনার রানিং ক্যাম্পেইনের রিপোর্ট ভিজ্যুয়ালি অ্যানালাইজ করুন এবং এআই এর মাধ্যমে স্কেলিং সিদ্ধান্ত নিন।</div>
+            <div className="conn-form">
+              <div className="conn-field">
+                <label>Meta Access Token <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noreferrer">(Token কীভাবে পাবেন? ↗)</a></label>
+                <input type="password" id="meta-token" placeholder="EAABw..." className="sinp" style={{ width: '100%' }} />
+              </div>
+              <div className="conn-field">
+                <label>Meta Ad Account ID</label>
+                <input type="text" id="meta-account-id" placeholder="act_123456789" className="sinp" style={{ width: '100%' }} />
+              </div>
+              <div className="conn-btn-group">
+                <button className="go-btn" onClick={() => window.connectMetaAds && window.connectMetaAds(false)}>🔌 লাইভ কানেক্ট করুন</button>
+                <button className="conn-btn-demo" onClick={() => window.connectMetaAds && window.connectMetaAds(true)}>✨ ডেমো অ্যাকাউন্ট দিয়ে চেষ্টা করুন</button>
+              </div>
+              <div className="help-tooltip" style={{ marginTop: 10 }}>
+                🔒 <strong>নিরাপত্তা নোটিশ:</strong> আপনার Meta Access Token এবং Account ID শুধুমাত্র আপনার ব্রাউজারেই সংরক্ষিত থাকবে (localStorage)। কোনো থার্ড-পার্টি সার্ভারে ডেটা পাঠানো হয় না।
+              </div>
+            </div>
+          </div>
+
+          {/* Active Connection details */}
+          <div className="account-banner" id="my-ads-account-banner" style={{ display: 'none' }}>
+            <div className="account-details">
+              <div className="account-avatar" id="my-ads-avatar">M</div>
+              <div className="account-info-text">
+                <div className="account-title-name" id="my-ads-account-name">Meta Ad Account</div>
+                <div className="account-id-label" id="my-ads-account-id-label">act_00000</div>
+              </div>
+            </div>
+            <button className="account-disc-btn" onClick={() => window.disconnectMetaAds && window.disconnectMetaAds()}>Disconnect Account</button>
+          </div>
+
+          {/* Loading for My Ads */}
+          <div className="loading" id="my-ads-loading" style={{ display: 'none' }}>
+            <div className="spinner"></div>
+            <div className="loading-txt" id="my-ads-ltxt">Meta API থেকে ডেটা লোড করা হচ্ছে...</div>
+            <div className="loading-sub" id="my-ads-lsub">অনুগ্রহ করে অপেক্ষা করুন</div>
+          </div>
+
+          {/* Error Box for My Ads */}
+          <div className="errbox" id="my-ads-errbox" style={{ display: 'none' }}></div>
+
+          {/* My Ads Dashboard Content */}
+          <div className="dashboard" id="my-ads-dashboard" style={{ display: 'none' }}>
+            <div className="dash-layout">
+              <div className="dash-content">
+                
+                {/* KPI Stats */}
+                <div className="stat-row" id="my-ads-stat-row"></div>
+
+                {/* Charts */}
+                <div className="section-grid">
+                  <div className="card">
+                    <div className="card-header">
+                      <span className="card-title">Campaign Spend vs. Purchases (পারফরম্যান্স ট্রেন্ড)</span>
+                      <span className="card-badge badge-blue">Performance</span>
+                    </div>
+                    <div style={{ height: 260, width: '100%', position: 'relative' }}>
+                      <canvas id="myAdsTrendChart"></canvas>
+                    </div>
+                  </div>
+                  <div className="card">
+                    <div className="card-header">
+                      <span className="card-title">ROAS vs CTR কম্পারিজন</span>
+                      <span className="card-badge badge-purple">Metrics Match</span>
+                    </div>
+                    <div style={{ height: 260, width: '100%', position: 'relative' }}>
+                      <canvas id="myAdsRoasCtrChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                {/* AI Strategist Decision Maker */}
+                <div className="section-full">
+                  <div className="card">
+                    <div className="card-header">
+                      <span className="card-title">🤖 AI Strategist — ক্যাম্পেইন অডিট ও স্কেলিং সিদ্ধান্ত</span>
+                      <span className="card-badge badge-green">Decision Maker</span>
+                    </div>
+                    <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 14 }}>
+                      আপনার রানিং অ্যাড অ্যাকাউন্ট ডেটার উপর ভিত্তি করে ক্লাউড এআই দিয়ে একটি পূর্ণাঙ্গ ক্যাম্পেইন অডিট করুন। কোন অ্যাড পজ করা উচিত, কোনটিতে বাজেট বাড়ানো উচিত, সব সিদ্ধান্ত এক ক্লিকে।
+                    </p>
+                    <button className="go-btn" id="my-ads-ai-btn" onClick={() => window.runMyAdsAIAnalysis && window.runMyAdsAIAnalysis()}>✨ এআই অডিট তৈরি করুন</button>
+                    
+                    <div id="my-ads-ai-loading" style={{ display: 'none', marginTop: 14, fontSize: 13, color: 'var(--text3)' }}>
+                      <div className="spinner" style={{ width: 20, height: 20, borderWidth: 2, margin: '0 10px 0 0', display: 'inline-block', verticalAlign: 'middle' }}></div>
+                      এআই অ্যাকাউন্ট অডিট করছে, ৩-৫ সেকেন্ড সময় লাগতে পারে...
+                    </div>
+                    <div id="my-ads-ai-result" className="ai-insight" style={{ display: 'none', marginTop: 16 }}>
+                      <div className="ai-insight-label">Claude AI Strategist Recommendation</div>
+                      <div className="ai-insight-text" id="my-ads-ai-text" style={{ whiteSpace: 'pre-wrap' }}></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Ads Creative Grid */}
+                <div className="section-full">
+                  <div className="card">
+                    <div className="card-header">
+                      <span className="card-title">অ্যাকটিভ Ads ও ক্রিয়েটিভ পারফরম্যান্স विश्लेषण</span>
+                      <span className="card-badge badge-accent">Creative Performance</span>
+                    </div>
+                    <div className="my-ads-grid" id="my-ads-creatives-grid"></div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
