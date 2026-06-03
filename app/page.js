@@ -596,6 +596,7 @@ export default function Home() {
         setMyAdsLoad('Meta Ad Account থেকে ডেটা রিট্রিভ করা হচ্ছে...', isDemo ? 'ডেমো অ্যাকাউন্ট সেটআপ করা হচ্ছে' : 'ক্যাম্পেইন ও ক্রিয়েটিভ পারফরম্যান্স লোড হচ্ছে');
         
         try {
+          var datePreset = document.getElementById('my-ads-date-preset') ? document.getElementById('my-ads-date-preset').value : 'last_30d';
           var data;
           if (isDemo) {
             await new Promise(function(resolve) { setTimeout(resolve, 800); });
@@ -604,7 +605,7 @@ export default function Home() {
             var r = await fetch('/api/meta-reports', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ metaToken: token, metaAccountId: accountId })
+              body: JSON.stringify({ metaToken: token, metaAccountId: accountId, datePreset: datePreset })
             });
             data = await r.json();
             if (!r.ok) throw new Error(data.error || 'Meta Report Fetch Failed');
@@ -627,6 +628,192 @@ export default function Home() {
         }
       }
       window.connectMetaAds = connectMetaAds;
+
+      async function reloadMyAdsData() {
+        var token = '';
+        var accountId = '';
+        if (myAdsIsDemo) {
+          token = 'DEMO_TOKEN';
+          accountId = 'act_123456789_demo';
+        } else {
+          token = localStorage.getItem('mai_meta_token');
+          accountId = localStorage.getItem('mai_meta_account_id');
+          if (!token || !accountId) return;
+        }
+
+        document.getElementById('my-ads-dashboard').style.display = 'none';
+        setMyAdsLoad('Meta API থেকে নতুন ডেটা লোড করা হচ্ছে...', myAdsIsDemo ? 'ডেমো অ্যাকাউন্ট আপডেট করা হচ্ছে' : 'সিলেক্টেড ডেট রেঞ্জের ইনফরমেশন রিট্রিভ করা হচ্ছে');
+        
+        try {
+          var datePreset = document.getElementById('my-ads-date-preset').value;
+          var data;
+          if (myAdsIsDemo) {
+            await new Promise(function(resolve) { setTimeout(resolve, 500); });
+            
+            var multiplier = 1.0;
+            if (datePreset === 'last_7d') multiplier = 0.25;
+            else if (datePreset === 'last_14d') multiplier = 0.5;
+            else if (datePreset === 'last_90d') multiplier = 2.8;
+            else if (datePreset === 'this_month') multiplier = 0.8;
+            else if (datePreset === 'last_month') multiplier = 1.1;
+
+            var baseData = getDemoData();
+            baseData.summary.spend = parseFloat((baseData.summary.spend * multiplier).toFixed(2));
+            baseData.summary.purchases = Math.round(baseData.summary.purchases * multiplier);
+            baseData.summary.revenue = parseFloat((baseData.summary.revenue * multiplier).toFixed(2));
+            baseData.summary.impressions = Math.round(baseData.summary.impressions * multiplier);
+            baseData.summary.clicks = Math.round(baseData.summary.clicks * multiplier);
+            
+            baseData.summary.ctr = baseData.summary.impressions > 0 ? (baseData.summary.clicks / baseData.summary.impressions) * 100 : 0;
+            baseData.summary.cpc = baseData.summary.clicks > 0 ? baseData.summary.spend / baseData.summary.clicks : 0;
+            baseData.summary.cpa = baseData.summary.purchases > 0 ? baseData.summary.spend / baseData.summary.purchases : 0;
+            baseData.summary.roas = baseData.summary.spend > 0 ? baseData.summary.revenue / baseData.summary.spend : 0;
+
+            baseData.campaigns.forEach(function(c) {
+              c.spend = parseFloat((c.spend * multiplier).toFixed(2));
+              c.purchases = Math.round(c.purchases * multiplier);
+              c.impressions = Math.round(c.impressions * multiplier);
+              c.clicks = Math.round(c.clicks * multiplier);
+              c.roas = c.spend > 0 ? (c.purchases * 40) / c.spend : 0;
+              c.cpa = c.purchases > 0 ? c.spend / c.purchases : 0;
+            });
+
+            baseData.ads.forEach(function(a) {
+              a.spend = parseFloat((a.spend * multiplier).toFixed(2));
+              a.purchases = Math.round(a.purchases * multiplier);
+              a.impressions = Math.round(a.impressions * multiplier);
+              a.clicks = Math.round(a.clicks * multiplier);
+              a.roas = a.spend > 0 ? (a.purchases * 40) / a.spend : 0;
+              a.cpa = a.purchases > 0 ? a.spend / a.purchases : 0;
+            });
+            data = baseData;
+          } else {
+            var r = await fetch('/api/meta-reports', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ metaToken: token, metaAccountId: accountId, datePreset: datePreset })
+            });
+            data = await r.json();
+            if (!r.ok) throw new Error(data.error || 'Fetch failed');
+          }
+          
+          myAdsData = data;
+          renderMyAdsDashboard(data);
+        } catch(err) {
+          showMyAdsErr('লোড করতে সমস্যা হয়েছে: ' + err.message);
+        }
+      }
+      window.reloadMyAdsData = reloadMyAdsData;
+
+      function filterMyAdsDisplay() {
+        if (!myAdsData) return;
+
+        var selectedCampaign = document.getElementById('my-ads-campaign-filter').value;
+        var selectedStatus = document.getElementById('my-ads-status-filter').value;
+
+        // Filter the Ads list
+        var filteredAds = myAdsData.ads.filter(function(ad) {
+          var matchesCampaign = selectedCampaign === 'ALL' || ad.campaign_id === selectedCampaign || ad.campaign_name === selectedCampaign;
+          
+          var adStatusClean = String(ad.status).toUpperCase();
+          var matchesStatus = selectedStatus === 'ALL' || 
+            (selectedStatus === 'ACTIVE' && (adStatusClean === 'ACTIVE' || adStatusClean === 'EFFECTIVE_ACTIVE' || adStatusClean === 'PENDING_REVIEW')) ||
+            (selectedStatus === 'PAUSED' && (adStatusClean === 'PAUSED' || adStatusClean === 'DISABLED' || adStatusClean === 'ARCHIVED'));
+
+          return matchesCampaign && matchesStatus;
+        });
+
+        // Compute new KPIs for the filtered subset
+        var spend = 0, impressions = 0, clicks = 0, purchases = 0, revenue = 0;
+        
+        filteredAds.forEach(function(ad) {
+          spend += ad.spend;
+          impressions += ad.impressions;
+          clicks += ad.clicks;
+          purchases += ad.purchases;
+          revenue += ad.purchaseValue || (ad.purchases * 40);
+        });
+
+        var ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+        var cpc = clicks > 0 ? spend / clicks : 0;
+        var cpa = purchases > 0 ? spend / purchases : 0;
+        var roas = spend > 0 ? revenue / spend : 0;
+
+        var formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+        var formatCurrency = function(val) { return formatter.format(val); };
+
+        document.getElementById('my-ads-stat-row').innerHTML = [
+          ['খরচ (Spend)', formatCurrency(spend), 'ফিল্টারড Spend'],
+          ['Purchases (Filtered)', purchases, purchases > 0 ? 'CPA: ' + formatCurrency(cpa) : 'কোনো সেল নেই'],
+          ['গড় ROAS (Filtered)', roas.toFixed(2) + 'x', spend > 0 ? 'রিটার্ন ভ্যালু: ' + formatCurrency(revenue) : '0.00'],
+          ['গড় CTR (Filtered)', ctr.toFixed(2) + '%', clicks + ' ক্লিকস'],
+          ['গড় CPC (Filtered)', formatCurrency(cpc), 'ক্লিক প্রতি খরচ']
+        ].map(function (x) { 
+          return '<div class="stat"><div class="stat-label">' + x[0] + '</div><div class="stat-value">' + x[1] + '</div><div class="stat-sub">' + x[2] + '</div></div>'; 
+        }).join('');
+
+        var creativesGrid = document.getElementById('my-ads-creatives-grid');
+        if (filteredAds.length === 0) {
+          creativesGrid.innerHTML = '<p style="color:var(--text3);font-size:13px;grid-column:1/-1;text-align:center;padding:24px 0">এই ফিল্টারে কোনো অ্যাড পাওয়া যায়নি।</p>';
+        } else {
+          creativesGrid.innerHTML = filteredAds.map(function(ad) {
+            var mediaHtml = '';
+            if (ad.video_url) {
+              mediaHtml = '<video src="' + esc(ad.video_url) + '" controls style="width:100%;height:100%;object-fit:cover;"></video>';
+            } else if (ad.image_url) {
+              mediaHtml = '<img src="' + esc(ad.image_url) + '" alt="" onerror="this.style.display=\'none\'" />';
+            } else {
+              mediaHtml = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text3);font-size:12px;">No Media Content</div>';
+            }
+            
+            var badgeClass = 'badge-blue';
+            if (ad.statusTag.includes('Top')) badgeClass = 'badge-success-alt';
+            else if (ad.statusTag.includes('Under')) badgeClass = 'badge-warning-alt';
+            else if (ad.statusTag.includes('Potential')) badgeClass = 'badge-scale';
+
+            var adStatusClean = String(ad.status).toUpperCase();
+            var isActive = adStatusClean === 'ACTIVE' || adStatusClean === 'EFFECTIVE_ACTIVE';
+            var statusBadge = isActive 
+              ? '<span style="font-size:9px;color:var(--green);background:var(--green-bg);padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:bold;">● ACTIVE</span>' 
+              : '<span style="font-size:9px;color:var(--text3);background:var(--bg);padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:bold;">● PAUSED</span>';
+
+            return '<div class="my-ad-card">' +
+              '<div class="my-ad-media">' +
+                mediaHtml +
+                '<span class="my-ad-tag-absolute ' + badgeClass + '">' + esc(ad.statusTag) + '</span>' +
+              '</div>' +
+              '<div class="my-ad-info">' +
+                '<div class="my-ad-header">' +
+                  '<div>' +
+                    '<div class="my-ad-name" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">' + esc(ad.name) + statusBadge + '</div>' +
+                    '<div class="my-ad-id-txt">ID: ' + esc(ad.ad_id) + '</div>' +
+                  '</div>' +
+                '</div>' +
+                (ad.body ? '<div class="my-ad-body-txt">' + esc(ad.body) + '</div>' : '') +
+                '<div class="my-ad-stats">' +
+                  '<div class="my-ad-stat-box"><div class="my-ad-stat-lbl">Spend</div><div class="my-ad-stat-val">' + formatCurrency(ad.spend) + '</div></div>' +
+                  '<div class="my-ad-stat-box highlight"><div class="my-ad-stat-lbl">ROAS</div><div class="my-ad-stat-val">' + ad.roas.toFixed(2) + 'x</div></div>' +
+                  '<div class="my-ad-stat-box"><div class="my-ad-stat-lbl">Purchases</div><div class="my-ad-stat-val">' + ad.purchases + '</div></div>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+        }
+
+        setTimeout(function() {
+          var adNames = filteredAds.map(function(a) { return a.name.length > 20 ? a.name.substring(0, 17) + '...' : a.name; });
+          var roas = filteredAds.map(function(a) { return a.roas; });
+          var ctrs = filteredAds.map(function(a) { return a.ctr; });
+          
+          if (window.myAdsRoasCtrChartInst) {
+            window.myAdsRoasCtrChartInst.data.labels = adNames;
+            window.myAdsRoasCtrChartInst.data.datasets[0].data = roas;
+            window.myAdsRoasCtrChartInst.data.datasets[1].data = ctrs;
+            window.myAdsRoasCtrChartInst.update();
+          }
+        }, 50);
+      }
+      window.filterMyAdsDisplay = filterMyAdsDisplay;
 
       function disconnectMetaAds() {
         myAdsData = null;
@@ -757,6 +944,21 @@ export default function Home() {
         document.getElementById('my-ads-account-id-label').textContent = actId;
         document.getElementById('my-ads-avatar').textContent = actName.charAt(0).toUpperCase();
 
+        // Populate Campaign Filter dropdown dynamically
+        var campSelect = document.getElementById('my-ads-campaign-filter');
+        var previousVal = campSelect.value || 'ALL';
+        campSelect.innerHTML = '<option value="ALL">All Campaigns (সব ক্যাম্পেইন)</option>';
+        if (data.campaigns && data.campaigns.length > 0) {
+          data.campaigns.forEach(function(c) {
+            var cId = c.id || c.name;
+            campSelect.innerHTML += '<option value="' + esc(cId) + '">' + esc(c.name) + '</option>';
+          });
+        }
+        
+        // Restore or reset filters
+        campSelect.value = 'ALL';
+        document.getElementById('my-ads-status-filter').value = 'ALL';
+
         var sum = data.summary;
         var formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
         var formatCurrency = function(val) { return formatter.format(val); };
@@ -790,6 +992,12 @@ export default function Home() {
             else if (ad.statusTag.includes('Under')) badgeClass = 'badge-warning-alt';
             else if (ad.statusTag.includes('Potential')) badgeClass = 'badge-scale';
 
+            var adStatusClean = String(ad.status || 'ACTIVE').toUpperCase();
+            var isActive = adStatusClean === 'ACTIVE' || adStatusClean === 'EFFECTIVE_ACTIVE';
+            var statusBadge = isActive 
+              ? '<span style="font-size:9px;color:var(--green);background:var(--green-bg);padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:bold;">● ACTIVE</span>' 
+              : '<span style="font-size:9px;color:var(--text3);background:var(--bg);padding:2px 6px;border-radius:4px;margin-left:6px;font-weight:bold;">● PAUSED</span>';
+
             return '<div class="my-ad-card">' +
               '<div class="my-ad-media">' +
                 mediaHtml +
@@ -798,7 +1006,7 @@ export default function Home() {
               '<div class="my-ad-info">' +
                 '<div class="my-ad-header">' +
                   '<div>' +
-                    '<div class="my-ad-name">' + esc(ad.name) + '</div>' +
+                    '<div class="my-ad-name" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">' + esc(ad.name) + statusBadge + '</div>' +
                     '<div class="my-ad-id-txt">ID: ' + esc(ad.ad_id) + '</div>' +
                   '</div>' +
                 '</div>' +
@@ -1294,7 +1502,7 @@ export default function Home() {
           </div>
 
           {/* Active Connection details */}
-          <div className="account-banner" id="my-ads-account-banner" style={{ display: 'none' }}>
+          <div className="account-banner" id="my-ads-account-banner" style={{ display: 'none', flexWrap: 'wrap', gap: 16 }}>
             <div className="account-details">
               <div className="account-avatar" id="my-ads-avatar">M</div>
               <div className="account-info-text">
@@ -1302,6 +1510,27 @@ export default function Home() {
                 <div className="account-id-label" id="my-ads-account-id-label">act_00000</div>
               </div>
             </div>
+
+            {/* Filters Row */}
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }} id="my-ads-filters-container">
+              <select id="my-ads-date-preset" style={{ minWidth: 130, padding: '6px 10px', fontSize: 13 }} onChange={() => window.reloadMyAdsData && window.reloadMyAdsData()}>
+                <option value="last_7d">Last 7 Days (গত ৭ দিন)</option>
+                <option value="last_14d">Last 14 Days (গত ১৪ দিন)</option>
+                <option value="last_30d" selected>Last 30 Days (গত ৩০ দিন)</option>
+                <option value="last_90d">Last 90 Days (গত ৯০ দিন)</option>
+                <option value="this_month">This Month (চলতি মাস)</option>
+                <option value="last_month">Last Month (গত মাস)</option>
+              </select>
+              <select id="my-ads-campaign-filter" style={{ minWidth: 150, maxWidth: 220, padding: '6px 10px', fontSize: 13 }} onChange={() => window.filterMyAdsDisplay && window.filterMyAdsDisplay()}>
+                <option value="ALL">All Campaigns (সব ক্যাম্পেইন)</option>
+              </select>
+              <select id="my-ads-status-filter" style={{ minWidth: 130, padding: '6px 10px', fontSize: 13 }} onChange={() => window.filterMyAdsDisplay && window.filterMyAdsDisplay()}>
+                <option value="ALL">All Ads (সব অ্যাড)</option>
+                <option value="ACTIVE">Active Only (চালু অ্যাড)</option>
+                <option value="PAUSED">Paused Only (বন্ধ অ্যাড)</option>
+              </select>
+            </div>
+
             <button className="account-disc-btn" onClick={() => window.disconnectMetaAds && window.disconnectMetaAds()}>Disconnect Account</button>
           </div>
 

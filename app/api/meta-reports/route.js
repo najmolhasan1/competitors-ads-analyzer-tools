@@ -14,13 +14,13 @@ export async function POST(request) {
       : `act_${metaAccountId.trim()}`;
 
     // 1. Fetch Campaign Insights
-    const campaignsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=campaign_name,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=campaign&limit=100&access_token=${metaToken}`;
+    const campaignsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=campaign&limit=100&access_token=${metaToken}`;
     
     // 2. Fetch Ad Level Insights (to match with creatives)
-    const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=ad&limit=150&access_token=${metaToken}`;
+    const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=ad&limit=150&access_token=${metaToken}`;
 
-    // 3. Fetch Ads listing (creative content)
-    const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,creative{id,title,body,image_url,thumbnail_url,video_data_hover_url}&limit=100&access_token=${metaToken}`;
+    // 3. Fetch Ads listing (creative content & status)
+    const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,status,effective_status,creative{id,title,body,image_url,thumbnail_url,video_data_hover_url}&limit=100&access_token=${metaToken}`;
 
     const [campRes, adsInsRes, adsListRes] = await Promise.all([
       fetch(campaignsUrl),
@@ -98,6 +98,7 @@ export async function POST(request) {
       const creative = ad.creative || {};
       adDetailsMap[ad.id] = {
         name: ad.name,
+        status: ad.status || ad.effective_status || 'UNKNOWN',
         title: creative.title || '',
         body: creative.body || '',
         image_url: creative.image_url || creative.thumbnail_url || '',
@@ -128,6 +129,8 @@ export async function POST(request) {
         id: index + 1,
         ad_id: ins.ad_id,
         name: ins.ad_name,
+        campaign_id: ins.campaign_id || '',
+        campaign_name: ins.campaign_name || '',
         spend,
         impressions: parseInt(ins.impressions || 0),
         clicks: parseInt(ins.clicks || 0),
@@ -138,6 +141,7 @@ export async function POST(request) {
         roas,
         cpa,
         statusTag,
+        status: details.status || 'UNKNOWN',
         title: details.title || '',
         body: details.body || '',
         image_url: details.image_url || '',
@@ -164,6 +168,7 @@ export async function POST(request) {
         const { purchases, purchaseValue } = parseActions(c.actions, c.action_values);
         const spend = parseFloat(c.spend || 0);
         return {
+          id: c.campaign_id || '',
           name: c.campaign_name,
           spend,
           impressions: parseInt(c.impressions || 0),
