@@ -526,6 +526,122 @@ export default function Home() {
       var currentMainTab = 'competitor';
       var myAdsData = null;
       var myAdsIsDemo = false;
+      var myAdsDatePreset = 'last_30d';
+      var myAdsStartDate = '';
+      var myAdsEndDate = '';
+
+      function toggleDatePicker() {
+        var dropdown = document.getElementById('my-ads-date-picker-dropdown');
+        if (!dropdown) return;
+        if (dropdown.style.display === 'none' || !dropdown.style.display) {
+          dropdown.style.display = 'block';
+          if (myAdsStartDate) {
+            var sInput = document.getElementById('my-ads-start-date');
+            if (sInput) sInput.value = myAdsStartDate;
+          }
+          if (myAdsEndDate) {
+            var eInput = document.getElementById('my-ads-end-date');
+            if (eInput) eInput.value = myAdsEndDate;
+          }
+        } else {
+          dropdown.style.display = 'none';
+        }
+      }
+      window.toggleDatePicker = toggleDatePicker;
+
+      if (typeof window !== 'undefined') {
+        window.addEventListener('click', function(e) {
+          var wrapper = document.getElementById('my-ads-datepicker-wrapper');
+          var dropdown = document.getElementById('my-ads-date-picker-dropdown');
+          if (wrapper && dropdown && !wrapper.contains(e.target)) {
+            dropdown.style.display = 'none';
+          }
+        });
+      }
+
+      function selectDatePreset(preset, label) {
+        myAdsDatePreset = preset;
+        
+        var today = new Date();
+        var start = new Date();
+        var end = new Date();
+
+        var formatDate = function(d) {
+          var yyyy = d.getFullYear();
+          var mm = String(d.getMonth() + 1).padStart(2, '0');
+          var dd = String(d.getDate()).padStart(2, '0');
+          return yyyy + '-' + mm + '-' + dd;
+        };
+
+        if (preset === 'today') {
+          myAdsStartDate = formatDate(start);
+          myAdsEndDate = formatDate(end);
+        } else if (preset === 'yesterday') {
+          start.setDate(today.getDate() - 1);
+          end.setDate(today.getDate() - 1);
+          myAdsStartDate = formatDate(start);
+          myAdsEndDate = formatDate(end);
+        } else {
+          var days = 30;
+          if (preset === 'last_3d') days = 3;
+          else if (preset === 'last_5d') days = 5;
+          else if (preset === 'last_7d') days = 7;
+          else if (preset === 'last_10d') days = 10;
+          else if (preset === 'last_14d') days = 14;
+          else if (preset === 'last_30d') days = 30;
+          else if (preset === 'last_90d') days = 90;
+
+          start.setDate(today.getDate() - days);
+          end.setDate(today.getDate() - 1);
+          myAdsStartDate = formatDate(start);
+          myAdsEndDate = formatDate(end);
+        }
+
+        var btnLabel = document.getElementById('my-ads-date-btn-label');
+        if (btnLabel) {
+          btnLabel.textContent = label + ' (' + myAdsStartDate + ' - ' + myAdsEndDate + ')';
+        }
+        
+        var dropdown = document.getElementById('my-ads-date-picker-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+        
+        reloadMyAdsData();
+      }
+      window.selectDatePreset = selectDatePreset;
+
+      function applyCustomCalendarRange() {
+        var sInput = document.getElementById('my-ads-start-date');
+        var eInput = document.getElementById('my-ads-end-date');
+        if (!sInput || !eInput) return;
+        var startVal = sInput.value;
+        var endVal = eInput.value;
+        
+        if (!startVal || !endVal) {
+          alert('অনুগ্রহ করে শুরুর এবং শেষের তারিখ নির্বাচন করুন।');
+          return;
+        }
+
+        if (new Date(startVal) > new Date(endVal)) {
+          alert('শুরুর তারিখ অবশ্যই শেষের তারিখের চেয়ে আগে হতে হবে।');
+          return;
+        }
+
+        myAdsDatePreset = 'custom';
+        myAdsStartDate = startVal;
+        myAdsEndDate = endVal;
+
+        var displayLabel = 'Custom Range (' + startVal + ' - ' + endVal + ')';
+        var btnLabel = document.getElementById('my-ads-date-btn-label');
+        if (btnLabel) {
+          btnLabel.textContent = displayLabel;
+        }
+        
+        var dropdown = document.getElementById('my-ads-date-picker-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+        
+        reloadMyAdsData();
+      }
+      window.applyCustomCalendarRange = applyCustomCalendarRange;
 
       function switchMainTab(tab) {
         currentMainTab = tab;
@@ -596,7 +712,7 @@ export default function Home() {
         setMyAdsLoad('Meta Ad Account থেকে ডেটা রিট্রিভ করা হচ্ছে...', isDemo ? 'ডেমো অ্যাকাউন্ট সেটআপ করা হচ্ছে' : 'ক্যাম্পেইন ও ক্রিয়েটিভ পারফরম্যান্স লোড হচ্ছে');
         
         try {
-          var datePreset = document.getElementById('my-ads-date-preset') ? document.getElementById('my-ads-date-preset').value : 'last_30d';
+          var datePreset = myAdsDatePreset || 'last_30d';
           var data;
           if (isDemo) {
             await new Promise(function(resolve) { setTimeout(resolve, 800); });
@@ -605,7 +721,13 @@ export default function Home() {
             var r = await fetch('/api/meta-reports', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ metaToken: token, metaAccountId: accountId, datePreset: datePreset })
+              body: JSON.stringify({ 
+                metaToken: token, 
+                metaAccountId: accountId, 
+                datePreset: datePreset,
+                startDate: myAdsStartDate,
+                endDate: myAdsEndDate
+              })
             });
             data = await r.json();
             if (!r.ok) throw new Error(data.error || 'Meta Report Fetch Failed');
@@ -645,17 +767,32 @@ export default function Home() {
         setMyAdsLoad('Meta API থেকে নতুন ডেটা লোড করা হচ্ছে...', myAdsIsDemo ? 'ডেমো অ্যাকাউন্ট আপডেট করা হচ্ছে' : 'সিলেক্টেড ডেট রেঞ্জের ইনফরমেশন রিট্রিভ করা হচ্ছে');
         
         try {
-          var datePreset = document.getElementById('my-ads-date-preset').value;
+          if (!myAdsStartDate || !myAdsEndDate) {
+            var today = new Date();
+            var start = new Date();
+            start.setDate(today.getDate() - 30);
+            var formatDate = function(d) {
+              var yyyy = d.getFullYear();
+              var mm = String(d.getMonth() + 1).padStart(2, '0');
+              var dd = String(d.getDate()).padStart(2, '0');
+              return yyyy + '-' + mm + '-' + dd;
+            };
+            myAdsStartDate = formatDate(start);
+            myAdsEndDate = formatDate(today);
+            var btnLabel = document.getElementById('my-ads-date-btn-label');
+            if (btnLabel) {
+              btnLabel.textContent = 'Last 30 Days (গত ৩০ দিন) (' + myAdsStartDate + ' - ' + myAdsEndDate + ')';
+            }
+          }
+
           var data;
           if (myAdsIsDemo) {
             await new Promise(function(resolve) { setTimeout(resolve, 500); });
             
-            var multiplier = 1.0;
-            if (datePreset === 'last_7d') multiplier = 0.25;
-            else if (datePreset === 'last_14d') multiplier = 0.5;
-            else if (datePreset === 'last_90d') multiplier = 2.8;
-            else if (datePreset === 'this_month') multiplier = 0.8;
-            else if (datePreset === 'last_month') multiplier = 1.1;
+            var diffTime = Math.abs(new Date(myAdsEndDate) - new Date(myAdsStartDate));
+            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            var multiplier = diffDays / 30;
+            if (multiplier < 0.05) multiplier = 0.05;
 
             var baseData = getDemoData();
             baseData.summary.spend = parseFloat((baseData.summary.spend * multiplier).toFixed(2));
@@ -691,7 +828,13 @@ export default function Home() {
             var r = await fetch('/api/meta-reports', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ metaToken: token, metaAccountId: accountId, datePreset: datePreset })
+              body: JSON.stringify({ 
+                metaToken: token, 
+                metaAccountId: accountId, 
+                datePreset: myAdsDatePreset,
+                startDate: myAdsStartDate,
+                endDate: myAdsEndDate
+              })
             });
             data = await r.json();
             if (!r.ok) throw new Error(data.error || 'Fetch failed');
@@ -1765,14 +1908,72 @@ export default function Home() {
 
             {/* Filters Row */}
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }} id="my-ads-filters-container">
-              <select id="my-ads-date-preset" style={{ minWidth: 130, padding: '6px 10px', fontSize: 13 }} onChange={() => window.reloadMyAdsData && window.reloadMyAdsData()}>
-                <option value="last_7d">Last 7 Days (গত ৭ দিন)</option>
-                <option value="last_14d">Last 14 Days (গত ১৪ দিন)</option>
-                <option value="last_30d" selected>Last 30 Days (গত ৩০ দিন)</option>
-                <option value="last_90d">Last 90 Days (গত ৯০ দিন)</option>
-                <option value="this_month">This Month (চলতি মাস)</option>
-                <option value="last_month">Last Month (গত মাস)</option>
-              </select>
+              <div className="custom-datepicker" style={{ position: 'relative', display: 'inline-block' }} id="my-ads-datepicker-wrapper">
+                <button 
+                  id="my-ads-date-btn" 
+                  onClick={() => window.toggleDatePicker && window.toggleDatePicker()} 
+                  style={{ 
+                    padding: '6px 12px', 
+                    fontSize: 13, 
+                    background: 'var(--white)', 
+                    border: '1px solid var(--border)', 
+                    borderRadius: 4, 
+                    cursor: 'pointer', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 6,
+                    color: 'var(--text)',
+                    fontWeight: 500,
+                    minWidth: 160
+                  }}
+                >
+                  📅 <span id="my-ads-date-btn-label">Last 30 Days (গত ৩০ দিন)</span>
+                </button>
+                <div 
+                  id="my-ads-date-picker-dropdown" 
+                  className="datepicker-dropdown" 
+                  style={{ 
+                    display: 'none', 
+                    position: 'absolute', 
+                    top: '100%', 
+                    left: 0, 
+                    zIndex: 1000, 
+                    background: 'var(--white)', 
+                    border: '1px solid var(--border)', 
+                    borderRadius: 6, 
+                    boxShadow: 'var(--shadow)', 
+                    padding: 14, 
+                    minWidth: 280, 
+                    marginTop: 6,
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 12 }}>
+                    <button className="preset-btn" onClick={() => window.selectDatePreset && window.selectDatePreset('today', 'Today (আজ)')}>আজ (Today)</button>
+                    <button className="preset-btn" onClick={() => window.selectDatePreset && window.selectDatePreset('yesterday', 'Yesterday (গতকাল)')}>গতকাল (Yesterday)</button>
+                    <button className="preset-btn" onClick={() => window.selectDatePreset && window.selectDatePreset('last_3d', 'Last 3 Days (গত ৩ দিন)')}>গত ৩ দিন</button>
+                    <button className="preset-btn" onClick={() => window.selectDatePreset && window.selectDatePreset('last_5d', 'Last 5 Days (গত ৫ দিন)')}>গত ৫ দিন</button>
+                    <button className="preset-btn" onClick={() => window.selectDatePreset && window.selectDatePreset('last_7d', 'Last 7 Days (গত ৭ দিন)')}>গত ৭ দিন</button>
+                    <button className="preset-btn" onClick={() => window.selectDatePreset && window.selectDatePreset('last_10d', 'Last 10 Days (গত ১০ দিন)')}>গত ১০ দিন</button>
+                    <button className="preset-btn" onClick={() => window.selectDatePreset && window.selectDatePreset('last_14d', 'Last 14 Days (গত ১৪ দিন)')}>গত ১৪ দিন</button>
+                    <button className="preset-btn" onClick={() => window.selectDatePreset && window.selectDatePreset('last_30d', 'Last 30 Days (গত ৩০ দিন)')}>গত ৩০ দিন</button>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10 }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8, color: 'var(--text)' }}>📅 কাস্টম ক্যালেন্ডার রেঞ্জ:</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+                      <div>
+                        <label style={{ fontSize: 10, color: 'var(--text2)', display: 'block', marginBottom: 2 }}>শুরুর তারিখ (Start Date):</label>
+                        <input type="date" id="my-ads-start-date" className="sinp" style={{ fontSize: 12, padding: '4px 8px', width: '100%', boxSizing: 'border-box' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10, color: 'var(--text2)', display: 'block', marginBottom: 2 }}>শেষের তারিখ (End Date):</label>
+                        <input type="date" id="my-ads-end-date" className="sinp" style={{ fontSize: 12, padding: '4px 8px', width: '100%', boxSizing: 'border-box' }} />
+                      </div>
+                    </div>
+                    <button className="go-btn" style={{ padding: '6px 10px', fontSize: 12, width: '100%', fontWeight: 600 }} onClick={() => window.applyCustomCalendarRange && window.applyCustomCalendarRange()}>প্রয়োগ করুন (Apply)</button>
+                  </div>
+                </div>
+              </div>
               <select id="my-ads-campaign-filter" style={{ minWidth: 150, maxWidth: 220, padding: '6px 10px', fontSize: 13 }} onChange={() => window.filterMyAdsDisplay && window.filterMyAdsDisplay()}>
                 <option value="ALL">All Campaigns (সব ক্যাম্পেইন)</option>
               </select>

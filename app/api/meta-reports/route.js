@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
-    const { metaToken, metaAccountId, datePreset = 'last_30d' } = await request.json();
+    const { metaToken, metaAccountId, datePreset = 'last_30d', startDate, endDate } = await request.json();
 
     if (!metaToken || !metaAccountId) {
       return NextResponse.json({ error: 'Meta Token and Ad Account ID are required' }, { status: 400 });
@@ -12,20 +12,27 @@ export async function POST(request) {
       ? metaAccountId.trim() 
       : `act_${metaAccountId.trim()}`;
 
+    let dateParam = '';
+    if (startDate && endDate) {
+      dateParam = `time_range=${encodeURIComponent(JSON.stringify({ since: startDate, until: endDate }))}`;
+    } else {
+      dateParam = `date_preset=${datePreset}`;
+    }
+
     // 1. Fetch campaigns details
     const campaignsListUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/campaigns?fields=id,name,status,objective,created_time,daily_budget,lifetime_budget,buying_type&limit=150&access_token=${metaToken}`;
 
     // 2. Fetch campaign insights
-    const campaignsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=campaign_id,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=campaign&limit=100&access_token=${metaToken}`;
+    const campaignsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=campaign_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=campaign&limit=100&access_token=${metaToken}`;
     
     // 3. Fetch adsets details (including targeting and budgets)
     const adsetsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/adsets?fields=id,name,status,campaign{id},created_time,daily_budget,lifetime_budget,targeting,destination_type&limit=150&access_token=${metaToken}`;
 
     // 4. Fetch adset insights
-    const adsetsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=adset&limit=150&access_token=${metaToken}`;
+    const adsetsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=adset&limit=150&access_token=${metaToken}`;
 
     // 5. Fetch ad insights
-    const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=ad&limit=150&access_token=${metaToken}`;
+    const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=ad&limit=150&access_token=${metaToken}`;
 
     // 6. Fetch ads creatives
     const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,status,effective_status,campaign{id,name},adset{id,name},creative{id,title,body,image_url,thumbnail_url,video_data_hover_url}&limit=150&access_token=${metaToken}`;
