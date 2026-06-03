@@ -35,7 +35,7 @@ export async function POST(request) {
     const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=ad&limit=150&access_token=${metaToken}`;
 
     // 6. Fetch ads creatives
-    const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,status,effective_status,campaign{id,name},adset{id,name},creative{id,title,body,image_url,thumbnail_url,video_data_hover_url}&limit=150&access_token=${metaToken}`;
+    const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,status,effective_status,campaign{id,name},adset{id,name},creative{id,title,body,image_url,thumbnail_url,video_data_hover_url,video_id,video_data,object_story_spec,asset_feed_spec}&limit=150&access_token=${metaToken}`;
 
     const [campListRes, campInsRes, adsetListRes, adsetInsRes, adsInsRes, adsListRes] = await Promise.all([
       fetch(campaignsListUrl),
@@ -285,6 +285,55 @@ export async function POST(request) {
       adInsightsMap[ins.ad_id] = ins;
     });
 
+    // Helper to extract best creative preview image or video
+    const extractCreativeMedia = (creative = {}) => {
+      let imageUrl = '';
+      let videoUrl = '';
+
+      if (creative.image_url) {
+        imageUrl = creative.image_url;
+      } else if (creative.thumbnail_url) {
+        imageUrl = creative.thumbnail_url;
+      }
+
+      if (!imageUrl && creative.object_story_spec) {
+        const spec = creative.object_story_spec;
+        if (spec.link_data) {
+          const link = spec.link_data;
+          if (link.picture) {
+            imageUrl = link.picture;
+          } else if (link.child_attachments && Array.isArray(link.child_attachments) && link.child_attachments.length > 0) {
+            imageUrl = link.child_attachments[0].picture || '';
+          }
+        } else if (spec.video_data) {
+          const vid = spec.video_data;
+          imageUrl = vid.image_url || vid.thumbnail_url || '';
+        } else if (spec.photo_data) {
+          const photo = spec.photo_data;
+          imageUrl = photo.image_url || '';
+        }
+      }
+
+      if (!imageUrl && creative.asset_feed_spec) {
+        const feed = creative.asset_feed_spec;
+        if (feed.images && Array.isArray(feed.images) && feed.images.length > 0) {
+          imageUrl = feed.images[0].url || '';
+        } else if (feed.videos && Array.isArray(feed.videos) && feed.videos.length > 0) {
+          imageUrl = feed.videos[0].thumbnail_url || '';
+        }
+      }
+
+      if (!imageUrl && creative.video_data) {
+        imageUrl = creative.video_data.image_url || creative.video_data.thumbnail_url || '';
+      }
+
+      if (creative.video_data_hover_url) {
+        videoUrl = creative.video_data_hover_url;
+      }
+
+      return { imageUrl, videoUrl };
+    };
+
     // 3. Build ads list
     const processedAds = adListings.map((ad, index) => {
       const creative = ad.creative || {};
@@ -303,6 +352,8 @@ export async function POST(request) {
       } else if (ctr > 2.0 && cpa < 15) {
         statusTag = '📈 High Potential';
       }
+
+      const media = extractCreativeMedia(creative);
 
       return {
         id: index + 1,
@@ -325,8 +376,8 @@ export async function POST(request) {
         status: ad.status || ad.effective_status || 'UNKNOWN',
         title: creative.title || '',
         body: creative.body || '',
-        image_url: creative.image_url || creative.thumbnail_url || '',
-        video_url: creative.video_data_hover_url || ''
+        image_url: media.imageUrl,
+        video_url: media.videoUrl
       };
     });
 
