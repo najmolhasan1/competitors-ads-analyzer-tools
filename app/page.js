@@ -713,7 +713,9 @@ export default function Home() {
 
         // Filter the Ads list
         var filteredAds = myAdsData.ads.filter(function(ad) {
-          var matchesCampaign = selectedCampaign === 'ALL' || ad.campaign_id === selectedCampaign || ad.campaign_name === selectedCampaign;
+          var matchesCampaign = selectedCampaign === 'ALL' || 
+            String(ad.campaign_id) === String(selectedCampaign) || 
+            ad.campaign_name === selectedCampaign;
           
           var adStatusClean = String(ad.status).toUpperCase();
           var matchesStatus = selectedStatus === 'ALL' || 
@@ -727,11 +729,11 @@ export default function Home() {
         var spend = 0, impressions = 0, clicks = 0, purchases = 0, revenue = 0;
         
         filteredAds.forEach(function(ad) {
-          spend += ad.spend;
-          impressions += ad.impressions;
-          clicks += ad.clicks;
-          purchases += ad.purchases;
-          revenue += ad.purchaseValue || (ad.purchases * 40);
+          spend += ad.spend || 0;
+          impressions += ad.impressions || 0;
+          clicks += ad.clicks || 0;
+          purchases += ad.purchases || 0;
+          revenue += ad.purchaseValue || (ad.purchases * 40) || 0;
         });
 
         var ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
@@ -757,14 +759,16 @@ export default function Home() {
         if (selectedCampaign === 'ALL') {
           auditCard.style.display = 'none';
         } else {
-          var camp = myAdsData.campaigns.find(function(c) { return c.id === selectedCampaign; });
+          var camp = myAdsData.campaigns.find(function(c) { 
+            return String(c.id) === String(selectedCampaign) || c.name === selectedCampaign; 
+          });
           if (camp) {
             var cCreated = camp.created_time ? new Date(camp.created_time).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }) : 'অজানা';
             var objMap = {
               OUTCOME_SALES: 'Sales (বিক্রি/কনভার্শন)',
               OUTCOME_LEADS: 'Leads (লিড সংগ্রহ)',
               OUTCOME_TRAFFIC: 'Traffic (ওয়েবসাইট ভিজিটর)',
-              OUTCOME_ENGAGEMENT: 'Engagement (মেসেজিং/লাইক)',
+              OUTCOME_ENGAGEMENT: 'Engagement (মেсеজিং/লাইক)',
               OUTCOME_AWARENESS: 'Awareness (ব্র্যান্ড পরিচিতি)',
               OUTCOME_APP_PROMOTION: 'App Promotion (অ্যাপ ইনস্টল)'
             };
@@ -773,12 +777,15 @@ export default function Home() {
               ? '<span style="color:var(--green);background:var(--green-bg);padding:3px 8px;border-radius:4px;font-weight:bold;font-size:11px;">● ACTIVE</span>'
               : '<span style="color:var(--text3);background:var(--bg);padding:3px 8px;border-radius:4px;font-weight:bold;font-size:11px;">● PAUSED</span>';
               
-            var cBudget = camp.budget_type.includes('CBO') 
-              ? formatCurrency(camp.budget_value) + ' (' + camp.budget_type + ')'
+            var cBudgetType = camp.budget_type || '';
+            var cBudget = cBudgetType.includes('CBO') 
+              ? formatCurrency(camp.budget_value || 0) + ' (' + cBudgetType + ')'
               : 'Ad Set level (ABO)';
 
             // Fetch campaign adsets
-            var campAdsets = myAdsData.adsets.filter(function(a) { return a.campaign_id === selectedCampaign; });
+            var campAdsets = myAdsData.adsets.filter(function(a) { 
+              return String(a.campaign_id) === String(selectedCampaign) || String(a.campaign?.id) === String(selectedCampaign); 
+            });
             
             var adsetsHtml = '';
             if (campAdsets.length === 0) {
@@ -791,11 +798,60 @@ export default function Home() {
                     : '<span style="font-size:11px;color:var(--text3);background:var(--bg);padding:2px 6px;border-radius:4px;font-weight:bold;">● PAUSED</span>';
                     
                   var adsetBudget = adset.budget_value > 0 
-                    ? formatCurrency(adset.budget_value) + ' (' + adset.budget_type + ')' 
+                    ? formatCurrency(adset.budget_value) + ' (' + (adset.budget_type || 'Daily') + ')' 
                     : 'CBO Managed';
 
                   var t = adset.targeting || {};
                   
+                  // Filter ads under this adset
+                  var adsetAds = filteredAds.filter(function(ad) { 
+                    return String(ad.adset_id) === String(adset.id) || String(ad.adset_name) === String(adset.name); 
+                  });
+
+                  var adsetAdsHtml = '';
+                  if (adsetAds.length === 0) {
+                    adsetAdsHtml = '<div style="font-size:12px;color:var(--text3);margin-top:10px;font-style:italic;">এই Adset-এ কোনো অ্যাক্টিভ অ্যাড পাওয়া যায়নি।</div>';
+                  } else {
+                    adsetAdsHtml = '<div style="margin-top:12px;border-top:1px dashed var(--border);padding-top:12px;">' +
+                      '<div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:8px;">🖼️ Ads & Creatives Performance (' + adsetAds.length + 'টি Ads)</div>' +
+                      '<div style="display:flex;flex-direction:column;gap:10px;">' +
+                        adsetAds.map(function(ad) {
+                          var adMediaHtml = '';
+                          if (ad.video_url) {
+                            adMediaHtml = '<div style="width:50px;height:50px;border-radius:4px;overflow:hidden;position:relative;background:#000;flex-shrink:0;"><video src="' + esc(ad.video_url) + '" style="width:100%;height:100%;object-fit:cover;"></video></div>';
+                          } else if (ad.image_url) {
+                            adMediaHtml = '<div style="width:50px;height:50px;border-radius:4px;overflow:hidden;position:relative;background:#eee;flex-shrink:0;"><img src="' + esc(ad.image_url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" /></div>';
+                          } else {
+                            adMediaHtml = '<div style="width:50px;height:50px;border-radius:4px;background:var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:9px;flex-shrink:0;">No Media</div>';
+                          }
+
+                          var adStatusClean = String(ad.status).toUpperCase();
+                          var isActive = adStatusClean === 'ACTIVE' || adStatusClean === 'EFFECTIVE_ACTIVE';
+                          var activeStatus = isActive
+                            ? '<span style="color:var(--green);font-weight:bold;">● Active</span>'
+                            : '<span style="color:var(--text3);">● Paused</span>';
+
+                          return '<div style="display:flex;gap:12px;align-items:center;background:var(--white);border:1px solid var(--border);border-radius:6px;padding:8px;box-shadow:0 1px 3px rgba(0,0,0,0.02);flex-wrap:wrap;justify-content:space-between;">' +
+                            '<div style="display:flex;gap:10px;align-items:center;min-width:200px;flex:1;">' +
+                              adMediaHtml +
+                              '<div style="font-size:12px;min-width:0;flex:1;">' +
+                                '<div style="font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + esc(ad.name) + '">' + esc(ad.name) + ' (' + activeStatus + ')</div>' +
+                                (ad.title ? '<div style="color:var(--text2);font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Headline: ' + esc(ad.title) + '</div>' : '') +
+                                (ad.body ? '<div style="color:var(--text3);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="' + esc(ad.body) + '">' + esc(ad.body) + '</div>' : '') +
+                              '</div>' +
+                            '</div>' +
+                            '<div style="display:flex;gap:12px;font-size:12px;text-align:right;flex-wrap:wrap;color:var(--text2);justify-content:flex-end;">' +
+                              '<div>Spend: <strong style="color:var(--text)">' + formatCurrency(ad.spend || 0) + '</strong></div>' +
+                              '<div>Purchases: <strong style="color:var(--green)">' + (ad.purchases || 0) + '</strong></div>' +
+                              '<div>ROAS: <strong style="color:var(--accent)">' + (ad.roas || 0).toFixed(2) + 'x</strong></div>' +
+                              '<div>CTR: <strong style="color:var(--text)">' + (ad.ctr || 0).toFixed(2) + '%</strong></div>' +
+                            '</div>' +
+                          '</div>';
+                        }).join('') +
+                      '</div>' +
+                    '</div>';
+                  }
+
                   return '<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:16px;display:flex;flex-direction:column;gap:10px;">' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:8px;flex-wrap:wrap;gap:8px;">' +
                       '<div style="font-weight:700;font-size:14px;color:var(--text);display:flex;align-items:center;gap:6px;">' + (idx+1) + '. ' + esc(adset.name) + ' ' + adsetStatus + '</div>' +
@@ -807,18 +863,20 @@ export default function Home() {
                         '<div style="line-height:1.5;padding-left:6px;">' +
                           '• Locations: <span style="color:var(--text)">' + esc(t.locations || 'All') + '</span><br/>' +
                           '• Age Profile: <span style="color:var(--text)">' + esc(t.age || '18-65+') + '</span> | Gender: <span style="color:var(--text)">' + esc(t.gender || 'All') + '</span><br/>' +
-                          '• Detailed Targeting: <span style="color:var(--text)">' + esc(t.interests || 'Broad') + '</span>' +
+                          '• Detailed Targeting: <span style="color:var(--text)">' + esc(t.interests || 'Broad') + '</span><br/>' +
+                          '• Placements: <span style="color:var(--text);font-weight:600">' + esc(t.placements || 'Automatic Placements') + '</span> | Destination: <span style="color:var(--text)">' + esc(adset.destination_type || 'N/A') + '</span>' +
                         '</div>' +
                       '</div>' +
                       '<div>' +
                         '<div style="font-weight:700;color:var(--text);margin-bottom:4px;">📊 Adset Performance</div>' +
                         '<div style="line-height:1.5;padding-left:6px;">' +
-                          '• Spend: <span style="color:var(--text);font-weight:600">' + formatCurrency(adset.spend) + '</span> | ROAS: <span style="color:var(--accent);font-weight:700">' + adset.roas.toFixed(2) + 'x</span><br/>' +
-                          '• Purchases: <span style="color:var(--green);font-weight:600">' + adset.purchases + '</span> | CPA: <span style="color:var(--text)">' + (adset.purchases > 0 ? formatCurrency(adset.cpa) : '$0.00') + '</span><br/>' +
-                          '• CTR: <span style="color:var(--text)">' + adset.ctr.toFixed(2) + '%</span> | CPC: <span style="color:var(--text)">' + formatCurrency(adset.cpc) + '</span>' +
+                          '• Spend: <span style="color:var(--text);font-weight:600">' + formatCurrency(adset.spend || 0) + '</span> | ROAS: <span style="color:var(--accent);font-weight:700">' + (adset.roas || 0).toFixed(2) + 'x</span><br/>' +
+                          '• Purchases: <span style="color:var(--green);font-weight:600">' + (adset.purchases || 0) + '</span> | CPA: <span style="color:var(--text)">' + ((adset.purchases || 0) > 0 ? formatCurrency(adset.cpa || 0) : '$0.00') + '</span><br/>' +
+                          '• CTR: <span style="color:var(--text)">' + (adset.ctr || 0).toFixed(2) + '%</span> | CPC: <span style="color:var(--text)">' + formatCurrency(adset.cpc || 0) + '</span>' +
                         '</div>' +
                       '</div>' +
                     '</div>' +
+                    adsetAdsHtml +
                   '</div>';
                 }).join('') +
               '</div>';
@@ -835,6 +893,7 @@ export default function Home() {
                   '<div><strong>Objective:</strong><div style="margin-top:6px;color:var(--text);font-weight:600;">' + esc(cObj) + '</div></div>' +
                   '<div><strong>Budget Setup:</strong><div style="margin-top:6px;color:var(--text);font-weight:600;">' + cBudget + '</div></div>' +
                   '<div><strong>Created Time:</strong><div style="margin-top:6px;color:var(--text);font-weight:600;">' + cCreated + '</div></div>' +
+                  '<div><strong>Total Ads Count:</strong><div style="margin-top:6px;color:var(--text);font-weight:600;">' + filteredAds.length + 'টি Ads</div></div>' +
                 '</div>' +
                 '<div>' +
                   '<div style="font-weight:700;font-size:15px;color:var(--text)">Ad Sets in this Campaign (' + campAdsets.length + 'টি)</div>' +
@@ -886,9 +945,9 @@ export default function Home() {
                 '</div>' +
                 (ad.body ? '<div class="my-ad-body-txt">' + esc(ad.body) + '</div>' : '') +
                 '<div class="my-ad-stats">' +
-                  '<div class="my-ad-stat-box"><div class="my-ad-stat-lbl">Spend</div><div class="my-ad-stat-val">' + formatCurrency(ad.spend) + '</div></div>' +
-                  '<div class="my-ad-stat-box highlight"><div class="my-ad-stat-lbl">ROAS</div><div class="my-ad-stat-val">' + ad.roas.toFixed(2) + 'x</div></div>' +
-                  '<div class="my-ad-stat-box"><div class="my-ad-stat-lbl">Purchases</div><div class="my-ad-stat-val">' + ad.purchases + '</div></div>' +
+                  '<div class="my-ad-stat-box"><div class="my-ad-stat-lbl">Spend</div><div class="my-ad-stat-val">' + formatCurrency(ad.spend || 0) + '</div></div>' +
+                  '<div class="my-ad-stat-box highlight"><div class="my-ad-stat-lbl">ROAS</div><div class="my-ad-stat-val">' + (ad.roas || 0).toFixed(2) + 'x</div></div>' +
+                  '<div class="my-ad-stat-box"><div class="my-ad-stat-lbl">Purchases</div><div class="my-ad-stat-val">' + (ad.purchases || 0) + '</div></div>' +
                 '</div>' +
               '</div>' +
             '</div>';
@@ -897,8 +956,8 @@ export default function Home() {
 
         setTimeout(function() {
           var adNames = filteredAds.map(function(a) { return a.name.length > 20 ? a.name.substring(0, 17) + '...' : a.name; });
-          var roas = filteredAds.map(function(a) { return a.roas; });
-          var ctrs = filteredAds.map(function(a) { return a.ctr; });
+          var roas = filteredAds.map(function(a) { return a.roas || 0; });
+          var ctrs = filteredAds.map(function(a) { return a.ctr || 0; });
           
           if (window.myAdsRoasCtrChartInst) {
             window.myAdsRoasCtrChartInst.data.labels = adNames;
@@ -967,7 +1026,7 @@ export default function Home() {
               purchases: 38,
               roas: 2.92,
               cpa: 13.68,
-              targeting: { locations: "Bangladesh (BD)", age: "18 - 45", gender: "All", interests: "Shopping, Shoes, Leather Goods" }
+              targeting: { locations: "Bangladesh (BD)", age: "18 - 45", gender: "All", interests: "Shopping, Shoes, Leather Goods", placements: "Facebook, Instagram" }
             },
             {
               id: "adset_2",
@@ -985,7 +1044,7 @@ export default function Home() {
               purchases: 20,
               roas: 2.42,
               cpa: 16.50,
-              targeting: { locations: "Bangladesh (BD)", age: "22 - 45", gender: "Men", interests: "Sports, Walking, Sneaker collecting" }
+              targeting: { locations: "Bangladesh (BD)", age: "22 - 45", gender: "Men", interests: "Sports, Walking, Sneaker collecting", placements: "Facebook, Instagram, Audience Network" }
             },
             {
               id: "adset_3",
@@ -1003,7 +1062,7 @@ export default function Home() {
               purchases: 31,
               roas: 5.48,
               cpa: 8.71,
-              targeting: { locations: "Bangladesh (BD)", age: "18 - 65+", gender: "All", interests: "Retargeting: Website Visitors (30 Days)" }
+              targeting: { locations: "Bangladesh (BD)", age: "18 - 65+", gender: "All", interests: "Retargeting: Website Visitors (30 Days)", placements: "Facebook, Instagram, Messenger, Audience Network" }
             },
             {
               id: "adset_4",
@@ -1021,7 +1080,7 @@ export default function Home() {
               purchases: 4,
               roas: 0.40,
               cpa: 75.00,
-              targeting: { locations: "Bangladesh (BD)", age: "18 - 35", gender: "All", interests: "Leather Shoes, Dress Shoes, Footwear" }
+              targeting: { locations: "Bangladesh (BD)", age: "18 - 35", gender: "All", interests: "Leather Shoes, Dress Shoes, Footwear", placements: "Facebook, Messenger" }
             }
           ],
           ads: [
@@ -1140,8 +1199,14 @@ export default function Home() {
           });
         }
         
-        // Restore or reset filters
-        campSelect.value = 'ALL';
+        // Restore previously selected campaign if possible, otherwise reset to ALL
+        var hasPrevious = false;
+        if (data.campaigns && data.campaigns.length > 0) {
+          hasPrevious = data.campaigns.some(function(c) {
+            return String(c.id) === String(previousVal) || c.name === previousVal;
+          });
+        }
+        campSelect.value = hasPrevious ? previousVal : 'ALL';
         document.getElementById('my-ads-status-filter').value = 'ALL';
 
         var sum = data.summary;
@@ -1221,6 +1286,8 @@ export default function Home() {
             document.getElementById('my-ads-ai-btn').textContent = '✨ অডিট তৈরি করুন';
           }
         } catch (e) {}
+
+        filterMyAdsDisplay();
       }
 
       function renderMyAdsCharts(data) {

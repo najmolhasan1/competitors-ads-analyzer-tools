@@ -115,11 +115,24 @@ export async function POST(request) {
       }
       const interestsStr = interests.length > 0 ? interests.slice(0, 3).join(', ') : 'Broad Audiences';
 
+      const platforms = t.publisher_platforms || [];
+      let platformStr = 'All Placements (Automatic)';
+      if (platforms.length > 0) {
+        platformStr = platforms.map(p => {
+          if (p === 'facebook') return 'Facebook';
+          if (p === 'instagram') return 'Instagram';
+          if (p === 'messenger') return 'Messenger';
+          if (p === 'audience_network') return 'Audience Network';
+          return p.charAt(0).toUpperCase() + p.slice(1);
+        }).join(', ');
+      }
+
       return {
         locations: locationStr,
         age: ageStr,
         gender: genderStr,
-        interests: interestsStr
+        interests: interestsStr,
+        placements: platformStr
       };
     };
 
