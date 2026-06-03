@@ -1,4 +1,5 @@
 import './globals.css';
+import Script from 'next/script';
 
 export const metadata = {
   title: 'Meta Ads Intelligence',
@@ -15,9 +16,15 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" />
-        <script src="https://cdn.jsdelivr.net/npm/chart.js" />
         {children}
+        <Script
+          src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+          strategy="beforeInteractive"
+        />
+        <Script
+          src="https://cdn.jsdelivr.net/npm/chart.js"
+          strategy="beforeInteractive"
+        />
       </body>
     </html>
   );
