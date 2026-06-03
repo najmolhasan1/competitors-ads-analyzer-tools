@@ -8,47 +8,57 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Meta Token and Ad Account ID are required' }, { status: 400 });
     }
 
-    // Clean account ID (ensure it starts with act_)
     const cleanAccountId = metaAccountId.trim().startsWith('act_') 
       ? metaAccountId.trim() 
       : `act_${metaAccountId.trim()}`;
 
-    // 1. Fetch ALL Campaigns in Account (regardless of spend)
-    const campaignsListUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/campaigns?fields=id,name,status&limit=150&access_token=${metaToken}`;
+    // 1. Fetch campaigns details
+    const campaignsListUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/campaigns?fields=id,name,status,objective,created_time,daily_budget,lifetime_budget,buying_type&limit=150&access_token=${metaToken}`;
 
-    // 2. Fetch Campaign Insights (to get spend metrics)
-    const campaignsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=campaign_id,campaign_name,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=campaign&limit=100&access_token=${metaToken}`;
+    // 2. Fetch campaign insights
+    const campaignsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=campaign_id,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=campaign&limit=100&access_token=${metaToken}`;
     
-    // 3. Fetch Ad Level Insights (to match with creatives)
-    const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=ad&limit=150&access_token=${metaToken}`;
+    // 3. Fetch adsets details (including targeting and budgets)
+    const adsetsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/adsets?fields=id,name,status,campaign{id},created_time,daily_budget,lifetime_budget,targeting,destination_type&limit=150&access_token=${metaToken}`;
 
-    // 4. Fetch Ads listing (creative content, status, and associated campaign)
-    const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,status,effective_status,campaign{id,name},creative{id,title,body,image_url,thumbnail_url,video_data_hover_url}&limit=150&access_token=${metaToken}`;
+    // 4. Fetch adset insights
+    const adsetsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=adset&limit=150&access_token=${metaToken}`;
 
-    const [campListRes, campInsRes, adsInsRes, adsListRes] = await Promise.all([
+    // 5. Fetch ad insights
+    const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&date_preset=${datePreset}&level=ad&limit=150&access_token=${metaToken}`;
+
+    // 6. Fetch ads creatives
+    const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,status,effective_status,campaign{id,name},adset{id,name},creative{id,title,body,image_url,thumbnail_url,video_data_hover_url}&limit=150&access_token=${metaToken}`;
+
+    const [campListRes, campInsRes, adsetListRes, adsetInsRes, adsInsRes, adsListRes] = await Promise.all([
       fetch(campaignsListUrl),
       fetch(campaignsInsightsUrl),
+      fetch(adsetsUrl),
+      fetch(adsetsInsightsUrl),
       fetch(adsInsightsUrl),
       fetch(adsListingUrl)
     ]);
 
-    // Handle initial errors
     if (!campInsRes.ok) {
       const err = await campInsRes.json();
-      return NextResponse.json({ error: `Meta API Error (Campaign Insights): ${err.error?.message || campInsRes.statusText}` }, { status: campInsRes.status });
+      return NextResponse.json({ error: `Meta API Error (Insights): ${err.error?.message || campInsRes.statusText}` }, { status: campInsRes.status });
     }
 
     const campaignsListData = campListRes.ok ? await campListRes.json() : { data: [] };
     const campaignsInsightsData = await campInsRes.json();
+    const adsetsListData = adsetListRes.ok ? await adsetListRes.json() : { data: [] };
+    const adsetsInsightsData = adsetInsRes.ok ? await adsetInsRes.json() : { data: [] };
     const adsInsightsData = adsInsRes.ok ? await adsInsRes.json() : { data: [] };
     const adsListingData = adsListRes.ok ? await adsListRes.json() : { data: [] };
 
     const campaignsList = campaignsListData.data || [];
     const campaignInsights = campaignsInsightsData.data || [];
+    const adsetsList = adsetsListData.data || [];
+    const adsetInsights = adsetsInsightsData.data || [];
     const adInsights = adsInsightsData.data || [];
     const adListings = adsListingData.data || [];
 
-    // Parse actions / conversions helper
+    // Helper to parse actions (conversions)
     const parseActions = (actions = [], actionValues = []) => {
       let purchases = 0;
       let purchaseValue = 0;
@@ -76,21 +86,75 @@ export async function POST(request) {
       return { purchases, purchaseValue };
     };
 
-    // Build map of campaign insights by campaign ID
+    // Helper to parse adset targeting into human readable text
+    const parseTargeting = (t = {}) => {
+      const geo = t.geo_locations || {};
+      const countries = geo.countries || [];
+      const locationStr = countries.length > 0 ? countries.join(', ') : 'Global / Selected Regions';
+      
+      const ageMin = t.age_min || 18;
+      const ageMax = t.age_max || '65+';
+      const ageStr = `${ageMin} - ${ageMax}`;
+      
+      let genderStr = 'All';
+      if (t.genders) {
+        if (t.genders.includes(1) && t.genders.includes(2)) genderStr = 'All';
+        else if (t.genders.includes(1)) genderStr = 'Men';
+        else if (t.genders.includes(2)) genderStr = 'Women';
+      }
+      
+      let interests = [];
+      if (t.flexible_spec && Array.isArray(t.flexible_spec)) {
+        t.flexible_spec.forEach(spec => {
+          if (spec.interests && Array.isArray(spec.interests)) {
+            spec.interests.forEach(i => {
+              if (i.name) interests.push(i.name);
+            });
+          }
+        });
+      }
+      const interestsStr = interests.length > 0 ? interests.slice(0, 3).join(', ') : 'Broad Audiences';
+
+      return {
+        locations: locationStr,
+        age: ageStr,
+        gender: genderStr,
+        interests: interestsStr
+      };
+    };
+
+    // Map campaign insights
     const campInsightsMap = {};
     campaignInsights.forEach(c => {
       campInsightsMap[c.campaign_id] = c;
     });
 
-    // 1. Build Final Campaigns list (combine full list with insights)
+    // 1. Build campaigns array
     const campaigns = campaignsList.map(c => {
       const ins = campInsightsMap[c.id] || {};
       const { purchases, purchaseValue } = parseActions(ins.actions, ins.action_values);
       const spend = parseFloat(ins.spend || 0);
+      
+      // Determine budget CBO vs ABO
+      let budgetType = 'ABO (AdSet)';
+      let budgetValue = 0;
+      if (c.daily_budget && parseInt(c.daily_budget) > 0) {
+        budgetType = 'CBO (Daily)';
+        budgetValue = parseFloat(c.daily_budget) / 100; // Meta budgets are returned in cents
+      } else if (c.lifetime_budget && parseInt(c.lifetime_budget) > 0) {
+        budgetType = 'CBO (Lifetime)';
+        budgetValue = parseFloat(c.lifetime_budget) / 100;
+      }
+
       return {
         id: c.id,
         name: c.name,
         status: c.status || 'UNKNOWN',
+        objective: c.objective || 'UNKNOWN',
+        created_time: c.created_time || '',
+        budget_type: budgetType,
+        budget_value: budgetValue,
+        buying_type: c.buying_type || '',
         spend,
         impressions: parseInt(ins.impressions || 0),
         clicks: parseInt(ins.clicks || 0),
@@ -102,7 +166,7 @@ export async function POST(request) {
       };
     });
 
-    // Append historical campaigns that had spend but aren't in the active campaigns list
+    // Append archived/historical campaigns
     const campaignsListIds = new Set(campaignsList.map(c => c.id));
     campaignInsights.forEach(ins => {
       if (!campaignsListIds.has(ins.campaign_id)) {
@@ -112,6 +176,11 @@ export async function POST(request) {
           id: ins.campaign_id,
           name: ins.campaign_name,
           status: 'ARCHIVED',
+          objective: 'UNKNOWN',
+          created_time: '',
+          budget_type: 'UNKNOWN',
+          budget_value: 0,
+          buying_type: '',
           spend,
           impressions: parseInt(ins.impressions || 0),
           clicks: parseInt(ins.clicks || 0),
@@ -124,7 +193,51 @@ export async function POST(request) {
       }
     });
 
-    // Summary KPIs Calculations
+    // Map adset insights
+    const adsetInsightsMap = {};
+    adsetInsights.forEach(ins => {
+      adsetInsightsMap[ins.adset_id] = ins;
+    });
+
+    // 2. Build adsets array
+    const adsets = adsetsList.map(a => {
+      const ins = adsetInsightsMap[a.id] || {};
+      const { purchases, purchaseValue } = parseActions(ins.actions, ins.action_values);
+      const spend = parseFloat(ins.spend || 0);
+      const targetingParsed = parseTargeting(a.targeting);
+
+      let budgetValue = 0;
+      let budgetType = 'ABO';
+      if (a.daily_budget && parseInt(a.daily_budget) > 0) {
+        budgetValue = parseFloat(a.daily_budget) / 100;
+        budgetType = 'Daily';
+      } else if (a.lifetime_budget && parseInt(a.lifetime_budget) > 0) {
+        budgetValue = parseFloat(a.lifetime_budget) / 100;
+        budgetType = 'Lifetime';
+      }
+
+      return {
+        id: a.id,
+        name: a.name,
+        status: a.status || 'UNKNOWN',
+        campaign_id: a.campaign?.id || '',
+        created_time: a.created_time || '',
+        budget_value: budgetValue,
+        budget_type: budgetType,
+        destination_type: a.destination_type || 'UNKNOWN',
+        spend,
+        impressions: parseInt(ins.impressions || 0),
+        clicks: parseInt(ins.clicks || 0),
+        ctr: parseFloat(ins.ctr || (ins.clicks > 0 ? (ins.clicks / ins.impressions) * 100 : 0)),
+        cpc: parseFloat(ins.cpc || 0),
+        purchases,
+        roas: spend > 0 ? purchaseValue / spend : 0,
+        cpa: purchases > 0 ? spend / purchases : 0,
+        targeting: targetingParsed
+      };
+    });
+
+    // Summary calculations
     let totalSpend = 0;
     let totalImpressions = 0;
     let totalClicks = 0;
@@ -146,13 +259,13 @@ export async function POST(request) {
     const averageCPA = totalPurchases > 0 ? totalSpend / totalPurchases : 0;
     const averageROAS = totalSpend > 0 ? totalPurchaseValue / totalSpend : 0;
 
-    // Build map of ad insights by ad_id
+    // Map ad insights
     const adInsightsMap = {};
     adInsights.forEach(ins => {
       adInsightsMap[ins.ad_id] = ins;
     });
 
-    // 2. Build Final Ads List (combine listing with insights)
+    // 3. Build ads list
     const processedAds = adListings.map((ad, index) => {
       const creative = ad.creative || {};
       const ins = adInsightsMap[ad.id] || {};
@@ -177,6 +290,8 @@ export async function POST(request) {
         name: ad.name,
         campaign_id: ad.campaign?.id || ins.campaign_id || '',
         campaign_name: ad.campaign?.name || ins.campaign_name || '',
+        adset_id: ad.adset?.id || ins.adset_id || '',
+        adset_name: ad.adset?.name || '',
         spend,
         impressions: parseInt(ins.impressions || 0),
         clicks: parseInt(ins.clicks || 0),
@@ -195,7 +310,7 @@ export async function POST(request) {
       };
     });
 
-    // Append historical/deleted ads that had spend but aren't in the active listings
+    // Append archived ads
     const adListingsIds = new Set(adListings.map(ad => ad.id));
     adInsights.forEach(ins => {
       if (!adListingsIds.has(ins.ad_id)) {
@@ -220,6 +335,8 @@ export async function POST(request) {
           name: ins.ad_name,
           campaign_id: ins.campaign_id || '',
           campaign_name: ins.campaign_name || '',
+          adset_id: ins.adset_id || '',
+          adset_name: '',
           spend,
           impressions: parseInt(ins.impressions || 0),
           clicks: parseInt(ins.clicks || 0),
@@ -239,7 +356,6 @@ export async function POST(request) {
       }
     });
 
-    // Sort processed ads by spend descending
     processedAds.sort((a, b) => b.spend - a.spend);
 
     const reports = {
@@ -255,6 +371,7 @@ export async function POST(request) {
         roas: averageROAS
       },
       campaigns,
+      adsets,
       ads: processedAds
     };
 

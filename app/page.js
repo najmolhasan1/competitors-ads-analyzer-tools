@@ -752,6 +752,101 @@ export default function Home() {
           return '<div class="stat"><div class="stat-label">' + x[0] + '</div><div class="stat-value">' + x[1] + '</div><div class="stat-sub">' + x[2] + '</div></div>'; 
         }).join('');
 
+        // ---- DYNAMIC CAMPAIGN & ADSET DETAILS AUDIT ----
+        var auditCard = document.getElementById('my-ads-campaign-detail-card');
+        if (selectedCampaign === 'ALL') {
+          auditCard.style.display = 'none';
+        } else {
+          var camp = myAdsData.campaigns.find(function(c) { return c.id === selectedCampaign; });
+          if (camp) {
+            var cCreated = camp.created_time ? new Date(camp.created_time).toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }) : 'অজানা';
+            var objMap = {
+              OUTCOME_SALES: 'Sales (বিক্রি/কনভার্শন)',
+              OUTCOME_LEADS: 'Leads (লিড সংগ্রহ)',
+              OUTCOME_TRAFFIC: 'Traffic (ওয়েবসাইট ভিজিটর)',
+              OUTCOME_ENGAGEMENT: 'Engagement (মেসেজিং/লাইক)',
+              OUTCOME_AWARENESS: 'Awareness (ব্র্যান্ড পরিচিতি)',
+              OUTCOME_APP_PROMOTION: 'App Promotion (অ্যাপ ইনস্টল)'
+            };
+            var cObj = objMap[camp.objective] || camp.objective || 'অজানা';
+            var cStatus = camp.status === 'ACTIVE' 
+              ? '<span style="color:var(--green);background:var(--green-bg);padding:3px 8px;border-radius:4px;font-weight:bold;font-size:11px;">● ACTIVE</span>'
+              : '<span style="color:var(--text3);background:var(--bg);padding:3px 8px;border-radius:4px;font-weight:bold;font-size:11px;">● PAUSED</span>';
+              
+            var cBudget = camp.budget_type.includes('CBO') 
+              ? formatCurrency(camp.budget_value) + ' (' + camp.budget_type + ')'
+              : 'Ad Set level (ABO)';
+
+            // Fetch campaign adsets
+            var campAdsets = myAdsData.adsets.filter(function(a) { return a.campaign_id === selectedCampaign; });
+            
+            var adsetsHtml = '';
+            if (campAdsets.length === 0) {
+              adsetsHtml = '<p style="color:var(--text3);font-size:13px;padding:16px 0;text-align:center;">এই ক্যাম্পেইনে কোনো Adset পাওয়া যায়নি।</p>';
+            } else {
+              adsetsHtml = '<div style="display:flex;flex-direction:column;gap:14px;margin-top:14px;">' +
+                campAdsets.map(function(adset, idx) {
+                  var adsetStatus = adset.status === 'ACTIVE' 
+                    ? '<span style="font-size:11px;color:var(--green);background:var(--green-bg);padding:2px 6px;border-radius:4px;font-weight:bold;">● ACTIVE</span>' 
+                    : '<span style="font-size:11px;color:var(--text3);background:var(--bg);padding:2px 6px;border-radius:4px;font-weight:bold;">● PAUSED</span>';
+                    
+                  var adsetBudget = adset.budget_value > 0 
+                    ? formatCurrency(adset.budget_value) + ' (' + adset.budget_type + ')' 
+                    : 'CBO Managed';
+
+                  var t = adset.targeting || {};
+                  
+                  return '<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:16px;display:flex;flex-direction:column;gap:10px;">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:8px;flex-wrap:wrap;gap:8px;">' +
+                      '<div style="font-weight:700;font-size:14px;color:var(--text);display:flex;align-items:center;gap:6px;">' + (idx+1) + '. ' + esc(adset.name) + ' ' + adsetStatus + '</div>' +
+                      '<div style="font-size:13px;color:var(--text2)"><strong>Budget:</strong> ' + adsetBudget + '</div>' +
+                    '</div>' +
+                    '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));gap:14px;font-size:13px;color:var(--text2);">' +
+                      '<div>' +
+                        '<div style="font-weight:700;color:var(--text);margin-bottom:4px;">👥 Targeting (Audience)</div>' +
+                        '<div style="line-height:1.5;padding-left:6px;">' +
+                          '• Locations: <span style="color:var(--text)">' + esc(t.locations || 'All') + '</span><br/>' +
+                          '• Age Profile: <span style="color:var(--text)">' + esc(t.age || '18-65+') + '</span> | Gender: <span style="color:var(--text)">' + esc(t.gender || 'All') + '</span><br/>' +
+                          '• Detailed Targeting: <span style="color:var(--text)">' + esc(t.interests || 'Broad') + '</span>' +
+                        '</div>' +
+                      '</div>' +
+                      '<div>' +
+                        '<div style="font-weight:700;color:var(--text);margin-bottom:4px;">📊 Adset Performance</div>' +
+                        '<div style="line-height:1.5;padding-left:6px;">' +
+                          '• Spend: <span style="color:var(--text);font-weight:600">' + formatCurrency(adset.spend) + '</span> | ROAS: <span style="color:var(--accent);font-weight:700">' + adset.roas.toFixed(2) + 'x</span><br/>' +
+                          '• Purchases: <span style="color:var(--green);font-weight:600">' + adset.purchases + '</span> | CPA: <span style="color:var(--text)">' + (adset.purchases > 0 ? formatCurrency(adset.cpa) : '$0.00') + '</span><br/>' +
+                          '• CTR: <span style="color:var(--text)">' + adset.ctr.toFixed(2) + '%</span> | CPC: <span style="color:var(--text)">' + formatCurrency(adset.cpc) + '</span>' +
+                        '</div>' +
+                      '</div>' +
+                    '</div>' +
+                  '</div>';
+                }).join('') +
+              '</div>';
+            }
+
+            auditCard.innerHTML = 
+              '<div class="card" style="margin-bottom:16px;">' +
+                '<div class="card-header">' +
+                  '<span class="card-title">📋 Campaign Level Setup & Ad Sets Audit</span>' +
+                  '<span class="card-badge badge-blue">Campaign Audit</span>' +
+                '</div>' +
+                '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:12px;background:var(--bg);padding:16px;border-radius:var(--rs);font-size:13px;color:var(--text2);margin-bottom:16px;">' +
+                  '<div><strong>Campaign Status:</strong><div style="margin-top:6px;">' + cStatus + '</div></div>' +
+                  '<div><strong>Objective:</strong><div style="margin-top:6px;color:var(--text);font-weight:600;">' + esc(cObj) + '</div></div>' +
+                  '<div><strong>Budget Setup:</strong><div style="margin-top:6px;color:var(--text);font-weight:600;">' + cBudget + '</div></div>' +
+                  '<div><strong>Created Time:</strong><div style="margin-top:6px;color:var(--text);font-weight:600;">' + cCreated + '</div></div>' +
+                '</div>' +
+                '<div>' +
+                  '<div style="font-weight:700;font-size:15px;color:var(--text)">Ad Sets in this Campaign (' + campAdsets.length + 'টি)</div>' +
+                  adsetsHtml +
+                '</div>' +
+              '</div>';
+              
+            auditCard.style.display = 'block';
+          }
+        }
+
+        // Re-render creative grid for filtered ads
         var creativesGrid = document.getElementById('my-ads-creatives-grid');
         if (filteredAds.length === 0) {
           creativesGrid.innerHTML = '<p style="color:var(--text3);font-size:13px;grid-column:1/-1;text-align:center;padding:24px 0">এই ফিল্টারে কোনো অ্যাড পাওয়া যায়নি।</p>';
@@ -851,15 +946,92 @@ export default function Home() {
             roas: 2.76
           },
           campaigns: [
-            { name: "Purchase Conversion - Prospecting", spend: 850, impressions: 45000, clicks: 980, ctr: 2.18, cpc: 0.87, purchases: 58, roas: 2.73, cpa: 14.65 },
-            { name: "Purchase Conversion - Retargeting L30D", spend: 270, impressions: 12000, clicks: 310, ctr: 2.58, cpc: 0.87, purchases: 31, roas: 5.48, cpa: 8.71 },
-            { name: "Messaging - Cold Leads", spend: 300, impressions: 22000, clicks: 450, ctr: 2.05, cpc: 0.67, purchases: 4, roas: 0.40, cpa: 75.00 }
+            { id: "camp_1", name: "Purchase Conversion - Prospecting", status: "ACTIVE", objective: "OUTCOME_SALES", created_time: "2026-03-15T08:00:00Z", budget_type: "CBO (Daily)", budget_value: 30.00, spend: 850, impressions: 45000, clicks: 980, ctr: 2.18, cpc: 0.87, purchases: 58, roas: 2.73, cpa: 14.65 },
+            { id: "camp_2", name: "Purchase Conversion - Retargeting L30D", status: "ACTIVE", objective: "OUTCOME_SALES", created_time: "2026-04-01T09:30:00Z", budget_type: "CBO (Daily)", budget_value: 10.00, spend: 270, impressions: 12000, clicks: 310, ctr: 2.58, cpc: 0.87, purchases: 31, roas: 5.48, cpa: 8.71 },
+            { id: "camp_3", name: "Messaging - Cold Leads", status: "PAUSED", objective: "OUTCOME_ENGAGEMENT", created_time: "2026-04-10T12:00:00Z", budget_type: "ABO (AdSet)", budget_value: 0, spend: 300, impressions: 22000, clicks: 450, ctr: 2.05, cpc: 0.67, purchases: 4, roas: 0.40, cpa: 75.00 }
+          ],
+          adsets: [
+            {
+              id: "adset_1",
+              name: "Prospecting: Lookalike 1% Purchase",
+              status: "ACTIVE",
+              campaign_id: "camp_1",
+              created_time: "2026-03-15T08:05:00Z",
+              budget_value: 0,
+              budget_type: "CBO",
+              spend: 520,
+              impressions: 28000,
+              clicks: 647,
+              ctr: 2.31,
+              cpc: 0.80,
+              purchases: 38,
+              roas: 2.92,
+              cpa: 13.68,
+              targeting: { locations: "Bangladesh (BD)", age: "18 - 45", gender: "All", interests: "Shopping, Shoes, Leather Goods" }
+            },
+            {
+              id: "adset_2",
+              name: "Prospecting: Broad Audience Men 22-45",
+              status: "ACTIVE",
+              campaign_id: "camp_1",
+              created_time: "2026-03-15T08:05:00Z",
+              budget_value: 0,
+              budget_type: "CBO",
+              spend: 330,
+              impressions: 17000,
+              clicks: 333,
+              ctr: 1.96,
+              cpc: 0.99,
+              purchases: 20,
+              roas: 2.42,
+              cpa: 16.50,
+              targeting: { locations: "Bangladesh (BD)", age: "22 - 45", gender: "Men", interests: "Sports, Walking, Sneaker collecting" }
+            },
+            {
+              id: "adset_3",
+              name: "Retargeting: Website Custom Audiences 30D",
+              status: "ACTIVE",
+              campaign_id: "camp_2",
+              created_time: "2026-04-01T09:35:00Z",
+              budget_value: 0,
+              budget_type: "CBO",
+              spend: 270,
+              impressions: 12000,
+              clicks: 310,
+              ctr: 2.58,
+              cpc: 0.87,
+              purchases: 31,
+              roas: 5.48,
+              cpa: 8.71,
+              targeting: { locations: "Bangladesh (BD)", age: "18 - 65+", gender: "All", interests: "Retargeting: Website Visitors (30 Days)" }
+            },
+            {
+              id: "adset_4",
+              name: "Messaging: Cold Interests Shoes",
+              status: "PAUSED",
+              campaign_id: "camp_3",
+              created_time: "2026-04-10T12:05:00Z",
+              budget_value: 10.00,
+              budget_type: "Daily",
+              spend: 300,
+              impressions: 22000,
+              clicks: 450,
+              ctr: 2.05,
+              cpc: 0.67,
+              purchases: 4,
+              roas: 0.40,
+              cpa: 75.00,
+              targeting: { locations: "Bangladesh (BD)", age: "18 - 35", gender: "All", interests: "Leather Shoes, Dress Shoes, Footwear" }
+            }
           ],
           ads: [
             {
               id: 1,
               ad_id: "ad_101",
               name: "Prospecting: Premium Leather Shoes Off-50",
+              campaign_id: "camp_1",
+              campaign_name: "Purchase Conversion - Prospecting",
+              adset_id: "adset_1",
               spend: 520,
               impressions: 28000,
               clicks: 647,
@@ -870,6 +1042,7 @@ export default function Home() {
               roas: 2.92,
               cpa: 13.68,
               statusTag: "🔥 Top Performer",
+              status: "ACTIVE",
               title: "৫০% ছাড়ে প্রিমিয়াম লেদার জুতো!",
               body: "প্রিমিয়াম লেদার জুতোয় ৫০% ফ্ল্যাট ডিসকাউন্ট! অফারটি শেষ হওয়ার আগেই আপনার জুতোটি অর্ডার করুন। ফ্রি ডেলিভারি সারা বাংলাদেশে।",
               image_url: "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600"
@@ -878,6 +1051,9 @@ export default function Home() {
               id: 2,
               ad_id: "ad_102",
               name: "Prospecting: Comfort Walking Shoes Review",
+              campaign_id: "camp_1",
+              campaign_name: "Purchase Conversion - Prospecting",
+              adset_id: "adset_2",
               spend: 330,
               impressions: 17000,
               clicks: 333,
@@ -888,6 +1064,7 @@ export default function Home() {
               roas: 2.42,
               cpa: 16.50,
               statusTag: "📈 High Potential",
+              status: "ACTIVE",
               title: "হাঁটার জন্য আরামদায়ক জুতো",
               body: "কেন আমাদের ওয়াকিং জুতো সেরা? গ্রাহকদের রিভিউ দেখুন নিজেই। আরামদায়ক এবং দীর্ঘস্থায়ী ফিটনেস পার্টনার।",
               image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=600"
@@ -896,6 +1073,9 @@ export default function Home() {
               id: 3,
               ad_id: "ad_103",
               name: "Retargeting: Special Bundle Offer L30D",
+              campaign_id: "camp_2",
+              campaign_name: "Purchase Conversion - Retargeting L30D",
+              adset_id: "adset_3",
               spend: 270,
               impressions: 12000,
               clicks: 310,
@@ -906,6 +1086,7 @@ export default function Home() {
               roas: 5.48,
               cpa: 8.71,
               statusTag: "🔥 Top Performer",
+              status: "ACTIVE",
               title: "আপনি কি আপনার অর্ডারটি সম্পন্ন করতে ভুলে গেছেন?",
               body: "আপনি কি আপনার কার্ট খালি রেখে গেছেন? আমাদের স্পেশাল কার্ট রিকভারি ডিসকাউন্ট ব্যবহার করে আজই অর্ডার করুন।",
               image_url: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=600"
@@ -914,6 +1095,9 @@ export default function Home() {
               id: 4,
               ad_id: "ad_104",
               name: "Messaging: Ask for Custom Footwear Size",
+              campaign_id: "camp_3",
+              campaign_name: "Messaging - Cold Leads",
+              adset_id: "adset_4",
               spend: 300,
               impressions: 22000,
               clicks: 450,
@@ -924,6 +1108,7 @@ export default function Home() {
               roas: 0.40,
               cpa: 75.00,
               statusTag: "⚠️ Underperforming",
+              status: "PAUSED",
               title: "কাস্টম সাইজের জুতো অর্ডার করুন",
               body: "আপনার সাইজের জুতো কি খুঁজে পাচ্ছেন না? সরাসরি আমাদের ইনবক্স করুন কাস্টম সাইজের জুতো তৈরি করে নিতে।",
               image_url: "https://images.unsplash.com/photo-1539185441755-769473a23570?q=80&w=600"
@@ -1551,6 +1736,9 @@ export default function Home() {
                 
                 {/* KPI Stats */}
                 <div className="stat-row" id="my-ads-stat-row"></div>
+
+                {/* Campaign Detail Audit Card */}
+                <div id="my-ads-campaign-detail-card" style={{ display: 'none' }}></div>
 
                 {/* Charts */}
                 <div className="section-grid">
