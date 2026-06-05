@@ -20,22 +20,22 @@ export async function POST(request) {
     }
 
     // 1. Fetch campaigns details
-    const campaignsListUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/campaigns?fields=id,name,status,objective,created_time,daily_budget,lifetime_budget,buying_type&limit=150&access_token=${metaToken}`;
+    const campaignsListUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/campaigns?fields=id,name,status,objective,created_time,daily_budget,lifetime_budget,buying_type&limit=500&access_token=${metaToken}`;
 
     // 2. Fetch campaign insights
-    const campaignsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=campaign_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=campaign&limit=100&access_token=${metaToken}`;
+    const campaignsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=campaign_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=campaign&limit=500&access_token=${metaToken}`;
     
     // 3. Fetch adsets details (including targeting and budgets)
-    const adsetsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/adsets?fields=id,name,status,campaign{id},created_time,daily_budget,lifetime_budget,targeting,destination_type&limit=150&access_token=${metaToken}`;
+    const adsetsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/adsets?fields=id,name,status,campaign{id},created_time,daily_budget,lifetime_budget,targeting,destination_type&limit=500&access_token=${metaToken}`;
 
     // 4. Fetch adset insights
-    const adsetsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=adset&limit=150&access_token=${metaToken}`;
+    const adsetsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=adset&limit=500&access_token=${metaToken}`;
 
     // 5. Fetch ad insights
-    const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=ad&limit=150&access_token=${metaToken}`;
+    const adsInsightsUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/insights?fields=ad_id,ad_name,campaign_id,campaign_name,adset_id,spend,impressions,clicks,cpc,ctr,actions,action_values&${dateParam}&level=ad&limit=500&access_token=${metaToken}`;
 
     // 6. Fetch ads creatives
-    const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,status,effective_status,campaign{id,name},adset{id,name},creative{id,title,body,image_url,thumbnail_url,video_data_hover_url,video_id,video_data,object_story_spec,asset_feed_spec}&limit=150&access_token=${metaToken}`;
+    const adsListingUrl = `https://graph.facebook.com/v19.0/${cleanAccountId}/ads?fields=id,name,status,effective_status,campaign{id,name},adset{id,name},creative{id,title,body,image_url,thumbnail_url,video_data_hover_url,video_id,video_data,object_story_spec,asset_feed_spec,effective_object_story_id}&limit=500&access_token=${metaToken}`;
 
     const [campListRes, campInsRes, adsetListRes, adsetInsRes, adsInsRes, adsListRes] = await Promise.all([
       fetch(campaignsListUrl),
@@ -58,12 +58,84 @@ export async function POST(request) {
     const adsInsightsData = adsInsRes.ok ? await adsInsRes.json() : { data: [] };
     const adsListingData = adsListRes.ok ? await adsListRes.json() : { data: [] };
 
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      fs.writeFileSync(
+        path.join(process.cwd(), 'creative_debug.json'),
+        JSON.stringify(adsListingData.data ? adsListingData.data.slice(0, 10) : adsListingData, null, 2)
+      );
+    } catch (e) {}
+
     const campaignsList = campaignsListData.data || [];
     const campaignInsights = campaignsInsightsData.data || [];
     const adsetsList = adsetsListData.data || [];
     const adsetInsights = adsetsInsightsData.data || [];
     const adInsights = adsInsightsData.data || [];
     const adListings = adsListingData.data || [];
+
+    // Fetch details for page posts (effective_object_story_id) and videos (video_id) in batch
+    const idTypeMap = {};
+    adListings.forEach(ad => {
+      const creative = ad.creative || {};
+      if (creative.effective_object_story_id && creative.effective_object_story_id !== '0') {
+        const id = creative.effective_object_story_id;
+        idTypeMap[id] = 'story';
+      }
+      if (creative.video_id && creative.video_id !== '0') {
+        const id = creative.video_id;
+        if (!idTypeMap[id]) idTypeMap[id] = 'video';
+      }
+    });
+
+    const uniqueIds = Object.keys(idTypeMap).filter(Boolean);
+    const storyIdDataMap = {};
+    
+    if (uniqueIds.length > 0) {
+      const chunks = [];
+      for (let i = 0; i < uniqueIds.length; i += 50) {
+        chunks.push(uniqueIds.slice(i, i + 50));
+      }
+
+      for (const chunk of chunks) {
+        const batchOps = chunk.map(id => {
+          const type = idTypeMap[id];
+          const fields = type === 'video' 
+            ? 'picture,source' 
+            : 'full_picture,picture,attachments{media_type,media,subattachments}';
+          return {
+            method: 'GET',
+            relative_url: `${id}?fields=${fields}`
+          };
+        });
+
+        try {
+          const params = new URLSearchParams();
+          params.append('access_token', metaToken);
+          params.append('batch', JSON.stringify(batchOps));
+
+          const batchRes = await fetch('https://graph.facebook.com', {
+            method: 'POST',
+            body: params
+          });
+
+          if (batchRes.ok) {
+            const batchResult = await batchRes.json();
+            if (Array.isArray(batchResult)) {
+              chunk.forEach((id, idx) => {
+                const resObj = batchResult[idx];
+                if (resObj && resObj.code === 200) {
+                  try {
+                    const postData = JSON.parse(resObj.body);
+                    storyIdDataMap[id] = postData;
+                  } catch (e) {}
+                }
+              });
+            }
+          }
+        } catch (e) {}
+      }
+    }
 
     // Helper to parse actions (conversions)
     const parseActions = (actions = [], actionValues = []) => {
@@ -286,7 +358,7 @@ export async function POST(request) {
     });
 
     // Helper to extract best creative preview image or video
-    const extractCreativeMedia = (creative = {}) => {
+    const extractCreativeMedia = (creative = {}, storyIdDataMap = {}) => {
       let imageUrl = '';
       let videoUrl = '';
 
@@ -296,6 +368,40 @@ export async function POST(request) {
         imageUrl = creative.thumbnail_url;
       }
 
+      // 1. Fallback for story ID (image or video thumbnail)
+      if (creative.effective_object_story_id && storyIdDataMap[creative.effective_object_story_id]) {
+        const postData = storyIdDataMap[creative.effective_object_story_id];
+        if (postData.full_picture) {
+          imageUrl = postData.full_picture;
+        } else if (postData.picture) {
+          imageUrl = postData.picture;
+        }
+        
+        if (!imageUrl && postData.attachments && postData.attachments.data && postData.attachments.data.length > 0) {
+          const mainAtt = postData.attachments.data[0];
+          if (mainAtt.media && mainAtt.media.image) {
+            imageUrl = mainAtt.media.image.src;
+          } else if (mainAtt.subattachments && mainAtt.subattachments.data && mainAtt.subattachments.data.length > 0) {
+            const firstSub = mainAtt.subattachments.data[0];
+            if (firstSub.media && firstSub.media.image) {
+              imageUrl = firstSub.media.image.src;
+            }
+          }
+        }
+      }
+
+      // 2. Fallback for video ID (video source URL and picture thumbnail)
+      if (creative.video_id && storyIdDataMap[creative.video_id]) {
+        const videoData = storyIdDataMap[creative.video_id];
+        if (videoData.source) {
+          videoUrl = videoData.source;
+        }
+        if (!imageUrl && videoData.picture) {
+          imageUrl = videoData.picture;
+        }
+      }
+
+      // 3. Fallback to object_story_spec if still empty
       if (!imageUrl && creative.object_story_spec) {
         const spec = creative.object_story_spec;
         if (spec.link_data) {
@@ -353,7 +459,7 @@ export async function POST(request) {
         statusTag = '📈 High Potential';
       }
 
-      const media = extractCreativeMedia(creative);
+      const media = extractCreativeMedia(creative, storyIdDataMap);
 
       return {
         id: index + 1,
@@ -443,7 +549,12 @@ export async function POST(request) {
       },
       campaigns,
       adsets,
-      ads: processedAds
+      ads: processedAds,
+      debug_creatives: adListings.map(ad => ({
+        id: ad.id,
+        name: ad.name,
+        creative: ad.creative
+      }))
     };
 
     return NextResponse.json(reports);

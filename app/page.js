@@ -961,7 +961,7 @@ export default function Home() {
                         adsetAds.map(function(ad) {
                           var adMediaHtml = '';
                           if (ad.video_url) {
-                            adMediaHtml = '<div style="width:50px;height:50px;border-radius:4px;overflow:hidden;position:relative;background:#000;flex-shrink:0;"><video src="' + esc(ad.video_url) + '" style="width:100%;height:100%;object-fit:cover;"></video></div>';
+                            adMediaHtml = '<div style="width:50px;height:50px;border-radius:4px;overflow:hidden;position:relative;background:#000;flex-shrink:0;"><video src="' + esc(ad.video_url) + '" ' + (ad.image_url ? 'poster="' + esc(ad.image_url) + '"' : '') + ' style="width:100%;height:100%;object-fit:cover;"></video></div>';
                           } else if (ad.image_url) {
                             adMediaHtml = '<div style="width:50px;height:50px;border-radius:4px;overflow:hidden;position:relative;background:#eee;flex-shrink:0;"><img src="' + esc(ad.image_url) + '" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'" /></div>';
                           } else {
@@ -1056,7 +1056,7 @@ export default function Home() {
           creativesGrid.innerHTML = filteredAds.map(function(ad) {
             var mediaHtml = '';
             if (ad.video_url) {
-              mediaHtml = '<video src="' + esc(ad.video_url) + '" controls style="width:100%;height:100%;object-fit:cover;"></video>';
+              mediaHtml = '<video src="' + esc(ad.video_url) + '" controls ' + (ad.image_url ? 'poster="' + esc(ad.image_url) + '"' : '') + ' style="width:100%;height:100%;object-fit:cover;"></video>';
             } else if (ad.image_url) {
               mediaHtml = '<img src="' + esc(ad.image_url) + '" alt="" onerror="this.style.display=\'none\'" />';
             } else {
@@ -1373,7 +1373,7 @@ export default function Home() {
           creativesGrid.innerHTML = data.ads.map(function(ad) {
             var mediaHtml = '';
             if (ad.video_url) {
-              mediaHtml = '<video src="' + esc(ad.video_url) + '" controls style="width:100%;height:100%;object-fit:cover;"></video>';
+              mediaHtml = '<video src="' + esc(ad.video_url) + '" controls ' + (ad.image_url ? 'poster="' + esc(ad.image_url) + '"' : '') + ' style="width:100%;height:100%;object-fit:cover;"></video>';
             } else if (ad.image_url) {
               mediaHtml = '<img src="' + esc(ad.image_url) + '" alt="" onerror="this.style.display=\'none\'" />';
             } else {
@@ -1431,6 +1431,13 @@ export default function Home() {
         } catch (e) {}
 
         filterMyAdsDisplay();
+
+        try {
+          var debugEl = document.getElementById('my-ads-debug-json');
+          if (debugEl) {
+            debugEl.value = data.debug_creatives ? JSON.stringify(data.debug_creatives, null, 2) : 'No debug creatives data';
+          }
+        } catch (e) {}
       }
 
       function renderMyAdsCharts(data) {
@@ -2061,6 +2068,10 @@ export default function Home() {
                       <span className="card-badge badge-accent">Creative Performance</span>
                     </div>
                     <div className="my-ads-grid" id="my-ads-creatives-grid"></div>
+                    <details style={{ marginTop: 20, border: '1px solid var(--border)', borderRadius: 'var(--rs)', padding: '10px 14px', background: 'var(--bg)' }}>
+                      <summary style={{ fontWeight: 'bold', cursor: 'pointer', fontSize: 13, color: 'var(--text2)' }}>🔧 Developer Debug Console (Raw API Creatives)</summary>
+                      <textarea id="my-ads-debug-json" readOnly style={{ width: '100%', height: '300px', marginTop: 10, fontFamily: 'monospace', fontSize: 11, background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 4, padding: 8, color: 'var(--text2)', resize: 'vertical' }} defaultValue="No debug data loaded yet. Connect your account to see raw Graph API response."></textarea>
+                    </details>
                   </div>
                 </div>
 
